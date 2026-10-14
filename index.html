@@ -854,10 +854,10 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="fgroup"><div class="inp-lbl">Marca (opcional)</div><input type="text" class="inp" id="lib-brand" placeholder="Para distinguir el mismo producto de otra marca" autocomplete="off"></div>
     <div class="adj-line" style="margin:0 0 16px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Disponible</div><button class="sw on" id="lib-on" role="switch" aria-checked="true" onclick="_setLibOnSw(!this.classList.contains('on'))"><i></i></button></div>
     <div class="inp-lbl">Se mide en</div>
-    <div class="seg" style="margin:0 0 14px;background:var(--card)"><button class="seg-i on" id="lib-mode-g" onclick="setLibMode('g')">Gramos</button><button class="seg-i" id="lib-mode-u" onclick="setLibMode('u')">Unidades</button></div>
+    <div class="seg" style="margin:0 0 14px;background:var(--card)"><button class="seg-i on" id="lib-mode-g" onclick="setLibMode('g')">Gramos</button><button class="seg-i" id="lib-mode-ml" onclick="setLibMode('ml')">Mililitros</button><button class="seg-i" id="lib-mode-u" onclick="setLibMode('u')">Unidades</button></div>
     <div id="lib-gmode">
       <div class="frow">
-        <div class="fgroup"><div class="inp-lbl">Porción de referencia (g)</div><input type="text" inputmode="decimal" class="inp" id="lib-g" placeholder="100" oninput="libCalcK()"></div>
+        <div class="fgroup"><div class="inp-lbl" id="lib-g-lbl">Porción de referencia (g)</div><input type="text" inputmode="decimal" class="inp" id="lib-g" placeholder="100" oninput="libCalcK()"></div>
         <div class="fgroup"><div class="inp-lbl">Tipo</div><select class="inp" id="lib-cat"><option value="">Automático</option><option value="prot">Proteína</option><option value="carb">Carbohidrato</option><option value="grasa">Grasa</option><option value="fruta">Fruta</option><option value="verdura">Verdura</option><option value="otro">Otro (no entra al plan)</option></select></div>
       </div>
     </div>
@@ -2923,34 +2923,8 @@ function _plural(u){u=String(u||'');if(!u||/s$/i.test(u))return u;if(/[aeiouáé
 function _numTxt(n){n=Math.round((parseFloat(n)||0)*100)/100;return String(n);}
 function fmtCount(n,u){n=Math.round((parseFloat(n)||0)*100)/100;return _numTxt(n)+' '+(n===1?u:_plural(u));}
 function _unitTxt(g,unitG,unitN){if(!(unitG>0)||!unitN)return '';return fmtCount(Math.round(g/unitG*10)/10,unitN);}
-function inferCat(f){var p=(parseFloat(f.p)||0)*4,c=(parseFloat(f.c)||0)*4,g=(parseFloat(f.f)||0)*9,t=p+c+g;if(!t)return 'otro';if(p/t>=0.45)return 'prot';if(g/t>=0.55)return 'grasa';if(!f.byUnit&&t/_portion(f)*100<45)return 'verdura';return 'carb';}
-
 var _libMode='g';
-function setLibMode(m){
-  _libMode=m;var u=m==='u';
-  var bg=document.getElementById('lib-mode-g'),bu=document.getElementById('lib-mode-u');if(bg)bg.classList.toggle('on',!u);if(bu)bu.classList.toggle('on',u);
-  var show=function(id,v){var e=document.getElementById(id);if(e)e.style.display=v?'block':'none';};
-  show('lib-gmode',!u);show('lib-umode',u);show('lib-gunit',!u);
-  var ca=document.getElementById('lib-cat'),cu=document.getElementById('lib-cat-u');if(ca&&cu){if(u)cu.value=ca.value;else ca.value=cu.value;}
-  var ml=document.getElementById('lib-max-lbl');if(ml)ml.textContent='Máximo por comida (opcional)';
-  libCalcK();
-}
 /* ── Registrar: en gramos o en unidades, con conversion automatica ── */
-function openLibAdd(idx){
-  var f=getFoodLib()[idx];if(!f)return;
-  document.getElementById('la-idx').value=idx;document.getElementById('sh-lib-add-title').textContent=f.name;
-  document.getElementById('la-info').innerHTML='Base: '+_baseTxt(f)+' = P '+_numTxt(+f.p||0)+' · C '+_numTxt(+f.c||0)+' · G '+_numTxt(+f.f||0)+' · '+_kcalOf(f)+' kcal. Se convierte a la cantidad que pongas.';
-  var lbl=document.getElementById('la-g-lbl');if(lbl)lbl.textContent=f.byUnit?'Cantidad ('+_plural(f.unitN||'unidad')+')':'Cantidad (g)';
-  var amt=f.byUnit?(parseFloat(f.portionU)||_portion(f)):(f.unitG>0?f.unitG:_portion(f));
-  document.getElementById('la-g').value=_numTxt(amt);
-  var qs,lab;
-  if(f.byUnit){qs=[1,2,3,4,5,6,_portion(f)];lab=function(v){return fmtCount(v,f.unitN||'unidad');};}
-  else{qs=[_portion(f),50,100,150,200,250,300];lab=function(v){return _numTxt(v)+' g';};}
-  qs=qs.filter(function(v,i,a){return v>0&&a.indexOf(v)===i;}).sort(function(a,b){return a-b;});
-  document.getElementById('la-quick').innerHTML=qs.map(function(v){return '<button class="chip" onclick="setLaG('+v+')">'+escH(lab(v))+'</button>';}).join('');
-  var lm=document.getElementById('la-m');if(lm)lm.value=_guessMeal();
-  calcLibAdd();closeSheet('sh-food-lib');openSheet('sh-lib-add');
-}
 function setLaG(v){var e=document.getElementById('la-g');if(e)e.value=_numTxt(Math.round(v*100)/100);calcLibAdd();}
 function laUnit(d){var f=getFoodLib()[_ni(_v('la-idx'))];if(!f)return;var a=_nf(_v('la-g'))||0;
   if(f.byUnit){setLaG(Math.max(0,Math.round(a)+d));return;}if(!(f.unitG>0))return;setLaG(Math.max(0,Math.round(a/f.unitG)+d)*f.unitG);}
@@ -2961,16 +2935,7 @@ function calcLibAdd(){
     u.innerHTML=txt?'<div class="adj-line" style="margin:0 0 14px"><span style="font-size:16px;font-weight:600;color:var(--text)">'+escH(txt)+'</span><div class="num-row"><button class="num-btn" onclick="laUnit(-1)" aria-label="Una unidad menos">−</button><button class="num-btn" onclick="laUnit(1)" aria-label="Una unidad más">+</button></div></div>':'';}
   var el=document.getElementById('la-calc');if(el)el.innerHTML=_msTile('Proteína',_numTxt(m.p),'g')+_msTile('Carbos',_numTxt(m.c),'g')+_msTile('Grasa',_numTxt(m.f),'g')+_msTile('kcal',m.k,'');
 }
-function addLibToLog(){
-  var f=getFoodLib()[_ni(_v('la-idx'))];if(!f)return;var a=_nf(_v('la-g'))||0;if(a<=0){toast(f.byUnit?'Pon cuántas '+_plural(f.unitN||'unidad'):'Pon la cantidad en gramos');return;}
-  var m=_scaled(f,a);var label;
-  if(f.byUnit)label=fmtCount(a,f.unitN||'unidad');else{var ut=_unitTxt(a,f.unitG,f.unitN);label=(ut?ut+', ':'')+_numTxt(Math.round(a*10)/10)+' g';}
-  var all=S.get('foods',[]);all.push({id:Date.now().toString(),fecha:foodLogDate,nombre:f.name+' ('+label+')',g:f.byUnit?label:a+'g',comida:_v('la-m')||'Almuerzo',p:m.p,c:m.c,f:m.f,k:m.k,lib:f.name});S.set('foods',all);
-  closeSheet('sh-lib-add');toast(f.name+' agregado');refreshNutri();
-}
 /* ── En el plan del dia, los alimentos por unidad se reparten en unidades enteras ── */
-function _planFoodName(it){if(it.byUnit)return it.name+' ('+fmtCount(it.g,it.unitN||'unidad')+')';var u=_unitTxt(it.g,it.unitG,it.unitN);return it.name+' ('+(u?u+', ':'')+Math.round(it.g)+' g)';}
-
 /* ════════ AUDITORIA: datos siempre validos ════════ */
 function sanitizeStorage(){
   var arrKeys=['weights','foods','sessions','routines','userSupps','foodLibrary','customTemplates','hiddenTemplates','bpLog'];
@@ -3068,7 +3033,7 @@ function buildFoodLib(){
   if(!idx.length){h+='<div class="empty"><b>'+(libStatus==='off'?'Nada apagado':'Sin resultados')+'</b>'+(libStatus==='off'?'Todo tu inventario está disponible para el plan.':'Prueba con otro nombre o categoría.')+'</div>';el.innerHTML=h;return;}
   h+='<div class="list" style="margin:0">';
   for(var j=0;j<idx.length;j++){var i=idx[j];var f=lib[i];var cat=foodCat(f);var off=!!f.off;
-    h+='<div class="row lib-row2'+(off?' is-off':'')+'" style="padding-right:4px"><i style="width:8px;height:8px;border-radius:50%;background:'+CAT_COLOR[cat]+';flex-shrink:0"></i><div class="row-main" onclick="openLibAdd('+i+')"><div class="row-t">'+escH(_foodBase(f))+'</div><div class="row-s">'+_brandSub(f)+_dbTag(f)+(off?'<b style="color:var(--gold)">No disponible</b> · ':'')+_baseTxt(f)+' · P '+_numTxt(+f.p||0)+' · C '+_numTxt(+f.c||0)+' · G '+_numTxt(+f.f||0)+' · '+_kcalOf(f)+' kcal'+(f.unitG>0&&f.unitN?' · 1 '+escH(f.unitN)+' = '+_numTxt(f.unitG)+' g':'')+'</div></div>';
+    h+='<div class="row lib-row2'+(off?' is-off':'')+'" style="padding-right:4px"><i style="width:8px;height:8px;border-radius:50%;background:'+CAT_COLOR[cat]+';flex-shrink:0"></i><div class="row-main" onclick="openLibAdd('+i+')"><div class="row-t">'+escH(_foodBase(f))+'</div><div class="row-s">'+_brandSub(f)+_dbTag(f)+(off?'<b style="color:var(--gold)">No disponible</b> · ':'')+_baseTxt(f)+' · P '+_numTxt(+f.p||0)+' · C '+_numTxt(+f.c||0)+' · G '+_numTxt(+f.f||0)+' · '+_kcalOf(f)+' kcal'+(f.unitG>0&&f.unitN?' · 1 '+escH(f.unitN)+' = '+_numTxt(f.unitG)+' '+_mu(f):'')+'</div></div>';
     h+='<button class="sw'+(off?'':' on')+'" role="switch" aria-checked="'+(!off)+'" aria-label="'+(off?'Activar ':'Apagar ')+escA(f.name)+'" onclick="toggleFoodOff('+i+')"><i></i></button>';
     h+='<button class="icon-btn" onclick="openEditLibFood('+i+')" aria-label="Editar">'+IC.edit+'</button></div>';}
   h+='</div>';
@@ -3175,7 +3140,6 @@ function _loggedMap(plan){var m={};S.ro('foods',[]).forEach(function(f){if(f.pla
 function _findItem(plan,id){for(var k=0;k<plan.meals.length;k++){var its=plan.meals[k].items;for(var i=0;i<its.length;i++)if(its[i].id===id)return {k:k,i:i,it:its[i],meal:plan.meals[k]};}return null;}
 function _savePlan(plan){var ps=getPlans();ps[plan.date]=plan;savePlans(ps);}
 /* si el alimento ya estaba marcado como comido, su registro se actualiza igual */
-function _qty(it){return it.byUnit?fmtCount(it.g,it.unitN||'unidad'):(_unitTxt(it.g,it.unitG,it.unitN)?_unitTxt(it.g,it.unitG,it.unitN)+' · ':'')+_numTxt(Math.round(it.g*10)/10)+' g';}
 function _mrow(lbl,v,cls){return '<div class="mt-l'+(cls?' '+cls:'')+'">'+lbl+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.p+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.c+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.f+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.k+'</div>';}
 function _r(x){return {p:Math.round(x.p),c:Math.round(x.c),f:Math.round(x.f),k:kfmt(x.k)};}
 /* ── Editar un alimento del plan aceptado ── */
@@ -3258,8 +3222,6 @@ function _waterToday(){return {date:today(),ml:waterFor(today())};}
 function _nextTxtFrom(d,from){if(!d)return 'sin fecha próxima';if(d===addDays(from,1))return from===today()?'mañana':'al día siguiente';var x=parseD(d);return WD_N[x.getDay()]+' '+x.getDate();}
 
 /* ── Un alimento del plan tocado desde el registro se edita en el plan (antes se podian desincronizar) ── */
-function _logPlanItem(plan,m,it,foods){var mm=_itMac(it);foods.push({id:Date.now().toString(36)+Math.floor(Math.random()*1e6),fecha:plan.date,nombre:_planFoodName(it),g:it.byUnit?fmtCount(it.g,it.unitN||'unidad'):it.g+'g',comida:m.name,p:mm.p,c:mm.c,f:mm.f,k:mm.k,planItem:it.id,lib:it.name});}
-
 /* ── Repetir el plan de ayer: mismas cantidades, pero nada queda "fijo" para que el reajuste funcione ── */
 
 /* ── Compartir en iPhone: primero la hoja Compartir (necesita el toque del usuario), despues copiar ── */
@@ -3371,20 +3333,6 @@ function calcMacrosFase(w,goal,fase){
 var STATES=[['crudo','Crudo'],['cocido','Cocido'],['escurrido','Escurrido'],['listo','Listo para comer']];
 function stateName(s){for(var i=0;i<STATES.length;i++)if(STATES[i][0]===s)return STATES[i][1].toLowerCase();return '';}
 var STARTER_META={'Pechuga de pollo (cocida)':'cocido','Tilapia (cocida)':'cocido','Atún en agua (escurrido)':'escurrido','Carne molida 90/10 (cocida)':'cocido','Salmón (cocido)':'cocido','Huevo entero':'crudo','Claras de huevo':'crudo','Proteína whey (revisa tu etiqueta)':'listo','Yogurt griego natural 0%':'listo','Arroz blanco (cocido)':'cocido','Frijoles negros (cocidos)':'cocido','Avena en hojuelas (cruda)':'crudo','Papa (cocida con cáscara)':'cocido','Camote (cocido)':'cocido','Plátano macho (cocido)':'cocido','Pasta (cocida)':'cocido','Tortilla de maíz':'listo','Pan integral':'listo','Plátano':'listo','Fresas':'listo','Papaya':'listo','Piña':'listo','Aguacate':'listo','Crema de cacahuate':'listo','Aceite de oliva':'listo','Almendras':'listo','Brócoli (cocido)':'cocido','Ensalada verde (aprox.)':'listo'};
-function foodState(f){
-  if(f.state)return f.state;if(f.byUnit)return 'listo';
-  var n=String(f.name||'').toLowerCase();
-  if(/escurrid/.test(n))return 'escurrido';if(/\bcrud[oa]s?\b/.test(n))return 'crudo';if(/cocid|hervid|asad|plancha|horneado|horneada/.test(n))return 'cocido';
-  if(f.starter&&STARTER_META[f.name])return STARTER_META[f.name];return '';
-}
-function foodDbErrors(f){
-  var e=[];var p=+f.p,c=+f.c,g=+f.f;
-  if(![p,c,g].every(function(x){return isFinite(x);})||p<0||c<0||g<0){e.push('Tiene macros inválidos o negativos.');return e;}
-  if(!(p||c||g)&&f.cat&&f.cat!=='otro')e.push('Todos sus macros están en 0.');
-  if(!f.byUnit){var pt=_portion(f);if(p+c+g>pt*1.02+0.5)e.push('Proteína + carbos + grasa suman '+_numTxt(r1(p+c+g))+' g, pero la porción es de '+_numTxt(pt)+' g: es físicamente imposible (¿debería medirse por unidades?).');}
-  var lk=_labelK(f);if(lk!==null){var ck=_kcal(p,c,g);if(Math.abs(lk-ck)>Math.max(8,ck*0.08))e.push('La etiqueta dice '+_numTxt(lk)+' kcal, pero P×4 + C×4 + G×9 da '+_numTxt(ck)+' kcal. Revisa los macros o las kcal de la etiqueta.');}
-  return e;
-}
 function _usableCount(){return getFoodLib().filter(_usable).length;}
 function _libByName(){var m={};getFoodLib().forEach(function(f){m[f.name]=f;});return m;}
 function _itState(it,byName){if(it.state)return it.state;var f=(byName||_libByName())[it.name];return f?foodState(f):(it.byUnit?'listo':'');}
@@ -3413,7 +3361,7 @@ function _fillLibForm(f){
   if(f.byUnit){set('lib-uname',f.unitN||'');set('lib-uref',nt(f.portionU||f.portionG||1));set('lib-g','100');set('lib-unitn','');set('lib-unitg','');}
   else{set('lib-g',nt(f.portionG||100));set('lib-uname','');set('lib-uref','1');set('lib-unitn',f.unitN||'');set('lib-unitg',f.unitG>0?nt(f.unitG):'');}
   set('lib-max',f.maxG>0?nt(f.maxG):'');set('lib-state',f.name?foodState(f):'');set('lib-src',f.src||'');set('lib-fib',f.fib!==undefined&&f.fib!==''?nt(f.fib):'');set('lib-sod',f.sod!==undefined&&f.sod!==''?nt(f.sod):'');
-  _libMeals=(f.meals||[]).slice();_renderLibMeals();setLibMode(f.byUnit?'u':'g');
+  _libMeals=(f.meals||[]).slice();_renderLibMeals();setLibMode(f.byUnit?'u':(f.ml?'ml':'g'));
 }
 /* registro manual: las kcal SIEMPRE salen de los macros */
 
@@ -3423,16 +3371,6 @@ function trainTimeName(t){for(var i=0;i<TRAIN_TIMES.length;i++)if(TRAIN_TIMES[i]
 /* mismas entradas = mismo plan; "Otra opcion" cambia la variante */
 function _planSeed(date,prefs,variant){return _hash(date+'|'+(prefs.meals||[]).slice().sort().join(',')+'|'+(prefs.training!==false)+'|'+(prefs.trainTime||'tarde')+'|'+(variant||0));}
 var _yday=null;
-function _libItem(f,cat){
-  var pt=_portion(f);var byU=!!f.byUnit;
-  var hi=parseFloat(f.maxG)>0?parseFloat(f.maxG):(byU?12:(CAT_MAX[cat]||300));
-  var unitG=byU?0:(parseFloat(f.unitG)>0?parseFloat(f.unitG):0);var step=byU?1:(unitG||5);
-  var it={id:_uid(),name:f.name,cat:cat,pg:(+f.p||0)/pt,cg:(+f.c||0)/pt,fg:(+f.f||0)/pt,kpg:_kcalOf(f)/pt,unitG:unitG,unitN:f.unitN||'',byUnit:byU,state:foodState(f),g:0,lo:0,hi:hi,step:step,minKeep:byU?1:(unitG||CAT_MIN[cat]||10),locked:false,fixed:cat==='verdura'};
-  if(f.fib!==undefined)it.fibg=(+f.fib||0)/pt;if(f.sod!==undefined)it.sodg=(+f.sod||0)/pt;
-  if(cat==='prot'&&it.pg>0){var mk=Math.ceil((20/it.pg)/it.step)*it.step;it.minKeep=Math.max(it.minKeep,Math.min(mk,Math.floor(hi/it.step)*it.step));}
-  if(it.fixed)it.g=byU?Math.min(hi,1):Math.min(hi,120);
-  return it;
-}
 function solvePlan(plan){
   var T=[plan.target.p*4,plan.target.c*4,plan.target.f*9];var mt=_mealTargets(plan);
   var vars=[];plan.meals.forEach(function(m,k){m.items.forEach(function(it){if(!it.locked&&!it.fixed)vars.push({k:k,it:it,v:_vec(it)});});});
@@ -3495,7 +3433,7 @@ function _explain(plan){
   [['p','prot','proteína',T.p],['c','carb','carbohidratos',T.c],['f','grasa','grasa',T.f]].forEach(function(x){
     var d=r1(t[x[0]]-x[3]);if(Math.abs(d)<=TOL[x[0]])return;var msg=(d<0?'Faltan ':'Sobran ')+_numTxt(Math.abs(d))+' g de '+x[2]+'. ';
     if(d<0){var avail=lib.filter(function(f){return _usable(f)&&foodCat(f)===x[1];});
-      var capped=[];plan.meals.forEach(function(m){m.items.forEach(function(it){if(it.cat===x[1]&&it.g>=it.hi-1e-6)capped.push(it.name+' en '+mealLbl(m.name).toLowerCase()+' (máx. '+(it.byUnit?fmtCount(it.hi,it.unitN||'unidad'):_numTxt(it.hi)+' g')+')');});});
+      var capped=[];plan.meals.forEach(function(m){m.items.forEach(function(it){if(it.cat===x[1]&&it.g>=it.hi-1e-6)capped.push(it.name+' en '+mealLbl(m.name).toLowerCase()+' (máx. '+(it.byUnit?fmtCount(it.hi,it.unitN||'unidad'):_numTxt(it.hi)+' '+_mu(it))+')');});});
       if(!avail.length)msg+='No hay alimentos de '+x[2]+' activos y válidos en tu biblioteca.';
       else if(capped.length)msg+='Las fuentes llegaron a su máximo por comida: '+capped.slice(0,3).join(', ')+'. Sube ese máximo o agrega otra fuente.';
       else msg+='Agrega una fuente de '+x[2]+' a alguna comida.';}
@@ -3564,13 +3502,11 @@ function generatePlan(date,prefs,excluded,seed){
 function prepList(plan){
   var byName=_libByName();var g={};var order=[];
   plan.meals.forEach(function(m){m.items.forEach(function(it){if(it.fromLog)return;var st=_itState(it,byName);var key=it.name+'|'+st;
-    if(!g[key]){g[key]={name:it.name,state:st,cat:it.cat,amt:0,byUnit:it.byUnit,unitG:it.unitG,unitN:it.unitN,meals:[]};order.push(key);}
+    if(!g[key]){g[key]={name:it.name,state:st,cat:it.cat,amt:0,byUnit:it.byUnit,unitG:it.unitG,unitN:it.unitN,meals:[]};if(it.ml&&!it.byUnit)g[key].ml=true;order.push(key);}
     g[key].amt+=it.g;var _ml=mealLbl(m.name);if(g[key].meals.indexOf(_ml)<0)g[key].meals.push(_ml);});});
   var co=FOOD_CATS.map(function(c){return c[0];});
   return order.map(function(k){return g[k];}).sort(function(a,b){var d=co.indexOf(a.cat)-co.indexOf(b.cat);return d||String(a.name).localeCompare(String(b.name),'es');});
 }
-function _prepQty(x){if(x.byUnit)return fmtCount(r1(x.amt),x.unitN||'unidad');var s=_numTxt(r1(x.amt))+' g';if(x.unitG>0&&x.unitN)s+=' ('+_unitTxt(x.amt,x.unitG,x.unitN)+')';return s;}
-
 /* ════════ TXT DEL PLAN (formato del estandar) ════════ */
 /* ════════ TXT DE LA BIBLIOTECA ACTIVA ════════ */
 
@@ -3584,7 +3520,7 @@ function renderFixState(){
   var h='';
   if(!idx.length&&!errs.length){el.innerHTML='<div class="empty"><b>Todo en orden</b>Todos tus alimentos activos tienen estado del peso y datos consistentes.</div>';return;}
   if(idx.length){h+='<div class="hint">Estos alimentos no dicen si el peso es crudo, cocido, escurrido o listo para comer. Hasta que lo indiques no entran al plan del día.</div>';
-    idx.forEach(function(i){var f=lib[i];h+='<div class="fix-row"><div class="row-t" style="margin-bottom:8px">'+escH(f.name)+' <span class="card-sub">'+_numTxt(_portion(f))+(f.byUnit?' u':' g')+'</span></div><div class="fix-chips">'+STATES.map(function(s){return '<button class="chip" onclick="setFoodStateIdx('+i+',\''+s[0]+'\')">'+s[1]+'</button>';}).join('')+'</div></div>';});}
+    idx.forEach(function(i){var f=lib[i];h+='<div class="fix-row"><div class="row-t" style="margin-bottom:8px">'+escH(f.name)+' <span class="card-sub">'+_numTxt(_portion(f))+(f.byUnit?' u':' '+_mu(f))+'</span></div><div class="fix-chips">'+STATES.map(function(s){return '<button class="chip" onclick="setFoodStateIdx('+i+',\''+s[0]+'\')">'+s[1]+'</button>';}).join('')+'</div></div>';});}
   if(errs.length){h+='<div class="inp-lbl" style="margin-top:14px">Con ERROR DE BASE DE DATOS</div>';
     errs.forEach(function(i){var f=lib[i];h+='<button class="dberr dberr-btn" onclick="fixFoodIdx('+i+',\'fix\')"><b>'+escH(f.name)+'</b><div>'+escH(foodDbErrors(f).join(' '))+'</div><div class="dberr-go">Corregir ›</div></button>';});}
   el.innerHTML=h;
@@ -3664,8 +3600,6 @@ function _usable(f){return !f.off;}
 function _dbTag(f){return '';}
 function _fixBanner(){return '';}
 function _valHtml(v,compact){return '';}
-function _baseTxt(f){return f.byUnit?fmtCount(_portion(f),f.unitN||'unidad'):_numTxt(_portion(f))+' g';}
-
 /* kcal: las que capturaste; si dejaste el campo vacio, se calculan de los macros */
 function _kcalOf(f){var k=parseFloat(f.k);return k>0?k:_kcal(f.p,f.c,f.f);}
 function _scaled(f,g){var s=g/_portion(f);var p=r1((+f.p||0)*s),c=r1((+f.c||0)*s),fa=r1((+f.f||0)*s);var lk=parseFloat(f.k);return {p:p,c:c,f:fa,k:lk>0?r1(lk*s):_kcal(p,c,fa)};}
@@ -3683,27 +3617,21 @@ function planTotals(plan){
 }
 
 /* ── ficha del alimento: se guarda tal cual la capturas ── */
-function libCalcK(){
-  var p=_nf(_v('lib-p'))||0,c=_nf(_v('lib-c'))||0,f=_nf(_v('lib-f'))||0;var k=Math.round(_kcal(p,c,f));
-  var base=_libMode==='u'?fmtCount(_nf(_v('lib-uref'))||1,(_v('lib-uname')||'').trim()||'unidad'):_numTxt(_nf(_v('lib-g'))||100)+' g';
-  var l=document.getElementById('lib-k-lbl');if(l)l.textContent='Calorías (vacío = '+k+')';
-  var ml=document.getElementById('lib-mac-lbl');if(ml)ml.textContent='Macros de '+base;
-  var e=document.getElementById('lib-k');if(e)e.placeholder=String(k);
-}
 function saveLibFood(){
   var nm=(_v('lib-name')||'').trim();if(!nm){toast('Escribe el nombre');return;}var _br=(_v('lib-brand')||'').replace(/\s+/g,' ').trim();var _base=nm;nm=_foodFull(nm,_br);
   var byU=_libMode==='u';var ref=0,uname='';
   if(byU){uname=(_v('lib-uname')||'').trim();if(!uname){toast('Escribe la unidad: galleta, barra…');return;}ref=_nf(_v('lib-uref'))||0;if(ref<=0){toast('Pon cuántas unidades son');return;}}
-  else{ref=_nf(_v('lib-g'))||0;if(ref<=0){toast('Pon la porción en gramos');return;}}
+  else{ref=_nf(_v('lib-g'))||0;if(ref<=0){toast(_libMode==='ml'?'Pon la porción en mililitros':'Pon la porción en gramos');return;}}
   var p=_nf(_v('lib-p'))||0,c=_nf(_v('lib-c'))||0,fa=_nf(_v('lib-f'))||0,k=_nf(_v('lib-k'))||0;
   var lib=getFoodLib();var idx=_v('lib-idx');
   for(var i=0;i<lib.length;i++){if(String(i)!==idx&&String(lib[i].name).trim().toLowerCase()===nm.toLowerCase()){toast('Ya existe "'+lib[i].name+'"');return;}}
   var old=idx==='new'?{}:(lib[parseInt(idx)]||{});var f={};for(var kk in old)f[kk]=old[kk];
   f.name=nm;if(_br){f.brand=_br;f.base=_base;}else{delete f.brand;delete f.base;}f.portionG=ref;f.p=p;f.c=c;f.f=fa;f.k=k;f.cat=byU?(_v('lib-cat-u')||''):(_v('lib-cat')||'');f.maxG=_nf(_v('lib-max'))||0;f.meals=_libMeals.slice();
   if(byU){f.byUnit=true;f.unitN=uname;f.portionU=ref;f.unitG=0;}else{delete f.byUnit;delete f.portionU;f.unitN=(_v('lib-unitn')||'').trim();f.unitG=_nf(_v('lib-unitg'))||0;}
+  if(!byU&&_libMode==='ml')f.ml=true;else delete f.ml;
   var sw=document.getElementById('lib-on');if(sw){if(sw.classList.contains('on'))delete f.off;else f.off=true;}
   if(idx==='new')lib.push(f);else lib[parseInt(idx)]=f;
-  S.set('foodLibrary',lib);if(idx!=='new'&&old.name&&old.name!==nm)_renameFoodInPlans(old.name,nm);closeSheet('sh-lib-edit');_afterLibEdit();toast(nm+' guardado');
+  S.set('foodLibrary',lib);if(idx!=='new'&&old.name&&old.name!==nm)_renameFoodInPlans(old.name,nm);if(idx!=='new'&&!!old.ml!==!!f.ml)_mlFoodInPlans(nm,!!f.ml);closeSheet('sh-lib-edit');_afterLibEdit();toast(nm+' guardado');
 }
 
 /* ── registro manual: las kcal se calculan solas, pero puedes escribir las tuyas ── */
@@ -3771,7 +3699,7 @@ function renderPlan(){
     m.items.forEach(function(it,i){var mm=_itMac(it);var u=it.byUnit?'':_unitTxt(it.g,it.unitG,it.unitN);
       if(it.fromLog){h+='<div class="pi locked"><div class="pi-top"><i class="pi-dot" style="background:var(--gold)"></i><div class="pi-name">'+escH(it.name)+' <span class="log-tag">registro</span><div class="pi-sub">Ya lo registraste: se edita desde tu registro</div></div></div><div class="pi-bot"><span class="pi-mac">P '+_numTxt(mm.p)+' · C '+_numTxt(mm.c)+' · G '+_numTxt(mm.f)+' · '+Math.round(mm.k)+' kcal</span></div></div>';return;}
       h+='<div class="pi'+(it.locked?' locked':'')+'"><div class="pi-top"><i class="pi-dot" style="background:'+CAT_COLOR[it.cat]+'"></i><div class="pi-name">'+escH(it.name)+(u?'<div class="pi-sub">'+u+'</div>':'')+'</div>';
-      h+='<div class="pi-g"><input type="text" inputmode="decimal" value="'+_numTxt(Math.round(it.g*10)/10)+'" onchange="planItemG('+k+','+i+',this.value)" aria-label="Cantidad de '+escA(it.name)+'"><span class="card-sub">'+(it.byUnit?escH(_plural(it.unitN||'unidad')):'g')+'</span></div></div>';
+      h+='<div class="pi-g"><input type="text" inputmode="decimal" value="'+_numTxt(Math.round(it.g*10)/10)+'" onchange="planItemG('+k+','+i+',this.value)" aria-label="Cantidad de '+escA(it.name)+'"><span class="card-sub">'+(it.byUnit?escH(_plural(it.unitN||'unidad')):_mu(it))+'</span></div></div>';
       h+='<div class="pi-bot"><span class="pi-mac">P '+_numTxt(mm.p)+' · C '+_numTxt(mm.c)+' · G '+_numTxt(mm.f)+'</span>';
       if(it.locked)h+='<button class="pi-lock" onclick="planUnlock('+k+','+i+')" aria-label="Soltar cantidad">fijo ✕</button>';
       h+='<button class="icon-btn sm" onclick="planItemStep('+k+','+i+',-1)" aria-label="Menos">'+IC.minus+'</button><button class="icon-btn sm" onclick="planItemStep('+k+','+i+',1)" aria-label="Más">'+IC.plus+'</button>';
@@ -3811,7 +3739,7 @@ function buildPlanCard(){
     m.items.forEach(function(it){var on=!!logged[it.id];var mm=_itMac(it);
       h+='<div class="pc-item'+(on?' done':'')+'"><button class="pc-chk" data-id="'+escA(it.id)+'" onclick="togglePlanItem(this.dataset.id)" role="checkbox" aria-checked="'+on+'" aria-label="Comido: '+escA(it.name)+'"><span class="chkbox'+(on?' on':'')+'">'+(on?'<svg width="15" height="15" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>':'')+'</span></button>';
       h+='<div class="pc-main" data-id="'+escA(it.id)+'" onclick="openPlanItem(this.dataset.id)"><div style="flex:1;min-width:0"><div class="pc-name" style="font-size:15.5px;font-weight:500;color:var(--text)">'+escH(it.name)+(it.fromLog?' <span class="log-tag">registro</span>':'')+'</div><div class="card-sub" style="font-size:12.5px">P '+_numTxt(mm.p)+' · C '+_numTxt(mm.c)+' · G '+_numTxt(mm.f)+'</div></div>';
-      h+='<div style="text-align:right;flex-shrink:0"><div class="pc-g">'+(it.fromLog?Math.round(mm.k)+' kcal':it.byUnit?escH(fmtCount(it.g,it.unitN||'unidad')):_numTxt(it.g)+' g')+'</div>'+(it.unitG&&it.unitN&&!it.byUnit?'<div class="card-sub" style="font-size:12px">'+_unitTxt(it.g,it.unitG,it.unitN)+'</div>':'')+'</div></div></div>';});
+      h+='<div style="text-align:right;flex-shrink:0"><div class="pc-g">'+(it.fromLog?Math.round(mm.k)+' kcal':it.byUnit?escH(fmtCount(it.g,it.unitN||'unidad')):_numTxt(it.g)+' '+_mu(it))+'</div>'+(it.unitG&&it.unitN&&!it.byUnit?'<div class="card-sub" style="font-size:12px">'+_unitTxt(it.g,it.unitG,it.unitN)+'</div>':'')+'</div></div></div>';});
     h+='<button class="pc-add" onclick="cardAddTo('+k+')">+ Agregar</button></div>';});
   h+=_addMealBtn('card',plan);
   h+='<div class="btn-row" style="margin-top:12px"><button class="btn btn-ghost" onclick="openPrep()">Preparación</button><button class="btn btn-gold" onclick="exportPlanTxt()">Exportar TXT</button></div>';
@@ -3849,7 +3777,7 @@ function libraryTxt(){
   FOOD_CATS.map(function(c){return c[0];}).forEach(function(cat){
     var items=lib.filter(function(f){return foodCat(f)===cat;}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'es');});
     if(!items.length)return;L.push('');L.push(titles[cat]);
-    items.forEach(function(f){L.push('- '+f.name+' — '+_baseTxt(f)+': '+_macTxt(+f.p||0,+f.c||0,+f.f||0,_kcalOf(f))+(f.unitG>0&&f.unitN?' (1 '+f.unitN+' = '+_numTxt(f.unitG)+' g)':''));});
+    items.forEach(function(f){L.push('- '+f.name+' — '+_baseTxt(f)+': '+_macTxt(+f.p||0,+f.c||0,+f.f||0,_kcalOf(f))+(f.unitG>0&&f.unitN?' (1 '+f.unitN+' = '+_numTxt(f.unitG)+' '+_mu(f)+')':''));});
   });
   L.push('');L.push('Si me sugieres cambios a mi dieta, usa solo estos alimentos.');
   return L.join('\n');
@@ -3863,7 +3791,7 @@ function openPlanItem(id){
   document.getElementById('pi-id').value=id;document.getElementById('pi-title').textContent=f.it.name;
   document.getElementById('pi-info').textContent=mealLbl(f.meal.name);
   document.getElementById('pi-g').value=_numTxt(Math.round(f.it.g*10)/10);
-  document.getElementById('pi-unit').textContent=f.it.byUnit?_plural(f.it.unitN||'unidad'):'gramos';
+  document.getElementById('pi-unit').textContent=f.it.byUnit?_plural(f.it.unitN||'unidad'):(f.it.ml?'mililitros':'gramos');
   piCalc();openSheet('sh-pitem');
 }
 function piCalc(){
@@ -4412,7 +4340,7 @@ function _syncLogged(plan){
   var ids={};plan.meals.forEach(function(m){m.items.forEach(function(it){ids[it.id]={it:it,meal:m.name};});});
   var foods=S.get('foods',[]);var ch=false;
   foods.forEach(function(f){if(!f.planItem||f.fecha!==plan.date)return;var o=ids[f.planItem];if(!o){delete f.planItem;ch=true;return;}if(o.it.fromLog)return;
-    var mm=_itMac(o.it);var nm=_planFoodName(o.it);if(f.nombre!==nm||f.p!==mm.p||f.c!==mm.c||f.f!==mm.f||f.k!==mm.k||f.comida!==o.meal){f.nombre=nm;f.p=mm.p;f.c=mm.c;f.f=mm.f;f.k=mm.k;f.comida=o.meal;f.g=o.it.byUnit?fmtCount(o.it.g,o.it.unitN||'unidad'):o.it.g+'g';f.lib=o.it.name;ch=true;}});
+    var mm=_itMac(o.it);var nm=_planFoodName(o.it);if(f.nombre!==nm||f.p!==mm.p||f.c!==mm.c||f.f!==mm.f||f.k!==mm.k||f.comida!==o.meal){f.nombre=nm;f.p=mm.p;f.c=mm.c;f.f=mm.f;f.k=mm.k;f.comida=o.meal;f.g=o.it.byUnit?fmtCount(o.it.g,o.it.unitN||'unidad'):o.it.g+_mu(o.it);f.lib=o.it.name;ch=true;}});
   if(ch)S.set('foods',foods);
 }
 /* desmarcar algo que viene de tu registro no lo borra */
@@ -5293,6 +5221,98 @@ function renderScreen(first){
   el.innerHTML=h;
 }
 function scrToggle(k){var c=_scr();var def=(k==='header');var cur=c[k]===undefined?def:!!c[k];c[k]=!cur;_scrSet(c);if(k==='cover'){_setCover(c.cover===true);return;}_fitScreen();renderScreen(false);}
+
+
+/* ════════ ALIMENTOS EN MILILITROS ════════
+   Un alimento puede medirse en gramos, mililitros o unidades. En mililitros todo funciona igual que en gramos
+   (porción de referencia, macros de esa porción, unidad opcional, máximo por comida); solo cambia la etiqueta.
+   El alimento guarda ml:true y cada alimento del plan que sale de él también, para que el plan, la preparación,
+   el registro y los TXT digan "ml". Lo que ya está en gramos no cambia. */
+function _mu(x){return x&&x.ml?'ml':'g';}
+/* un líquido ligero (leche, jugo, bebida deportiva) no es verdura: en ml no aplica la regla de "pocas kcal por 100 = verdura" */
+function inferCat(f){var p=(parseFloat(f.p)||0)*4,c=(parseFloat(f.c)||0)*4,g=(parseFloat(f.f)||0)*9,t=p+c+g;if(!t)return 'otro';if(p/t>=0.45)return 'prot';if(g/t>=0.55)return 'grasa';if(!f.byUnit&&!f.ml&&t/_portion(f)*100<45)return 'verdura';return 'carb';}
+function foodState(f){
+  if(f.state)return f.state;if(f.byUnit||f.ml)return 'listo';
+  var n=String(f.name||'').toLowerCase();
+  if(/escurrid/.test(n))return 'escurrido';if(/\bcrud[oa]s?\b/.test(n))return 'crudo';if(/cocid|hervid|asad|plancha|horneado|horneada/.test(n))return 'cocido';
+  if(f.starter&&STARTER_META[f.name])return STARTER_META[f.name];return '';
+}
+function setLibMode(m){
+  if(m!=='u'&&m!=='ml')m='g';_libMode=m;var u=m==='u';var ml=m==='ml';
+  [['lib-mode-g','g'],['lib-mode-ml','ml'],['lib-mode-u','u']].forEach(function(x){var b=document.getElementById(x[0]);if(b){b.classList.toggle('on',m===x[1]);b.setAttribute('aria-pressed',m===x[1]?'true':'false');}});
+  var show=function(id,v){var e=document.getElementById(id);if(e)e.style.display=v?'block':'none';};
+  show('lib-gmode',!u);show('lib-umode',u);show('lib-gunit',!u);
+  var ca=document.getElementById('lib-cat'),cu=document.getElementById('lib-cat-u');if(ca&&cu){if(u)cu.value=ca.value;else ca.value=cu.value;}
+  var gl=document.getElementById('lib-g-lbl');if(gl)gl.textContent='Porción de referencia ('+(ml?'ml':'g')+')';
+  var ug=document.getElementById('lib-unitg');if(ug)ug.placeholder=(ml?'ml':'g')+' por unidad';
+  var un=document.getElementById('lib-unitn');if(un)un.placeholder=ml?'vaso, taza, botella':'huevo, scoop, rebanada';
+  var mx=document.getElementById('lib-max-lbl');if(mx)mx.textContent=u?'Máximo por comida (opcional)':'Máximo por comida en '+(ml?'ml':'g')+' (opcional)';
+  libCalcK();
+}
+function libCalcK(){
+  var p=_nf(_v('lib-p'))||0,c=_nf(_v('lib-c'))||0,f=_nf(_v('lib-f'))||0;var k=Math.round(_kcal(p,c,f));
+  var base=_libMode==='u'?fmtCount(_nf(_v('lib-uref'))||1,(_v('lib-uname')||'').trim()||'unidad'):_numTxt(_nf(_v('lib-g'))||100)+(_libMode==='ml'?' ml':' g');
+  var l=document.getElementById('lib-k-lbl');if(l)l.textContent='Calorías (vacío = '+k+')';
+  var ml=document.getElementById('lib-mac-lbl');if(ml)ml.textContent='Macros de '+base;
+  var e=document.getElementById('lib-k');if(e)e.placeholder=String(k);
+}
+function _baseTxt(f){return f.byUnit?fmtCount(_portion(f),f.unitN||'unidad'):_numTxt(_portion(f))+' '+_mu(f);}
+function openLibAdd(idx){
+  var f=getFoodLib()[idx];if(!f)return;var mu=_mu(f);
+  document.getElementById('la-idx').value=idx;document.getElementById('sh-lib-add-title').textContent=f.name;
+  document.getElementById('la-info').innerHTML='Base: '+_baseTxt(f)+' = P '+_numTxt(+f.p||0)+' · C '+_numTxt(+f.c||0)+' · G '+_numTxt(+f.f||0)+' · '+_kcalOf(f)+' kcal. Se convierte a la cantidad que pongas.';
+  var lbl=document.getElementById('la-g-lbl');if(lbl)lbl.textContent=f.byUnit?'Cantidad ('+_plural(f.unitN||'unidad')+')':'Cantidad ('+mu+')';
+  var amt=f.byUnit?(parseFloat(f.portionU)||_portion(f)):(f.unitG>0?f.unitG:_portion(f));
+  document.getElementById('la-g').value=_numTxt(amt);
+  var qs,lab;
+  if(f.byUnit){qs=[1,2,3,4,5,6,_portion(f)];lab=function(v){return fmtCount(v,f.unitN||'unidad');};}
+  else if(f.ml){qs=[_portion(f),100,200,250,300,350,500];lab=function(v){return _numTxt(v)+' ml';};}
+  else{qs=[_portion(f),50,100,150,200,250,300];lab=function(v){return _numTxt(v)+' g';};}
+  qs=qs.filter(function(v,i,a){return v>0&&a.indexOf(v)===i;}).sort(function(a,b){return a-b;});
+  document.getElementById('la-quick').innerHTML=qs.map(function(v){return '<button class="chip" onclick="setLaG('+v+')">'+escH(lab(v))+'</button>';}).join('');
+  var lm=document.getElementById('la-m');if(lm)lm.value=_guessMeal();
+  calcLibAdd();closeSheet('sh-food-lib');openSheet('sh-lib-add');
+}
+function addLibToLog(){
+  var f=getFoodLib()[_ni(_v('la-idx'))];if(!f)return;var mu=_mu(f);var a=_nf(_v('la-g'))||0;if(a<=0){toast(f.byUnit?'Pon cuántas '+_plural(f.unitN||'unidad'):(f.ml?'Pon la cantidad en mililitros':'Pon la cantidad en gramos'));return;}
+  var m=_scaled(f,a);var label;
+  if(f.byUnit)label=fmtCount(a,f.unitN||'unidad');else{var ut=_unitTxt(a,f.unitG,f.unitN);label=(ut?ut+', ':'')+_numTxt(Math.round(a*10)/10)+' '+mu;}
+  var all=S.get('foods',[]);all.push({id:Date.now().toString(),fecha:foodLogDate,nombre:f.name+' ('+label+')',g:f.byUnit?label:a+mu,comida:_v('la-m')||'Almuerzo',p:m.p,c:m.c,f:m.f,k:m.k,lib:f.name});S.set('foods',all);
+  closeSheet('sh-lib-add');toast(f.name+' agregado');refreshNutri();
+}
+function _planFoodName(it){if(it.byUnit)return it.name+' ('+fmtCount(it.g,it.unitN||'unidad')+')';var u=_unitTxt(it.g,it.unitG,it.unitN);return it.name+' ('+(u?u+', ':'')+Math.round(it.g)+' '+_mu(it)+')';}
+function _qty(it){return it.byUnit?fmtCount(it.g,it.unitN||'unidad'):(_unitTxt(it.g,it.unitG,it.unitN)?_unitTxt(it.g,it.unitG,it.unitN)+' · ':'')+_numTxt(Math.round(it.g*10)/10)+' '+_mu(it);}
+function _logPlanItem(plan,m,it,foods){var mm=_itMac(it);foods.push({id:Date.now().toString(36)+Math.floor(Math.random()*1e6),fecha:plan.date,nombre:_planFoodName(it),g:it.byUnit?fmtCount(it.g,it.unitN||'unidad'):it.g+_mu(it),comida:m.name,p:mm.p,c:mm.c,f:mm.f,k:mm.k,planItem:it.id,lib:it.name});}
+function _libItem(f,cat){
+  var pt=_portion(f);var byU=!!f.byUnit;
+  var hi=parseFloat(f.maxG)>0?parseFloat(f.maxG):(byU?12:(CAT_MAX[cat]||300));
+  var unitG=byU?0:(parseFloat(f.unitG)>0?parseFloat(f.unitG):0);var step=byU?1:(unitG||5);
+  var it={id:_uid(),name:f.name,cat:cat,pg:(+f.p||0)/pt,cg:(+f.c||0)/pt,fg:(+f.f||0)/pt,kpg:_kcalOf(f)/pt,unitG:unitG,unitN:f.unitN||'',byUnit:byU,state:foodState(f),g:0,lo:0,hi:hi,step:step,minKeep:byU?1:(unitG||CAT_MIN[cat]||10),locked:false,fixed:cat==='verdura'};
+  if(f.ml&&!byU)it.ml=true;
+  if(f.fib!==undefined)it.fibg=(+f.fib||0)/pt;if(f.sod!==undefined)it.sodg=(+f.sod||0)/pt;
+  if(cat==='prot'&&it.pg>0){var mk=Math.ceil((20/it.pg)/it.step)*it.step;it.minKeep=Math.max(it.minKeep,Math.min(mk,Math.floor(hi/it.step)*it.step));}
+  if(it.fixed)it.g=byU?Math.min(hi,1):Math.min(hi,120);
+  return it;
+}
+function _prepQty(x){if(x.byUnit)return fmtCount(r1(x.amt),x.unitN||'unidad');var s=_numTxt(r1(x.amt))+' '+_mu(x);if(x.unitG>0&&x.unitN)s+=' ('+_unitTxt(x.amt,x.unitG,x.unitN)+')';return s;}
+function foodDbErrors(f){
+  var e=[];var p=+f.p,c=+f.c,g=+f.f;
+  if(![p,c,g].every(function(x){return isFinite(x);})||p<0||c<0||g<0){e.push('Tiene macros inválidos o negativos.');return e;}
+  if(!(p||c||g)&&f.cat&&f.cat!=='otro')e.push('Todos sus macros están en 0.');
+  if(!f.byUnit&&!f.ml){var pt=_portion(f);if(p+c+g>pt*1.02+0.5)e.push('Proteína + carbos + grasa suman '+_numTxt(r1(p+c+g))+' g, pero la porción es de '+_numTxt(pt)+' g: es físicamente imposible (¿debería medirse por unidades?).');}
+  /* en mililitros un líquido denso (miel, jarabe) puede pesar hasta ~1.5 g por ml */
+  if(!f.byUnit&&f.ml){var pv=_portion(f);if(p+c+g>pv*1.5+0.5)e.push('Proteína + carbos + grasa suman '+_numTxt(r1(p+c+g))+' g en '+_numTxt(pv)+' ml: no cabe en ese volumen. Revisa la porción o los macros.');}
+  var lk=_labelK(f);if(lk!==null){var ck=_kcal(p,c,g);if(Math.abs(lk-ck)>Math.max(8,ck*0.08))e.push('La etiqueta dice '+_numTxt(lk)+' kcal, pero P×4 + C×4 + G×9 da '+_numTxt(ck)+' kcal. Revisa los macros o las kcal de la etiqueta.');}
+  return e;
+}
+/* si un alimento pasa de gramos a mililitros (o al revés), el plan de hoy y los que vienen cambian la etiqueta; los días pasados no se tocan */
+function _mlFoodInPlans(name,on){
+  if(!name)return;var ps=getPlans();var t=today();var touched=[];
+  var fix=function(p){var ch=false;(p.meals||[]).forEach(function(m){(m.items||[]).forEach(function(it){if(it.fromLog||it.byUnit||it.name!==name)return;if(on&&!it.ml){it.ml=true;ch=true;}else if(!on&&it.ml){delete it.ml;ch=true;}});});return ch;};
+  Object.keys(ps).forEach(function(d){if(d<t)return;if(fix(ps[d]))touched.push(ps[d]);});
+  try{if(_plan&&_plan!==ps[_plan.date])fix(_plan);}catch(e){}
+  if(!touched.length)return;savePlans(ps);touched.forEach(function(p){try{_syncLogged(p);}catch(e){}});
+}
 
 bootStorage(initApp);
 
