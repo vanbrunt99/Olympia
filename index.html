@@ -572,6 +572,46 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 .rtn-tn{margin:-4px 0 10px 10px;}
 .rtn-ex+.rtn-tn{margin-top:-6px;}
 .rtn-tn .tn-full{font-size:14px;}
+/* ── V31: competir, poses ilustradas, biblioteca farmacológica ── */
+.cat-tog{display:block;width:100%;text-align:left;background:none;border:none;color:inherit;font-family:var(--ft);cursor:pointer;}
+.cat-doc{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:.02em;}
+.cat-card .cat-body{display:none;}
+.cat-card.open .cat-body{display:block;}
+.cat-card.open .cat-hd{border-bottom:1px solid var(--line);}
+.cat-card:not(.open) .cat-hd{border-bottom:none;}
+.cat-item.cat-hi{color:var(--text);font-weight:600;}
+.cat-item.cat-hi .cat-dot{color:var(--gold);}
+.lnk{background:none;border:none;color:var(--red-hi);font-weight:700;font-size:14px;padding:4px 0 0;cursor:pointer;font-family:var(--ft);}
+.src{color:var(--blue);text-decoration:none;word-break:break-word;}
+.mycat{border:1px solid rgba(201,164,90,.3);}
+.mycat-row{display:flex;gap:10px;justify-content:space-between;margin:10px 0 12px;}
+.mycat-row>div{flex:1;min-width:0;}
+.mycat-n{font-family:var(--fd);font-size:34px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;}
+.mycat-n small{font-size:14px;color:var(--muted);font-weight:600;}
+.pose-card{background:var(--card);border-radius:var(--r-lg);margin:0 14px 14px;overflow:hidden;display:flex;flex-direction:column;}
+.pose-fig{background:var(--card2);padding:10px 14px 2px;display:flex;justify-content:center;}
+.pose-fig svg{width:min(100%,200px);height:auto;aspect-ratio:220/300;display:block;}
+.pose-main{padding:14px 18px 16px;position:relative;}
+.pose-num{position:absolute;right:16px;top:12px;width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--fd);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.pose-name{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--text);line-height:1.1;padding-right:40px;}
+.pose-en{font-size:12.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:2px 0 12px;}
+.pose-sec{margin-bottom:12px;}
+.pose-sec:last-child{margin-bottom:0;}
+.pose-sec-t{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--red-hi);margin-bottom:6px;}
+.pose-txt{font-size:15px;line-height:1.5;color:var(--text2);}
+.sheet-tall{max-height:calc(100dvh - var(--safe-t) - 8px);}
+.ph-sec{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 8px;}
+.ph-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.ph-mine{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:16px;border:1px solid rgba(201,164,90,.25);}
+.ph-mine textarea.inp{min-height:72px;}
+.ph-type{padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.45;color:var(--text2);}
+.ph-type:last-child{border-bottom:none;}
+.ph-type b{color:var(--text);display:block;}
+.pharm-wrap{margin:0 14px 14px;}
+.pharm-btn{border:1px solid rgba(201,46,62,.3);}
+.ph-chev{flex-shrink:0;width:18px;height:18px;color:var(--muted);display:inline-flex;}
+.ph-chev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+#ph-cats .chip,#ph-stages .chip{white-space:nowrap;flex-shrink:0;}
 
 </style>
 </head>
@@ -664,6 +704,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
   </div>
   </div>
   <div class="nut-panel" id="nutP-supl">
+  <div class="pharm-wrap"><button class="btn btn-ghost pharm-btn" onclick="openPharma()">Biblioteca Farmacológica</button></div>
   <div class="card" id="suppWeek" style="display:none"></div>
   <div class="card">
     <div class="card-hd"><div class="card-title">Suplementos</div><div style="display:flex;gap:6px"><button class="btn-inline btn-inline-ghost" onclick="exportSuppTxt()">TXT</button><button class="btn-inline btn-inline-ghost" onclick="openSuppSheet(-1)">+ Agregar</button></div></div>
@@ -716,14 +757,16 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 
 <!-- ═══ COMPETIR ═══ -->
 <div class="page" id="pg-comp">
-  <div class="ptitle"><h1>Competir</h1><p>Classic Physique</p></div>
+  <div class="ptitle"><h1>Competir</h1><p>Reglamento IFBB · Classic Physique</p></div>
   <div class="sticky-seg"><div class="seg">
-    <button class="seg-i comp-tab on" onclick="swComp('cats',this)">Categoría</button>
-    <button class="seg-i comp-tab" onclick="swComp('poses',this)">Poses</button>
-    <button class="seg-i comp-tab" onclick="swComp('peak',this)">Peak week</button>
+    <button class="seg-i comp-tab on" data-p="cats" onclick="swComp('cats',this)">Categorías</button>
+    <button class="seg-i comp-tab" data-p="poses" onclick="swComp('poses',this)">Poses</button>
+    <button class="seg-i comp-tab" data-p="rules" onclick="swComp('rules',this)">Reglas</button>
+    <button class="seg-i comp-tab" data-p="peak" onclick="swComp('peak',this)">Peak week</button>
   </div></div>
   <div class="comp-panel on" id="compP-cats"><div id="catList"></div></div>
   <div class="comp-panel" id="compP-poses"><div id="posesList"></div></div>
+  <div class="comp-panel" id="compP-rules"><div id="rulesList"></div></div>
   <div class="comp-panel" id="compP-peak"><div id="peakGuide"></div></div>
 </div>
 
@@ -755,7 +798,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 30</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 31</div>
 </div>
 
 </div><!-- /content -->
@@ -1141,6 +1184,42 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="hint">Cambia en el plan, en tu registro y en los TXT. Lo que ya registraste no se modifica.</div>
     <button class="btn btn-red" onclick="saveMealName()">Guardar</button>
     <button class="btn btn-line" id="mn-reset" style="display:none;margin-top:10px" onclick="resetMealName()">Usar el nombre original</button>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-pharma"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Biblioteca farmacológica</div><button class="sheet-close" onclick="closeSheet('sh-pharma')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div style="display:flex;gap:8px;margin-bottom:10px"><input type="search" class="inp" id="ph-q" placeholder="Buscar por nombre, alias o clase" style="flex:1" oninput="buildPharma()" autocomplete="off"><button class="btn-inline btn-inline-red" onclick="openNewPharm()">+ Ficha</button></div>
+    <div class="chips" id="ph-cats" style="margin-bottom:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none"></div>
+    <div class="chips" id="ph-stages" style="margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none"></div>
+    <div id="ph-list"></div>
+    <div class="btn-row" style="margin-top:4px"><button class="btn btn-line btn-sm" style="flex:1" onclick="exportPharmaTxt()">Exportar TXT</button><button class="btn btn-line btn-sm" style="flex:1" onclick="phShowHidden()">Ocultas</button></div>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-pharm-item"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title" id="pi2-title">Ficha</div><button class="sheet-close" onclick="closeSheet('sh-pharm-item')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body" id="pi2-body"></div></div></div>
+
+<div class="sheet-ov" id="sh-pharm-edit"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title" id="pe-title">Nueva ficha</div><button class="sheet-close" onclick="closeSheet('sh-pharm-edit')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="fgroup"><div class="inp-lbl">Nombre</div><input type="text" class="inp" id="pe-n" placeholder="Nombre con el que lo conoces" autocomplete="off"></div>
+    <div class="fgroup"><div class="inp-lbl">Otros nombres (separados por coma)</div><input type="text" class="inp" id="pe-aka" placeholder="Anavar, Var" autocomplete="off"></div>
+    <div class="fgroup"><div class="inp-lbl">Categoría</div><select class="inp" id="pe-cat" onchange="peCatChange()"></select><input type="text" class="inp" id="pe-newcat" placeholder="Nombre de la nueva categoría" style="display:none;margin-top:8px" autocomplete="off"></div>
+    <div class="inp-lbl">Etapas en que se usa</div>
+    <div class="chips" id="pe-stages" style="margin-bottom:14px"></div>
+    <div class="fgroup"><div class="inp-lbl">Clase</div><input type="text" class="inp" id="pe-cls" placeholder="AAS oral, péptido, SARM…" autocomplete="off"></div>
+    <div class="fgroup"><div class="inp-lbl">Vía</div><input type="text" class="inp" id="pe-via" placeholder="Oral, inyectable, subcutánea" autocomplete="off"></div>
+    <div class="fgroup"><div class="inp-lbl">Tipos y ésteres (uno por línea: Nombre: descripción)</div><textarea class="inp" id="pe-tipos" rows="3" placeholder="Enantato: largo, 4-5 días&#10;Propionato: corto"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Qué es</div><textarea class="inp" id="pe-que" rows="3"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Para qué se describe</div><textarea class="inp" id="pe-uso" rows="3"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Riesgos (uno por línea)</div><textarea class="inp" id="pe-riesgos" rows="3"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Qué vigilar en sangre (uno por línea)</div><textarea class="inp" id="pe-labs" rows="2"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Combinaciones delicadas (una por línea)</div><textarea class="inp" id="pe-inter" rows="2"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Estatus en Costa Rica</div><textarea class="inp" id="pe-legal" rows="2"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Antidopaje</div><input type="text" class="inp" id="pe-wada" placeholder="S1.1 · prohibido en todo momento" autocomplete="off"></div>
+    <button class="btn btn-red" onclick="savePharmEdit()">Guardar</button>
+    <div class="hint" style="margin-top:10px">Tu dosis y tus notas se editan desde la ficha, no aquí.</div>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-macros"><div class="sheet"><div class="sheet-handle"></div>
@@ -1705,7 +1784,7 @@ function openSessEdit(id){
 /* GOAL & MAS */
 
 /* BACKUP / SYNC */
-var BACKUP_KEYS=['weights','foods','sessions','routines','userGoal','userSupps','suppChk','medidas','profile','waterToday','foodLibrary','customPhases','mvManual','mvConfig','kcalAdj','faseManual','waterGoal','customTemplates','hiddenTemplates','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','bpLog'];
+var BACKUP_KEYS=['weights','foods','sessions','routines','userGoal','userSupps','suppChk','medidas','profile','waterToday','foodLibrary','customPhases','mvManual','mvConfig','kcalAdj','faseManual','waterGoal','customTemplates','hiddenTemplates','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','bpLog','pharmUser'];
 
 /* COMPETITION */
 var COMP_CATS=[
@@ -1767,40 +1846,6 @@ var POSES_CLASSIC=[
   {n:6,name:'Abdominals & Quads',crit:false,desc:'De frente. Brazos detras de la cabeza o en la nuca. Pierna delantera completamente recta y tensa. Exhalar completamente para que el abdomen se marque. Algunos atletas usan un lateral lean sutil para mostrar la cintura.',tips:['Expira completamente para maximizar la definición abdominal','La pierna frontal completamente tensa y recta','El vacuum puede incorporarse en esta pose']},
   {n:7,name:'Posing Libre Classic',crit:false,desc:'Una pose clásica a eleccion propia con música de fondo. PROHIBIDO el Most Muscular en Classic Physique. Puede ser una pose de la era dorada, una combinacion, o una pose propia. Duracion tipica: 30-60 segundos.',tips:['Elige la pose que mejor muestre tu punto fuerte anatomico','Ensaya con la música que usaras en competencia','PROHIBIDO: Most Muscular (es descalificatorio)','La transición hacia la pose final debe ser fluida']}
 ];
-function buildCatList(){
-  var el=document.getElementById('catList');if(!el)return;var h='';
-  for(var i=0;i<COMP_CATS.length;i++){
-    var cat=COMP_CATS[i];
-    h+='<div class="cat-card">';
-    h+='<div class="cat-hd"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div class="cat-title">'+cat.name+'</div><span class="badge '+cat.badgeClass+'">'+cat.badge+'</span></div><div class="cat-sub">'+cat.desc+'</div></div>';
-    h+='<div class="cat-body">';
-    h+='<div class="cat-section"><div class="cat-sec-title">Físico buscado</div><div class="cat-sec-body">'+cat.fisico+'</div></div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Requisitos</div>';for(var j=0;j<cat.requisitos.length;j++)h+='<div class="cat-item"><span class="cat-dot">•</span>'+_dynReq(cat.requisitos[j])+'</div>';h+='</div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Criterios de evaluación</div>';for(var j=0;j<cat.evaluacion.length;j++)h+='<div class="cat-item"><span class="cat-dot">•</span>'+cat.evaluacion[j]+'</div>';h+='</div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Vestimenta y bronceado</div><div class="cat-sec-body">'+cat.vestimenta+'<br><br>'+cat.bronceado+'</div></div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Errores comunes</div>';for(var j=0;j<cat.errores.length;j++)h+='<div class="cat-item"><span class="cat-dot">•</span>'+cat.errores[j]+'</div>';h+='</div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Recomendaciones prácticas</div>';for(var j=0;j<cat.tips.length;j++)h+='<div class="cat-item"><span class="cat-dot">•</span>'+cat.tips[j]+'</div>';h+='</div>';
-    h+='</div></div>';
-  }
-  h+='<div class="card note-gold" style="margin:0 14px 12px;background:rgba(212,168,32,.07);border:1px solid rgba(212,168,32,.2);border-radius:12px;padding:14px"><div style="font-size:12px;color:var(--body);line-height:1.7"><strong style="color:var(--gold)">Nota importante:</strong> Las reglas específicas de cada competencia pueden variar según la federación y el evento. Antes de competir, verifica los reglamentos vigentes directamente con la organizacion. La informacion aquí es de referencia basada en estandares IFBB Amateur.</div></div>';
-  el.innerHTML=h;
-}
-function buildPosesList(){
-  var el=document.getElementById('posesList');if(!el)return;
-  var h='<div style="padding:0 14px 12px"><div class="card" style="background:rgba(201,46,62,.07);border-color:rgba(201,46,62,.2);padding:14px"><div style="font-size:12px;color:var(--body);line-height:1.7">Las 7 poses de Classic Physique. El <strong style="color:var(--red)">Back Double Bíceps</strong> y el <strong style="color:var(--red)">Vacuum</strong> son las más críticas y las que más diferencia hacen en la puntuación final.</div></div></div>';
-  for(var i=0;i<POSES_CLASSIC.length;i++){
-    var p=POSES_CLASSIC[i];
-    h+='<div class="cat-card">';
-    h+='<div class="cat-hd"><div style="display:flex;align-items:center;gap:12px">';
-    h+='<div style="width:32px;height:32px;border-radius:50%;background:'+(p.crit?'var(--red)':'var(--border)')+';display:flex;align-items:center;justify-content:center;font-family:var(--fu);font-size:14px;font-weight:700;color:var(--white);flex-shrink:0">'+p.n+'</div>';
-    h+='<div><div class="cat-title" style="font-size:16px">'+p.name+'</div>'+(p.crit?'<span class="badge badge-red" style="margin-top:4px;display:inline-block">CRÍTICA</span>':'')+'</div></div></div>';
-    h+='<div class="cat-body"><div class="cat-section"><div class="cat-sec-title">Cómo ejecutarla</div><div class="cat-sec-body">'+p.desc+'</div></div>';
-    h+='<div class="cat-section"><div class="cat-sec-title">Tips de ejecución</div>';
-    for(var j=0;j<p.tips.length;j++)h+='<div class="cat-item"><span class="cat-dot">•</span>'+p.tips[j]+'</div>';
-    h+='</div></div></div>';
-  }
-  el.innerHTML=h;
-}
 var PEAK_WEEK=[
   {day:'Día 7 (Lunes)',title:'Inicio Depleción',color:'var(--gold)',items:['Carbos: 50-100g/día (bajo)','Proteína: 240g+ al día','Grasa: cantidad normal','Agua: 6-8L','Entreno: Full body ligero, pocas series, sin llegar al fallo','Sal: cantidad normal','Objetivo: vaciar el glucógeno muscular para la carga posterior']},
   {day:'Días 6-5 (Mar-Mié)',title:'Depleción Continuación',color:'var(--gold)',items:['Carbos: 50-100g/día','Proteína: 220-240g/día','Agua: 6-8L','Entreno muy ligero o ninguno','Sal: reducir levemente','Nota: es normal sentirse plano y con poca energía - es esperado']},
@@ -1813,8 +1858,6 @@ var PEAK_WEEK=[
 var curPage='dash';
 
 /* DASHBOARD RENDER */
-function rComp(){try{buildCatList();}catch(e){}try{buildPosesList();}catch(e){}try{buildPeakGuide();}catch(e){}}
-
 /* SANEADOR: repara claves vacias o con tipo incorrecto dejadas por syncs/backups antiguos */
 
 /* ════════ OLYMPIA · capa de interfaz y sincronizacion ════════ */
@@ -1893,13 +1936,6 @@ function swGym(id,tabEl){
   updDock();
 }
 var gymPanel='rutinas';
-function swComp(id,tabEl){
-  var panels=['cats','poses','peak'];
-  for(var i=0;i<panels.length;i++){var p=document.getElementById('compP-'+panels[i]);if(p)p.classList.remove('on');}
-  var panel=document.getElementById('compP-'+id);if(panel)panel.classList.add('on');
-  var tabs=document.querySelectorAll('.comp-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('on');
-  if(tabEl)tabEl.classList.add('on');
-}
 function goToActive(){goPage('gym');swGym('activa');}
 
 /* ── Sincronizacion global: una sola funcion refresca todo lo que depende de los datos ── */
@@ -2675,7 +2711,6 @@ function _drawW(canvasId,trendId,h){
 function drawChart(){_drawW('wChart','wTrend',150);_drawW('wChart2','wTrend2',170);}
 
 /* ════════ PERFIL ════════ */
-function catLimit(){var p=getProfile();var h=parseFloat(p.height)||172;return Math.round((h-100+8)*10)/10;}
 function updGoalPreview(val){var gp=document.getElementById('goalPreview');if(gp)gp.textContent=parseFloat(val);}
 function saveGoalWeight(){var sl=document.getElementById('goalSlider');var val=sl?parseFloat(sl.value):65;S.set('userGoal',{weight:val,fase:getFase()});toast('Meta en tarima: '+val+' kg');refreshAll();}
 function rMas(){try{renderMasProfile();}catch(e){}}
@@ -2941,7 +2976,7 @@ function sanitizeStorage(){
   var arrKeys=['weights','foods','sessions','routines','userSupps','foodLibrary','customTemplates','hiddenTemplates','bpLog'];
   for(var i=0;i<arrKeys.length;i++){var raw=_raw(arrKeys[i]);if(raw===null)continue;var v=_parseAs(raw,null);if(!Array.isArray(v))S.set(arrKeys[i],[]);}
   var cp=S.get('customPhases',null);if(cp!==null&&(!Array.isArray(cp)||!cp.length||!cp[0]||!cp[0].id))S.del('customPhases');
-  var objKeys=['profile','medidas','userGoal','faseManual','kcalAdj','mvManual','mvConfig','waterGoal','waterToday','suppChk','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR'];
+  var objKeys=['profile','medidas','userGoal','faseManual','kcalAdj','mvManual','mvConfig','waterGoal','waterToday','suppChk','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','pharmUser'];
   for(var j=0;j<objKeys.length;j++){var r2=_raw(objKeys[j]);if(r2===null)continue;var v2=_parseAs(r2,null);if(v2===null||typeof v2!=='object'||Array.isArray(v2))S.del(objKeys[j]);}
   var pf=S.obj('profile',null);if(pf&&!pf.name)S.del('profile');
   /* elementos dentro de cada lista: descartar basura y normalizar numeros */
@@ -3056,7 +3091,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-30',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-31',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -4093,19 +4128,6 @@ var PEAK_ITEMS=[
  ['Carbos: 3-5 g/kg ([[3-5]]) según el espejo; si ya te ves lleno, baja','Proteína: 2 g/kg y grasa baja','Agua: 4-5 L, reducción moderada; nunca cortarla','Sodio: igual que los días anteriores','Fibra muy baja y comidas pequeñas y secas','Posing ligero y descanso; revisa tu condición con buena luz','Si ves retención, baja los carbos, no el agua'],
  ['Desayuno 3-4 h antes: crema de arroz o pan blanco con miel + proteína','Cada 1-2 h: 25-50 g de carbos simples (galletas de arroz con miel o mermelada)','30-60 min antes de salir: carbos simples con una pizca de sal (llenado y vascularidad)','Agua: sorbos de 200-300 ml por hora; no la cortes por completo','Pump-up 10-15 min antes: ligas, lagartijas y curl; pocas series, sin fallo','Posing de práctica tras bambalinas para mantener el apriete']
 ];
-function _peakTok(t){var w=getCurrentWeight();return t.replace(/\[\[([\d.]+)-([\d.]+)\]\]/g,function(m,a,b){var r=function(x){return Math.round(x/5)*5;};return '≈'+r(w*a)+'-'+r(w*b)+' g';});}
-function buildPeakGuide(){
-  var el=document.getElementById('peakGuide');if(!el)return;var p=getProfile();
-  var h='<div class="note" style="margin:0 14px 12px">Para llegar lo más seco posible: <b style="color:var(--text)">llega magro, carga glucógeno, baja la fibra y mantén agua y sodio estables</b>. Sin diuréticos ni cortes drásticos de agua o sal: aplanan el músculo y son peligrosos. Haz una prueba 2-4 semanas antes y ajusta con tu coach.'+(p.compDate?' Días calculados con tu fecha ('+fmtDate(p.compDate)+') y gramos con tu peso actual.':'')+'</div>';
-  for(var i=0;i<PEAK_WEEK.length;i++){var pk=PEAK_WEEK[i];var items=PEAK_ITEMS[i]||pk.items;
-    h+='<div class="card" style="border-left:3px solid '+pk.color+'">';
-    h+='<div class="card-sub" style="font-weight:600;margin-bottom:2px">'+escH(_peakLbl(i))+'</div>';
-    h+='<div style="font-family:var(--fd);font-size:21px;font-weight:700;color:'+pk.color+';margin-bottom:10px">'+pk.title+'</div>';
-    for(var j=0;j<items.length;j++)h+='<div class="cat-item"><span class="cat-dot" style="color:'+pk.color+'">•</span>'+escH(_peakTok(items[j]))+'</div>';
-    h+='</div>';}
-  el.innerHTML=h;
-}
-
 /* ════════ IMPORTAR SIN PERDER LO DE HOY ════════
    Importar (respaldo o Sync) reemplaza todo como siempre, EXCEPTO los registros diarios de este dispositivo
    desde el dia del respaldo (o de hoy, si el respaldo es de hoy): se conservan y se combinan con los del archivo.
@@ -5313,6 +5335,747 @@ function _mlFoodInPlans(name,on){
   try{if(_plan&&_plan!==ps[_plan.date])fix(_plan);}catch(e){}
   if(!touched.length)return;savePlans(ps);touched.forEach(function(p){try{_syncLogged(p);}catch(e){}});
 }
+
+
+/* ════════ COMPETIR (V31): reglamento IFBB verificado, poses ilustradas, reglas y peak week ════════
+   Fuentes: IFBB Rules — Men's Classic Physique (2024), Men's Bodybuilding (2026), Men's Classic Bodybuilding & Games
+   Classic (2026), Men's Physique y Muscular Men's Physique (2024), IFBB General Rules (2024), reporte de inspección
+   San José Internacional 2025 (AFFCR/IFBB), calendario IFBB 2026, calendario AFFCR, Lista de Prohibiciones WADA 2026. */
+
+/* ── ilustraciones vectoriales de poses (dibujadas en la app, sin internet) ── */
+var _PZ={SK:'#d2a06e',SK2:'#b8865a',TR:'#8e1f2d',SH:'#263347'};
+function _pzPt(p){return p[0]+' '+p[1];}
+function _pzSeg(a,b,w,col){return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="'+(col||_PZ.SK)+'" stroke-width="'+w+'" stroke-linecap="round"/>';}
+function _pzMid(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];}
+function _pzPerp(a,b,d){var dx=b[0]-a[0],dy=b[1]-a[1],L=Math.sqrt(dx*dx+dy*dy)||1;return [-dy/L*d,dx/L*d];}
+function _pzBulge(a,b,d,rx,ry,t){var m=_pzMid(a,b,t||0.45);var p=_pzPerp(a,b,d);var ang=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;var cx=m[0]+p[0],cy=m[1]+p[1];return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" transform="rotate('+ang+' '+cx+' '+cy+')" fill="'+_PZ.SK+'"/>';}
+function _pzFist(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="7.5" fill="'+_PZ.SK+'"/>';}
+function _pzHand(p,dir,open){var w=open?7:6,h=open?13:9;return '<rect x="'+(p[0]-w/2)+'" y="'+(p[1]-h/2)+'" width="'+w+'" height="'+h+'" rx="3" fill="'+_PZ.SK+'" transform="rotate('+(dir||0)+' '+p[0]+' '+p[1]+')"/>';}
+function _pzFoot(a,toes,dir){var d=dir||1;if(toes)return '<path d="M'+(a[0]-5*d)+' '+(a[1]-6)+' L'+(a[0]+9*d)+' '+(a[1]+8)+' L'+(a[0]+14*d)+' '+(a[1]+8)+' Z" fill="'+_PZ.SK+'" stroke="'+_PZ.SK+'" stroke-width="6" stroke-linejoin="round"/>';return '<path d="M'+(a[0]-7*d)+' '+(a[1]+4)+' L'+(a[0]+13*d)+' '+(a[1]+4)+' L'+(a[0]+13*d)+' '+(a[1]+8)+' L'+(a[0]-7*d)+' '+(a[1]+8)+' Z" fill="'+_PZ.SK+'" stroke="'+_PZ.SK+'" stroke-width="6" stroke-linejoin="round"/>';}
+function _pzPoly(pts,col,w){return '<path d="M'+pts.map(_pzPt).join(' L')+' Z" fill="'+col+'" stroke="'+col+'" stroke-width="'+(w||10)+'" stroke-linejoin="round"/>';}
+function _pzCurve(d,col,w){return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';}
+function poseSvg(s){
+  var o=[];var back=s.view==='back';
+  var armL=s.sl&&s.el?[_pzSeg(s.sl,s.el,s.wUA||19),_pzSeg(s.el,s.wl,s.wFA||14)]:[];
+  var armR=s.sr&&s.er?[_pzSeg(s.sr,s.er,s.wUA||19),_pzSeg(s.er,s.wr,s.wFA||14)]:[];
+  if(s.flexL)armL.push(_pzBulge(s.sl,s.el,s.flexL[0],s.flexL[1]||12,s.flexL[2]||8,s.flexL[3]));
+  if(s.flexR)armR.push(_pzBulge(s.sr,s.er,s.flexR[0],s.flexR[1]||12,s.flexR[2]||8,s.flexR[3]));
+  if(s.fistL)armL.push(_pzFist(s.wl));else if(s.handL)armL.push(_pzHand(s.wl,s.handL[0],s.handL[1]));
+  if(s.fistR)armR.push(_pzFist(s.wr));else if(s.handR)armR.push(_pzHand(s.wr,s.handR[0],s.handR[1]));
+  var legs=[];
+  if(s.hl&&s.kl){legs.push(_pzSeg(s.hl,s.kl,s.wTH||25));legs.push(_pzSeg(s.kl,s.al,s.wCA||17));legs.push(_pzFoot(s.al,s.footL&&s.footL.toes,s.footL&&s.footL.dir||1));if(s.calfL)legs.push(_pzBulge(s.kl,s.al,s.calfL[0],s.calfL[1]||7,s.calfL[2]||11,0.35));}
+  if(s.hr&&s.kr){legs.push(_pzSeg(s.hr,s.kr,s.wTH||25));legs.push(_pzSeg(s.kr,s.ar,s.wCA||17));legs.push(_pzFoot(s.ar,s.footR&&s.footR.toes,s.footR&&s.footR.dir||1));if(s.calfR)legs.push(_pzBulge(s.kr,s.ar,s.calfR[0],s.calfR[1]||7,s.calfR[2]||11,0.35));}
+  var torso=_pzPoly(s.torso,_PZ.SK,12);
+  var head='<circle cx="'+s.head[0]+'" cy="'+s.head[1]+'" r="14" fill="'+_PZ.SK+'"/>'+_pzSeg(s.head,s.neck,12);
+  var trunks='';
+  if(s.trunks==='bb'&&s.trunksPts)trunks=_pzPoly(s.trunksPts,_PZ.TR,6);
+  if(s.trunks==='board'&&s.trunksPts)trunks=_pzPoly(s.trunksPts,_PZ.SH,6);
+  var marks='';
+  if(back&&s.spine)marks+=_pzCurve('M'+_pzPt(s.spine[0])+' Q'+_pzPt(s.spine[1])+' '+_pzPt(s.spine[2]),_PZ.SK2,3);
+  if(s.lines)s.lines.forEach(function(d){marks+=_pzCurve(d,_PZ.SK2,2.5);});
+  var map={legs:legs.join(''),armsBack:'',torso:torso,trunks:trunks,marks:marks,head:head,armsFront:armL.concat(armR).join('')};
+  if(s.armsBehind===1){map.armsBack=map.armsFront;map.armsFront='';}
+  if(s.armsBehind==='L'){map.armsBack=armL.join('');map.armsFront=armR.join('');}
+  if(s.armsBehind==='R'){map.armsBack=armR.join('');map.armsFront=armL.join('');}
+  ['legs','armsBack','torso','trunks','marks','head','armsFront'].forEach(function(k){o.push(map[k]||'');});
+  var lbl=back?'ESPALDA A LOS JUECES':(s.view==='side'?'PERFIL A LOS JUECES':'FRENTE A LOS JUECES');
+  o.push('<text x="110" y="296" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="#8f8794" font-family="sans-serif">'+lbl+'</text>');
+  return '<svg viewBox="0 0 220 300" xmlns="http://www.w3.org/2000/svg" role="img">'+o.join('')+'</svg>';
+}
+var _T_FRONT=[[72,60],[150,60],[160,92],[132,132],[134,150],[86,150],[88,132],[60,92]];
+var _T_FRONT_V=[[70,60],[152,60],[164,96],[128,134],[132,152],[88,152],[92,134],[56,96]];
+var _T_BACK=[[70,60],[152,60],[166,98],[128,136],[134,154],[86,154],[92,136],[54,98]];
+var _TRK_F=[[88,146],[132,146],[134,166],[118,172],[102,172],[86,166]];
+var _TRK_B=[[86,150],[134,150],[136,170],[118,176],[102,176],[84,170]];
+var _TRK_S=[[94,148],[132,148],[134,168],[114,172],[96,168]];
+var _BRD_F=[[86,146],[134,146],[138,212],[118,214],[110,196],[102,214],[82,212]];
+var _BRD_B=[[84,150],[136,150],[140,214],[118,216],[110,200],[102,216],[80,214]];
+var _BRD_S=[[90,148],[132,148],[142,212],[120,214],[108,198],[96,214],[84,212]];
+var POSE_FIG={
+ fdb:{view:'front',head:[110,30],neck:[110,52],torso:_T_FRONT,trunks:'bb',trunksPts:_TRK_F,lines:['M82 82 Q110 100 138 82','M110 86 L110 104','M100 110 L120 110','M98 122 L122 122'],
+   sl:[74,64],el:[34,72],wl:[52,26],fistL:1,flexL:[-11,15,10,0.5],sr:[146,64],er:[186,72],wr:[168,26],fistR:1,flexR:[11,15,10,0.5],
+   hl:[94,150],kl:[80,210],al:[74,266],footL:{toes:1,dir:-1},hr:[126,150],kr:[128,214],ar:[128,276],footR:{dir:1},calfL:[-6,7,12]},
+ fls:{view:'front',head:[110,30],neck:[110,52],torso:_T_FRONT_V,trunks:'bb',trunksPts:_TRK_F,lines:['M80 82 Q110 100 140 82','M110 86 L110 104'],
+   sl:[72,64],el:[30,112],wl:[84,126],fistL:1,sr:[148,64],er:[190,112],wr:[136,126],fistR:1,
+   hl:[96,152],kl:[100,214],al:[100,276],hr:[124,152],kr:[122,214],ar:[122,276],footL:{dir:-1},footR:{dir:1}},
+ sch:{view:'side',head:[114,30],neck:[112,52],torso:[[94,60],[132,60],[158,100],[132,136],[132,152],[96,152],[94,136],[86,98]],trunks:'bb',trunksPts:_TRK_S,
+   sl:[122,66],el:[154,106],wl:[104,116],fistL:1,flexL:[-10,14,9,0.5],armsBehind:'R',sr:[104,66],er:[84,110],wr:[100,124],handR:[70,0],
+   hl:[114,152],kl:[128,210],al:[136,266],footL:{toes:1,dir:1},calfL:[7,7,12],hr:[102,152],kr:[100,214],ar:[98,276],footR:{dir:1},wTH:24,lines:['M128 86 Q148 98 138 114']},
+ bdb:{view:'back',head:[110,30],neck:[110,52],torso:_T_BACK,trunks:'bb',trunksPts:_TRK_B,spine:[[110,66],[108,110],[110,150]],
+   sl:[74,64],el:[34,72],wl:[52,26],fistL:1,flexL:[-11,15,10,0.5],sr:[146,64],er:[186,72],wr:[168,26],fistR:1,flexR:[11,15,10,0.5],
+   hl:[94,154],kl:[96,214],al:[92,268],footL:{toes:1,dir:-1},calfL:[-6,7,12],hr:[126,154],kr:[126,214],ar:[126,276],footR:{dir:1},lines:['M84 74 Q96 96 92 120','M136 74 Q124 96 128 120']},
+ bls:{view:'back',head:[110,30],neck:[110,52],torso:[[70,60],[152,60],[170,100],[128,138],[134,156],[86,156],[92,138],[50,100]],trunks:'bb',trunksPts:_TRK_B,spine:[[110,66],[108,110],[110,152]],
+   sl:[72,64],el:[28,114],wl:[84,128],fistL:1,sr:[148,64],er:[192,114],wr:[136,128],fistR:1,
+   hl:[96,156],kl:[100,214],al:[100,276],footL:{dir:-1},hr:[124,156],kr:[122,214],ar:[120,268],footR:{toes:1,dir:1},calfR:[6,7,12],lines:['M82 72 Q98 98 92 124','M138 72 Q122 98 128 124']},
+ str:{view:'side',head:[110,30],neck:[110,52],torso:[[92,60],[130,60],[150,96],[130,136],[130,152],[96,152],[92,136],[84,98]],trunks:'bb',trunksPts:_TRK_S,
+   sl:[108,66],el:[88,112],wl:[98,160],fistL:1,flexL:[11,9,14,0.45],armsBehind:'R',sr:[100,68],er:[70,116],wr:[96,162],fistR:1,
+   hl:[114,152],kl:[128,212],al:[132,274],footL:{dir:1},hr:[102,152],kr:[90,212],ar:[84,268],footR:{toes:1,dir:-1},calfL:[6,7,12],calfR:[-6,7,12],wTH:24,lines:['M126 84 Q144 96 136 114']},
+ abt:{view:'front',head:[110,34],neck:[110,54],torso:[[74,62],[146,62],[154,94],[128,130],[132,148],[88,148],[92,130],[66,94]],trunks:'bb',trunksPts:_TRK_F,
+   sl:[76,66],el:[50,42],wl:[92,26],fistL:1,sr:[144,66],er:[170,42],wr:[128,26],fistR:1,armsBehind:1,
+   hl:[94,148],kl:[82,210],al:[78,272],footL:{dir:-1},hr:[126,148],kr:[130,214],ar:[132,276],footR:{dir:1},lines:['M100 100 L120 100','M98 112 L122 112','M100 124 L120 124','M110 92 L110 130']},
+ vac:{view:'front',head:[110,32],neck:[110,54],torso:[[72,62],[148,62],[160,92],[150,108],[118,124],[124,148],[96,148],[102,124],[70,108],[60,92]],trunks:'bb',trunksPts:[[92,146],[128,146],[130,166],[116,172],[104,172],[90,166]],
+   sl:[76,66],el:[50,42],wl:[92,26],fistL:1,sr:[144,66],er:[170,42],wr:[128,26],fistR:1,armsBehind:1,
+   hl:[100,148],kl:[102,214],al:[102,276],footL:{dir:-1},hr:[120,148],kr:[118,214],ar:[118,276],footR:{dir:1},lines:['M78 100 Q96 118 104 128','M142 100 Q124 118 116 128','M104 134 Q110 140 116 134']},
+ cls:{view:'front',head:[110,30],neck:[110,52],torso:_T_FRONT,trunks:'bb',trunksPts:_TRK_F,lines:['M82 82 Q110 100 138 82','M110 86 L110 104','M100 110 L120 110'],
+   sl:[74,64],el:[48,34],wl:[66,6],fistL:1,flexL:[-9,12,8,0.5],sr:[146,64],er:[172,34],wr:[154,6],fistR:1,flexR:[9,12,8,0.5],
+   hl:[94,150],kl:[82,212],al:[76,270],footL:{toes:1,dir:-1},calfL:[-6,7,12],hr:[126,150],kr:[128,214],ar:[128,276],footR:{dir:1}},
+ qf:{view:'front',head:[110,30],neck:[110,52],torso:[[76,60],[146,60],[154,96],[130,136],[132,150],[88,150],[90,136],[66,96]],trunks:'board',trunksPts:_BRD_F,
+   sl:[78,64],el:[58,112],wl:[90,134],handL:[-30,0],sr:[144,64],er:[160,118],wr:[166,166],handR:[10,1],
+   hl:[96,152],kl:[90,212],al:[86,276],footL:{dir:-1},hr:[124,152],kr:[126,212],ar:[126,276],footR:{dir:1},wUA:16,wFA:12,wTH:22,wCA:15},
+ qs:{view:'side',head:[112,30],neck:[110,52],torso:[[92,60],[130,60],[146,98],[128,136],[128,152],[94,152],[92,136],[84,98]],trunks:'board',trunksPts:_BRD_S,
+   sl:[118,64],el:[146,104],wl:[128,134],handL:[-40,0],armsBehind:'R',sr:[100,66],er:[92,112],wr:[100,160],handR:[0,1],
+   hl:[112,152],kl:[120,212],al:[122,276],footL:{dir:1},hr:[100,152],kr:[90,214],ar:[84,268],footR:{toes:1,dir:-1},wUA:16,wFA:12,wTH:22,wCA:15},
+ qb:{view:'back',head:[110,30],neck:[110,52],torso:[[74,60],[148,60],[158,98],[130,138],[132,152],[88,152],[90,138],[62,98]],trunks:'board',trunksPts:_BRD_B,spine:[[110,66],[109,110],[110,150]],
+   sl:[78,64],el:[58,112],wl:[90,136],handL:[-30,0],sr:[144,64],er:[160,118],wr:[166,166],handR:[10,1],
+   hl:[96,154],kl:[92,212],al:[90,276],footL:{dir:-1},hr:[124,154],kr:[130,212],ar:[134,268],footR:{toes:1,dir:1},wUA:16,wFA:12,wTH:22,wCA:15,lines:['M86 72 Q98 94 94 118','M134 72 Q122 94 126 118']},
+ qs2:{view:'side',head:[108,30],neck:[110,52],torso:[[90,60],[128,60],[136,98],[128,136],[126,152],[92,152],[92,136],[74,98]],trunks:'board',trunksPts:[[88,148],[130,148],[136,212],[124,214],[112,198],[100,214],[78,212]],
+   sl:[102,64],el:[74,104],wl:[92,134],handL:[40,0],armsBehind:'R',sr:[120,66],er:[128,112],wr:[120,160],handR:[0,1],
+   hl:[108,152],kl:[100,212],al:[98,276],footL:{dir:-1},hr:[120,152],kr:[130,214],ar:[136,268],footR:{toes:1,dir:1},wUA:16,wFA:12,wTH:22,wCA:15}
+};
+
+/* ── biblioteca de poses: texto oficial IFBB + técnica ── */
+var POSE_LIB={
+ fdb:{name:'Doble bíceps de frente',en:'Front double biceps',
+   oficial:'De frente a los jueces, con una pierna 40–50 cm adelante y hacia el lado. Brazos a la altura de los hombros, codos flexionados; puños cerrados y girados hacia abajo para contraer bíceps y antebrazos.',
+   tecnica:['Pierna adelantada apoyada en la punta, cuádriceps y gemelo contraídos; la de atrás firme con el pie plano.','Codos a la altura del hombro o apenas por encima: más alto parece "doble bíceps de cuello" y se pierde el deltoides.','Puños girados hacia ti y muñecas dobladas: así el pico del bíceps sube y el antebrazo se marca.','Abre un poco los dorsales (sin hacer lat spread), hombros abajo, pecho arriba.','Exhala, contrae el abdomen y respira corto por la nariz sin soltarlo; cuello largo, mentón arriba.'],
+   jueces:'Bíceps lleno y con pico, con separación entre sus dos cabezas; después antebrazos, deltoides, pectorales, abdomen, muslos y gemelos: densidad, definición y balance de todo el cuerpo.',
+   errores:['Inclinar el tronco hacia atrás para "sacar" pecho (acorta la cintura y tapa el abdomen).','Codos demasiado altos o demasiado atrás.','Piernas relajadas: en esta pose también se juzgan muslos y gemelos.','Aguantar la respiración y perder el abdomen a los 5 segundos.']},
+ fls:{name:'Expansión dorsal de frente',en:'Front lat spread',
+   oficial:'Piernas y pies en línea, con hasta 15 cm de separación. Manos abiertas o cerradas apoyadas en la parte baja de la cintura u oblicuos. Está estrictamente prohibido tirar del traje hacia arriba.',
+   tecnica:['Empuja los codos hacia adelante y afuera, nunca hacia atrás: la amplitud sale de rotar las escápulas, no de encoger los hombros.','Pecho arriba y costillas abiertas; cintura succionada para exagerar la V.','Cuádriceps contraídos y rodillas firmes con los pies casi juntos.','Pulgares en los oblicuos como ancla: las manos no se mueven mientras abres.'],
+   jueces:'Amplitud dorsal que forme un torso en V; luego revisión de cabeza a pies.',
+   errores:['Codos hacia atrás (cierra la espalda).','Encoger los hombros hacia las orejas.','Tirar del traje (prohibido por reglamento).','Inclinarse hacia adelante.']},
+ sch:{name:'Pecho de lado',en:'Side chest',
+   oficial:'Puedes elegir el lado para mostrar tu mejor brazo. El brazo cercano a los jueces se dobla en ángulo recto con el puño cerrado y la otra mano sujeta esa muñeca. La pierna cercana se dobla por la rodilla y se apoya en la punta del pie.',
+   tecnica:['Pierna de delante doblada y en punta con el gemelo apretado; la de atrás firme.','Cadera hacia atrás y lejos de los jueces, pecho arriba y expandido: inhala, sube las costillas y mantén.','Con la mano lejana tira de la muñeca cercana: eso contrae bíceps y pectoral sin esfuerzo visible.','Hombro lejano un poco más alto que el cercano para dar profundidad al pecho.','Isquiotibiales contraídos (se juzgan en esta pose). Mira a los jueces.'],
+   jueces:'Pectorales, arco de la caja torácica, bíceps, isquiotibiales y gemelos, con muslo y gemelo vistos de perfil.',
+   errores:['No expandir el pecho (la pose pierde el sentido).','Brazo de delante tapando el pectoral.','Rodilla y gemelo relajados.','Girar demasiado hacia los jueces: se vuelve una pose frontal.']},
+ bdb:{name:'Doble bíceps de espaldas',en:'Back double biceps',
+   oficial:'De espaldas a los jueces, brazos y muñecas como en el doble bíceps de frente. Un pie atrás apoyado en la punta.',
+   tecnica:['Pie de atrás en punta con el gemelo contraído; glúteos e isquios apretados todo el tiempo.','Codos ligeramente por delante del plano del cuerpo: se ven deltoides posteriores y la espalda no se "cierra".','No juntes las escápulas del todo: abre los dorsales y contrae trapecios y erectores.','Cintura succionada aunque nadie te vea la cara; baja un poco la cadera hacia el pie de apoyo.','Practícala con dos espejos o video: es la pose que más músculos evalúa.'],
+   jueces:'La pose que más grupos musculares evalúa: cuello, trapecios, teres, infraespinoso, erectores, dorsales, oblicuos, glúteos, isquiotibiales y gemelos. Se usa para medir densidad y definición.',
+   errores:['Juntar las escápulas y tapar los dorsales.','Codos muy atrás (desaparece el deltoides posterior).','Glúteo e isquio relajados.','Cadera adelantada: se pierde la curva lumbar y el glúteo.']},
+ bls:{name:'Expansión dorsal de espaldas',en:'Back lat spread',
+   oficial:'Manos en la cintura con los codos abiertos. Piernas y pies en línea, con hasta 15 cm de separación. Debes mostrar la pantorrilla contraria a la que mostraste en el doble bíceps de espaldas. Prohibido tirar del traje para enseñar el glúteo.',
+   tecnica:['Mismo mecanismo que la frontal: codos hacia adelante y afuera, escápulas rotadas, pecho arriba.','Alterna el pie: el talón que levantaste en el doble bíceps de espaldas ahora va plano y levantas el otro.','Glúteos contraídos sin tocar el traje.','Baja un poco los hombros al final para que el trapecio no tape la amplitud.'],
+   jueces:'Amplitud y densidad dorsal; después revisión completa de cabeza a pies.',
+   errores:['Codos hacia atrás.','Tirar del traje (prohibido).','Olvidar cambiar la pantorrilla.','Encoger los hombros.']},
+ str:{name:'Tríceps de lado',en:'Side triceps',
+   oficial:'Puedes elegir el lado. Ambos brazos detrás de la espalda, con los dedos entrelazados o la muñeca de delante sujetada por la mano de atrás. La pierna cercana doblada con el pie plano; la lejana doblada con el pie en punta. Presionas con el brazo de delante para contraer el tríceps y además subes el pecho y contraes abdomen, muslos y gemelos.',
+   tecnica:['Brazo de delante recto y pegado al cuerpo; empuja contra la mano de atrás para que el tríceps se marque.','Hombro cercano abajo y atrás; gira el tronco un poco (3/4) hacia los jueces para que se vea el pecho.','Exhala y contrae el abdomen; cuádriceps de la pierna de delante tenso.','La pierna lejana en punta muestra el gemelo de perfil.'],
+   jueces:'Desarrollo del tríceps primero; luego cabeza a pies con muslo y gemelo de perfil.',
+   errores:['Doblar el codo del brazo de delante.','Dejar caer el pecho.','Ponerse totalmente de perfil: se pierde la cintura.','Pierna de delante relajada.']},
+ abt:{name:'Abdominales y muslos',en:'Abdominals and thighs',
+   oficial:'De frente a los jueces, ambos brazos detrás de la cabeza y una pierna adelante. El tronco hace un ligero "crunch" hacia adelante contrayendo los abdominales, mientras contraes los músculos del muslo adelantado.',
+   tecnica:['Exhala todo el aire y contrae el recto abdominal (aquí sí se contrae; no es vacuum).','Codos abiertos para no tapar el pecho; cabeza arriba.','Pierna de delante recta con cuádriceps y gemelo contraídos; la de atrás flexionada apoyada.','Mantén la cintura estrecha: el crunch es ligero, no es doblarse.'],
+   jueces:'Abdominales y muslos primero; luego revisión de cabeza a pies.',
+   errores:['Inclinarse demasiado hacia adelante.','Cerrar los codos y esconder el pecho.','Pierna adelantada relajada.','Sacar el aire y no mantener la contracción.']},
+ vac:{name:'Vacuum',en:'Vacuum pose',
+   oficial:'Pies juntos, ambos brazos detrás de la cabeza, de frente a los jueces. Exhalas profundamente y llevas los abdominales hacia adentro (ombligo hacia la columna), mientras flexionas piernas, tronco y brazos. El recto abdominal no se contrae en esta pose.',
+   tecnica:['Exhala por completo; luego haz una "inhalación falsa": expande las costillas sin dejar entrar aire y el abdomen se succiona solo.','Mantén 10–15 s respirando muy corto por la nariz sin perder el vacío; en tarima la comparación puede durar más: practica hasta 30 s.','Practica en ayunas al despertar (es cuando más fácil sale) y después de cada entrenamiento; comidas copiosas antes de posar lo arruinan.','Pies juntos de verdad: con pies separados el juez puede pedírtelo de nuevo.','Brazos y piernas tensos: la pose es de cuerpo entero, no solo de cintura.'],
+   jueces:'Cintura lo más estrecha posible bajo una caja torácica expandida: control, estética y proporción.',
+   errores:['Contraer el recto abdominal (eso es otra pose).','Soltar el vacío antes de que el juez termine la comparación.','Hacerla con pies separados.','Subir los hombros hacia las orejas.']},
+ cls:{name:'Pose clásica a elección',en:'Classic pose of athlete\'s choice',
+   oficial:'Una sola pose clásica frontal, la que mejor te favorezca. Prohibido el "Most Muscular" (también está excluido de las comparaciones de la ronda 1).',
+   tecnica:['Opciones habituales: "Victory" (doble bíceps alto con brazos en V), manos detrás de la cabeza con giro de tronco (3/4 clásico) o pose de pecho 3/4 con una mano en la cadera.','Elige la que muestre tu punto fuerte y ensáyala como si fuera obligatoria: el juez la pide en cada comparación.','La transición desde abdominales y muslos debe ser fluida: es la última de la secuencia.','Dibujo de ejemplo: Victory.'],
+   jueces:'Misma rúbrica: proporción, simetría, calidad muscular y presentación; se premia la estética clásica.',
+   errores:['Hacer Most Muscular (prohibido).','Hacer una pose de espaldas o de perfil cuando se pide frontal.','Tirar del traje o mostrar la parte interna del muslo (prohibido).']},
+ qf:{name:'Frente (cuarto de giro)',en:'Front position',
+   oficial:'De pie, erguido y en tensión, cabeza y ojos en la misma dirección que el cuerpo. Una mano en la cadera con los dedos hacia el frente; el otro brazo cuelga al costado ligeramente separado, con la palma abierta. Una pierna un poco hacia el lado; rodillas rectas, core y dorsales ligeramente activados, mentón arriba.',
+   tecnica:['Dorsales "abiertos" de forma natural, nunca en expansión de fisicoculturista.','Abdomen firme y cintura estrecha; hombros atrás y abajo.','Peso repartido, rodillas sin bloquear a la fuerza, pies sobre la línea.','Sonrisa y contacto con los jueces: aquí se puntúa presencia y personalidad.'],
+   jueces:'Musculatura y condición, proporción vertical (piernas/tronco) y horizontal (cintura/hombros), tono de piel, cabello, presencia escénica y personalidad. Se penaliza lo "demasiado musculoso, duro, seco o magro".',
+   errores:['Flexionar como fisicoculturista.','Sacar el pecho exageradamente y arquear la espalda.','Mirar al piso o perder la sonrisa.']},
+ qs:{name:'Lado 1 (giro a la derecha)',en:'Quarter turn right',
+   oficial:'Giras a la derecha: tu lado izquierdo queda hacia los jueces, con el tronco ligeramente rotado hacia ellos y la cara hacia los jueces. Mano izquierda en la cadera izquierda; brazo derecho cuelga un poco hacia adelante. Pierna cercana ligeramente flexionada con el pie plano; pierna lejana flexionada con el pie atrás sobre la punta.',
+   tecnica:['Rota solo el tronco, no la cadera: así se ve la cintura y el hombro.','Pie lejano en punta con el gemelo contraído.','Brazo que cuelga un poco adelante para no tapar el oblicuo.'],
+   jueces:'Proporción de perfil, línea de hombros, pecho y cintura; condición general.',
+   errores:['Girar de más o de menos (tarjeta amarilla por giros incorrectos; roja baja un puesto).','Flexionar el brazo cercano.']},
+ qb:{name:'Espalda (cuarto de giro)',en:'Back position',
+   oficial:'De espaldas a los jueces. Los dorsales se muestran de forma natural, sin la contracción máxima que usan los fisicoculturistas. Una mano en la cadera, el otro brazo colgando. Una pierna un poco atrás y hacia el lado, apoyada en la punta. Se evalúa todo el físico.',
+   tecnica:['Abre la espalda con las escápulas, sin "sacar" los dorsales a la fuerza.','Glúteos firmes y cintura estrecha; hombros abajo.','Pie de atrás en punta mostrando el gemelo.'],
+   jueces:'Amplitud natural de la espalda, cintura, glúteos, gemelos; proporción global.',
+   errores:['Lat spread de fisicoculturista (se penaliza).','Mirar por encima del hombro de forma forzada.']},
+ qs2:{name:'Lado 2 (giro a la derecha)',en:'Quarter turn right',
+   oficial:'Giras de nuevo a la derecha: tu lado derecho queda hacia los jueces. Es el espejo del lado 1: mano derecha en la cadera derecha, brazo izquierdo colgando un poco hacia adelante, pierna cercana plana y lejana en punta.',
+   tecnica:['Mismos puntos que el lado 1, en espejo.','Termina con un cuarto de giro más para quedar de frente y repite la posición inicial.'],
+   jueces:'Igual que el lado 1.',
+   errores:['Olvidar cambiar la mano de la cadera.','Perder la rotación del tronco hacia los jueces.']}
+};
+var POSE_SETS={
+ bb:['fdb','fls','sch','bdb','bls','str','abt'],
+ cp:['fdb','sch','bdb','str','vac','abt','cls'],
+ mp:['qf','qs','qb','qs2']
+};
+
+/* ── topes de peso por estatura (IFBB) ── */
+var _CP_T=[[168,4],[171,6],[175,8],[180,11],[188,13],[196,15],[1e4,17]];
+var _CB_T=[[168,0],[171,2],[175,4],[180,7],[188,9],[196,11],[1e4,13]];
+var _GC_T=[[162,-2],[165,-1],[168,0],[171,1],[175,2],[180,4],[188,5],[196,6],[1e4,7]];
+function _hLimit(T,h){for(var i=0;i<T.length;i++)if(h<=T[i][0])return {cls:T[i][0]>=1e4?'más de '+T[i-1][0]+' cm':'hasta '+T[i][0]+' cm',add:T[i][1],max:Math.round((h-100+T[i][1])*10)/10};}
+function _hgt(){var p=getProfile();return parseFloat(p.height)||172;}
+function cpLimit(){return _hLimit(_CP_T,_hgt());}
+function catLimit(){return cpLimit().max;}
+function _evClass(bounds,h){for(var i=0;i<bounds.length;i++)if(h<=bounds[i])return 'hasta '+bounds[i]+' cm';return 'más de '+bounds[bounds.length-1]+' cm';}
+function _bbClass(w){var c=[65,70,75,80,85,90,95,100];for(var i=0;i<c.length;i++)if(w<=c[i])return 'hasta '+c[i]+' kg';return 'más de 100 kg';}
+
+var COMP_EVENT={
+  name:'Campeonato Junior, Novatos y Fitness Challenge',org:'Asociación de Fisicoculturismo y Fitness de Costa Rica (AFFCR), afiliada a la IFBB',
+  contact:'info@fecofidea.com · +506 2549-0968 · Estadio Nacional, La Sabana',
+  sj:'San José Internacional 2026: 22 de noviembre (sancionado por la IFBB a través de la CACFF; pesaje y registro en el Estadio Nacional, competencia en el Auditorio Humboldt, Pavas, en la edición 2025).'
+};
+
+var COMP_DIVS=[
+ {id:'classic',name:'Classic Physique',badge:'TU DIVISIÓN',badgeClass:'badge-red',set:'cp',doc:'IFBB Rules · Men\'s Classic Physique, edición 2024',
+  desc:'Físico "armonioso y clásico": proporción, simetría, tamaño y calidad muscular (densidad, separación, definición) y tono de piel. Tiene tope de peso por estatura y es la única división masculina donde el vacuum es pose obligatoria.',
+  fisico:'Hombros anchos, pecho alto, curvas vertebrales correctas, extremidades proporcionadas y piernas rectas. Los jueces revisan de cabeza a pies: también cuentan la piel (cicatrices, acné, tatuajes), el pelo arreglado y los pies cuidados. Buena postura y porte atlético pesan en cada comparación.',
+  limitFn:function(){var L=cpLimit();var h=_hgt();var w=getCurrentWeight();return [
+    'Clases IFBB por estatura: hasta 168 cm (+4 kg), hasta 171 (+6), hasta 175 (+8), hasta 180 (+11), hasta 188 (+13), hasta 196 (+15), más de 196 (+17). Tope = (estatura − 100) + kg de tu clase.',
+    '§Tus '+h+' cm → clase '+L.cls+': tope '+L.max+' kg en el pesaje.§',
+    'Hoy pesas '+_numTxt(Math.round(w*10)/10)+' kg: '+(w>L.max?'te sobran '+_numTxt(Math.round((w-L.max)*10)/10)+' kg para dar el peso':'vas '+_numTxt(Math.round((L.max-w)*10)/10)+' kg por debajo del tope')+'.',
+    'En el San José Internacional la división se divide en clases hasta 171, hasta 174 y más de 174 cm (tú: '+_evClass([171,174],h)+'); el tope de peso se calcula igual con tu estatura medida.',
+    'La estatura se mide al milímetro en el registro: no cuentes con medio centímetro de más.',
+    'Si te pasas del tope tienes 30 minutos para volver a la báscula; si no das el peso no compites en Classic Physique (la salida sería Fisicoculturismo, sin tope).'];},
+  rondas:['Eliminatoria (solo si hay más de 15 atletas): 4 poses en grupos: doble bíceps de frente, pecho de lado, doble bíceps de espaldas y vacuum.','Ronda 1 (prejuzgamiento): las 4 poses en grupos de hasta 10 y comparaciones con las 7 poses obligatorias. No se hace si hay 7 atletas o menos.','Final · Ronda 2: las 7 poses en orden y luego en orden inverso (esto es lo que se puntúa), y posedown de 30–60 s que no se puntúa. Los 6 finalistas arrancan en cero.','Final · Ronda 3: rutina libre individual de máximo 60 s con tu música. Se puntúa 50 % físico y 50 % rutina.'],
+  vestimenta:['Shorts de gimnasia opacos, de un solo color (cualquier color), con lados de mínimo 15 cm de alto.','Deben cubrir todo el glúteo y toda la zona frontal; los muslos quedan visibles.','Sin adornos ni relleno. Te presentas al registro con el mismo traje del prejuzgamiento y el juez principal lo aprueba; en la final puedes usar otro que cumpla lo mismo.','El número va en el lado izquierdo del traje.','Solo anillo de matrimonio: nada de calzado, lentes, reloj, aretes, pelucas, joyas ni "ayudas" a la figura. Gorra solo por motivo religioso, pequeña y aprobada en el registro.','Implantes o inyecciones de líquido que cambien la forma del músculo: prohibidos y motivo de descalificación.'],
+  bronceado:['Prohibidos los bronceadores que se quitan al frotar: si al pasar la mano se despinta, no subes a tarima.','Permitidos autobronceadores y color artificial; aerógrafo o cabina solo aplicados por empresa y personal profesional.','Prohibidos brillos, glitter, perlas metálicas y dorados, vengan en la loción o aparte.','Aceite y humectante con moderación; el exceso de aceite está estrictamente prohibido. El juez principal tiene la última palabra.'],
+  rutina:['Máximo 60 s, música propia: una canción por USB, lleva dos copias rotuladas con tu nombre y país. Lenguaje vulgar u ofensivo: se corta la música, sales de tarima y la ronda vale cero.','Debe incluir las poses obligatorias y poses intermedias que muestren tu desarrollo; se valora que sea fluida, artística y coreografiada.','Prohibidos: "moon pose", tirar del traje para mostrar el interior del muslo o el glúteo, acrobacias (no puedes saltar ni despegar ambos pies sin otro apoyo en el piso) y props.'],
+  errores:['No dar el peso en el pesaje: sin tope no hay categoría.','Hacer el vacuum contrayendo el recto abdominal o soltarlo antes de tiempo.','Most Muscular en la pose a elección: está prohibida.','Bronceado que se despinta con la prueba de frotado.','Pose de espaldas floja: es la que más músculos evalúa.'],
+  tips:['Ensaya las 7 poses en secuencia, en orden y en orden inverso, aguantando cada una 10–15 s como en la final.','Vacuum todos los días en ayunas desde ya; en tarima se pide en la eliminatoria y en cada comparación.','Haz una prueba de bronceado profesional semanas antes y pásale la prueba del frotado en casa.','Si vas justo en peso, planea el pesaje: la carga fuerte de carbohidratos va después de la báscula.']},
+ {id:'bbclassic',name:'Fisicoculturismo Clásico',badge:'MISMA VESTIMENTA',badgeClass:'badge-gold',set:'bb',doc:'IFBB Rules · Men\'s Classic Bodybuilding & Games Classic Bodybuilding, edición 2026',
+  desc:'Apariencia atlética masculina con desarrollo balanceado, densidad y definición, "con una pequeña cantidad de grasa corporal" y piel sana. Topes de peso más bajos que Classic Physique y poses de fisicoculturismo (expansiones dorsales, sin vacuum ni rutina libre).',
+  fisico:'Más densidad que Classic Physique con la misma estética. Descalifican o excluyen las desviaciones extremas: abdomen distendido, formas musculares antinaturales, ginecomastia o exceso de grasa.',
+  limitFn:function(){var L=_hLimit(_CB_T,_hgt());var G=_hLimit(_GC_T,_hgt());var h=_hgt();return [
+    'Clases IFBB por estatura: hasta 168 cm (+0 kg), hasta 171 (+2), hasta 175 (+4), hasta 180 (+7); más de 180 compite en una sola clase (+9/+11/+13 según estatura).',
+    '§Tus '+h+' cm → clase '+L.cls+': tope '+L.max+' kg.§',
+    'Games Classic Bodybuilding (topes más bajos, dos clases: hasta 175 y más de 175 cm): tu tope sería '+G.max+' kg.',
+    'En el San José Internacional la división se divide en hasta 171, hasta 174 y más de 174 cm (tú: '+_evClass([171,174],h)+').'];},
+  rondas:['Eliminatoria (si hay más de 15): doble bíceps de frente, pecho de lado, doble bíceps de espaldas y abdominales y muslos.','Ronda 1: las 4 poses en grupos y comparaciones con las 7 poses obligatorias.','Final · Ronda 2: las 7 poses en orden y en orden inverso, y posedown de 30–60 s sin puntuar. No hay rutina libre en el reglamento 2026.'],
+  vestimenta:['Igual que Classic Physique: shorts de gimnasia opacos de un solo color con lados de mínimo 15 cm, que cubran todo el glúteo y la zona frontal; sin adornos ni relleno.','Mismas reglas de joyas, gorra, implantes y aprobación en el registro.'],
+  bronceado:['Mismas reglas: nada que se despinte al frotar, sin glitter ni dorados, aceite con moderación.'],
+  rutina:['No aplica: el reglamento 2026 no incluye rutina libre.'],
+  errores:['Llegar con el peso de Classic Physique: aquí el tope es 4 kg menor.','Codos atrás en las expansiones dorsales.','Tirar del traje en las expansiones (prohibido).'],
+  tips:['Es la división para hacer "crossover" con Classic Physique si tu peso lo permite: el reglamento general lo autoriza.','Entrena las dos expansiones dorsales con la pantorrilla alterna.']},
+ {id:'bb',name:'Fisicoculturismo',badge:'SIN TOPE',badgeClass:'badge-muted',set:'bb',doc:'IFBB Rules · Men\'s Bodybuilding, edición 2026',
+  desc:'La división abierta: proporción, simetría, tamaño y calidad muscular (densidad, separación, definición) y tono de piel. Categorías por peso corporal, sin tope por estatura.',
+  fisico:'Se favorece un físico "armonioso y clásico" con buena postura; se penalizan las mismas desviaciones (abdomen distendido, ginecomastia, exceso de grasa). Más masa y condición que en las divisiones clásicas.',
+  limitFn:function(){var w=getCurrentWeight();return [
+    'Clases IFBB senior por peso: hasta 65, 70, 75, 80, 85, 90, 95 y 100 kg, y más de 100 kg. En el San José Internacional 2025 se usaron hasta 65, 70, 75, 80, 85 y más de 85 kg.',
+    '§Con tu peso actual ('+_numTxt(Math.round(w*10)/10)+' kg) entrarías en '+_bbClass(w)+'.§',
+    'Si te pasas del límite de tu clase, puedes competir en la clase siguiente.'];},
+  rondas:['Eliminatoria (si hay más de 15): doble bíceps de frente, pecho de lado, doble bíceps de espaldas y abdominales y muslos.','Ronda 1: 4 poses en grupos de hasta 10 y comparaciones con las 7 poses obligatorias.','Final · Ronda 2: las 7 poses en orden y en orden inverso, y posedown de 30–60 s sin puntuar.'],
+  vestimenta:['Trunks de un solo color, opacos, limpios y decentes; color, tela, textura y estilo a tu criterio.','Deben cubrir al menos ¾ del glúteo y toda la zona frontal, con lados de mínimo 5 cm de ancho. Sin relleno.','Mismas reglas de joyas, gorra, implantes y aprobación en el registro; número en el lado izquierdo.'],
+  bronceado:['Mismas reglas: nada que se despinte al frotar, sin glitter ni dorados, aceite con moderación.'],
+  rutina:['El reglamento 2026 no incluye rutina libre; solo posedown con música del organizador.'],
+  errores:['Trunks demasiado pequeños (menos de ¾ del glúteo cubierto).','Tirar del traje en las expansiones.'],
+  tips:['Si no das el peso de Classic Physique el día del pesaje, esta es la división donde sí puedes subir.']},
+ {id:'mensph',name:'Men\'s Physique',badge:'BOARD SHORTS',badgeClass:'badge-blue',set:'mp',doc:'IFBB Rules · Men\'s Physique, edición 2024',
+  desc:'Físico "armonioso, proporcional y clásico masculino", firme y con poca grasa, pero más "suave" que en fisicoculturismo. Solo cuartos de giro, en board shorts hasta la rodilla. Sin límite de peso.',
+  fisico:'Proporciones verticales (piernas/tronco) y horizontales (cintura y cadera/hombros), piel, cabello, presencia y personalidad: se juzga el "paquete completo" con aspecto saludable y en forma. Lo demasiado musculoso, duro, seco o magro se marca hacia abajo: "no es un concurso de fisicoculturismo". El juez puede excluir por abdomen distendido, formas antinaturales, ginecomastia o exceso de grasa.',
+  limitFn:function(){var h=_hgt();return [
+    'Clases IFBB senior por estatura: A hasta 170 cm, B hasta 173, C hasta 176, D hasta 179, E hasta 182, F más de 182. En el San José Internacional: hasta 170, hasta 174, hasta 178 y más de 178 cm.',
+    '§Tus '+h+' cm → clase IFBB '+_evClass([170,173,176,179,182],h)+' · en el San José Internacional: '+_evClass([170,174,178],h)+'.§',
+    'Sin tope de peso.'];},
+  rondas:['Eliminatoria (si hay más de 15): cuatro cuartos de giro en grupos de hasta 10.','Ronda 1: cuartos de giro quietos y comparaciones de 3 a 10 atletas.','Final · Ronda 2: los 6 finalistas hacen los cuartos de giro en orden y en orden inverso. Debes estar en el área de calentamiento al menos 45 minutos antes.','Tarjetas: amarilla = advertencia por giros o posición incorrectos (en la eliminatoria resta una X); roja = bajas un puesto por cada tarjeta.'],
+  vestimenta:['Board shorts opacos, holgados, limpios y decentes; color y tela a tu criterio. Patrones geométricos permitidos; sin inscripciones ni adornos.','Deben cubrir todo el muslo hasta la parte superior de la rodilla (rótula).','Sin relleno y sin tela ajustada tipo lycra. Sin logos de patrocinadores personales (el del fabricante sí).','Mismas reglas de joyas, gorra e implantes; en la final puedes cambiar de shorts si cumplen lo mismo.'],
+  bronceado:['Mismas reglas: nada que se despinte, sin glitter ni dorados, aceite con moderación.'],
+  rutina:['No hay rutina libre ni poses de fuerza.'],
+  errores:['Flexionar como fisicoculturista o hacer lat spread en la posición de espaldas.','Llegar demasiado seco o estriado: se penaliza.','Giros incorrectos o fuera de orden (tarjetas).'],
+  tips:['Ensaya la secuencia completa de giros con un metrónomo mental: el juez dice "quarter turn right" y todos giran a la vez.','Trabaja la presencia: sonrisa, mirada a los jueces y transiciones limpias.']},
+ {id:'muscular',name:'Muscular Men\'s Physique',badge:'MÁS MÚSCULO',badgeClass:'badge-blue',set:'mp',doc:'IFBB Rules · Men\'s Physique (incluye Muscular Men\'s Physique desde 2016), edición 2024',
+  desc:'Para competidores con "un poco más de musculatura" que el Men\'s Physique regular. Misma presentación (cuartos de giro), mismos board shorts y misma rúbrica.',
+  fisico:'Igual que Men\'s Physique con más tamaño; sigue siendo una categoría de proporción y presencia, no de condición extrema.',
+  limitFn:function(){var h=_hgt();return [
+    'Clases IFBB senior: A hasta 179 cm y B más de 179 cm. En el San José Internacional: hasta 171, hasta 174 y más de 174 cm.',
+    '§Tus '+h+' cm → clase IFBB '+_evClass([179],h)+' · en el San José Internacional: '+_evClass([171,174],h)+'.§',
+    'Sin tope de peso. El ganador no compite en el overall de Men\'s Physique.'];},
+  rondas:['Las mismas rondas y tarjetas que Men\'s Physique.'],
+  vestimenta:['Los mismos board shorts hasta la rodilla y las mismas reglas de joyas e implantes.'],
+  bronceado:['Mismas reglas de bronceado y aceite.'],
+  rutina:['No hay rutina libre.'],
+  errores:['Confundirla con una categoría de fisicoculturismo: los giros y la presentación son de Men\'s Physique.'],
+  tips:['Confirma con la AFFCR si la categoría se abre en el evento al que vas: necesita mínimo 3 inscritos.']}
+];
+
+var COMP_RULES=[
+ {t:'Tu evento',items:function(){var p=getProfile();var out=[];
+   var isNov=/novat/i.test(p.comp||'');
+   out.push('Fecha en tu perfil: '+(p.compDate?fmtDate(p.compDate):'sin fecha')+' · evento: '+(p.comp||'sin nombre')+'. En el calendario de la AFFCR el 5 de diciembre es el '+COMP_EVENT.name+'; el San José Internacional es el 22 de noviembre.'+(isNov?'':' <button class="lnk" onclick="compSetNovatos()">Poner «Novatos AFFCR» como mi evento ›</button>'));
+   out.push('Organiza: '+COMP_EVENT.org+'. Contacto: '+COMP_EVENT.contact+'.');
+   out.push('"Novato" no está definido en la página de la AFFCR: confirma con ellos los requisitos (primera competencia, carné de la asociación, cuota) antes de preparar el papeleo.');
+   out.push(COMP_EVENT.sj);
+   out.push('Inscripción 2025 como referencia: US$80 o ₡40 000 por atleta, US$40 o ₡20 000 por categoría adicional; preinscripción una semana antes; medallas y certificados del 1.º al 6.º lugar y trofeo para los overall.');
+   return out;}},
+ {t:'Edad y elegibilidad',items:['Con 27 años compites como Senior (abierto): junior es hasta el año en que cumples 23 y masters desde los 40. "Novatos" se define por experiencia, no por edad.','En eventos internacionales IFBB necesitas la tarjeta internacional IFBB vigente, pasaporte o identificación y ser nominado por tu federación nacional; nadie se inscribe por su cuenta.','Crossovers permitidos por el reglamento general: Games Classic, Fisicoculturismo Clásico, Classic Physique y Fisicoculturismo entre sí; Men\'s Physique con Men\'s Fitness y Fit Model.','Una categoría se abre con mínimo 3 atletas (5 en mundiales y continentales); si no, se combinan. Juniors y masters nunca se combinan.']},
+ {t:'Registro y pesaje',items:['El registro oficial lo controla el juez principal y normalmente es el día anterior al prejuzgamiento (en el San José Internacional 2025: 9 a.m. a 1 p.m. en el Estadio Nacional, con reunión técnica a las 5 p.m.).','Báscula calibrada en kilos con precisión de 0.1 kg y estatura medida al milímetro, empezando por la categoría más baja.','Te presentas con el mismo traje que usarás en las comparaciones del prejuzgamiento, para que lo aprueben.','Si te pasas del peso tienes máximo 30 minutos para volver a pesarte; nadie te va a buscar ni avisar. Quien llega tarde o falta al registro puede quedar fuera.','Música: una canción por USB, dos copias rotuladas con nombre y país; si compites en dos clases, una memoria por clase. Recógela al terminar.']},
+ {t:'Bronceado, aceite y presentación',items:['Prueba del frotado: si el color se quita al pasar la mano, no subes. Usa autobronceador o aerógrafo profesional aplicado por personal calificado y pruébalo semanas antes.','Prohibidos brillos, glitter, perlas metálicas y dorados; aceite y humectante con moderación, nunca excesivo.','Sin calzado, lentes, reloj, aretes, pelucas ni joyas (solo anillo de matrimonio). Gorra solo por motivo religioso y aprobada en el registro.','Nada de goma de mascar, otros productos ni beber líquidos en tarima; props prohibidos.','Implantes o inyecciones de líquido que cambien la forma de un músculo: prohibidos y motivo de descalificación.','Cámaras y video prohibidos tras bambalinas y en vestidores (solo prensa autorizada).']},
+ {t:'Conducta y sanciones',items:['Salir de la tarima antes de que termine la premiación puede descalificarte.','Retirarse sin permiso: suspensión de hasta un año y multa de hasta €1 000 a la federación.','Música con lenguaje vulgar u ofensivo: se detiene, sales de tarima y la ronda vale cero.','En Men\'s Physique: tarjeta amarilla = advertencia; roja = un puesto abajo por tarjeta.']},
+ {t:'Cómo se puntúa',items:['Cada juez da una colocación individual sin empates. Con 9 jueces se descartan las 2 más altas y las 2 más bajas (con menos jueces, 1 y 1) y se suman las demás: gana la suma más baja. Empates por el método de Relative Placement.','Del prejuzgamiento pasan 6 a la final y arrancan en cero: lo del prejuzgamiento no cuenta en la final; los jueces deben evaluarte "fresco", porque la condición cambia entre la mañana y la noche.','Eliminatoria (si hay más de 15): cada juez marca sus 15 mejores con una X; el juez principal puede cambiar a 10 o 17.','El overall de cada división lo disputan los ganadores de clase.']},
+ {t:'Antidopaje',items:['La IFBB es signataria del Código Mundial Antidopaje; el San José Internacional 2025 se anunció sujeto a las reglas de la WADA con controles administrados por CONAD (Comisión Nacional Antidopaje de Costa Rica), y la AFFCR declara cumplir el código de la WADA en todos sus eventos.','Controles en competencia: selección aleatoria en el pesaje, selección entre finalistas y controles dirigidos. Fuera de competencia: grupo registrado de atletas (top de mundiales).','Un resultado adverso de la muestra A puede traer suspensión provisional inmediata; las sanciones siguen las reglas antidopaje IFBB (primera infracción típicamente de hasta 4 años según la sustancia).','Prohibidos en todo momento (dentro y fuera de competencia): S0 sustancias no aprobadas, S1 agentes anabólicos (todos los esteroides, clenbuterol, SARMs), S2 hormonas peptídicas y factores de crecimiento (GH, péptidos GHRP/GHRH, IGF-1, hCG en hombres), S3 beta-2 agonistas, S4 moduladores hormonales y metabólicos (inhibidores de aromatasa, clomifeno, tamoxifeno, cardarine, SR9009, insulina), S5 diuréticos y agentes enmascarantes.','Prohibidos solo en competencia (desde las 23:59 del día anterior hasta terminar la recolección de muestras): estimulantes, narcóticos, cannabinoides y glucocorticoides.','Todo lo que está en tu biblioteca farmacológica aparece en la lista de prohibiciones. Si usas un medicamento con receta, el camino es la exención por uso terapéutico (TUE) antes del evento.','En Costa Rica la Ley General de Salud 5395 prohíbe importar, vender y usar medicamentos sin registro sanitario; los anabólicos registrados se venden solo con receta.']},
+ {t:'Lista para la semana del show',items:['Traje aprobado (y uno de repuesto), número con alfileres a la izquierda, board shorts si haces crossover.','Dos USB con tu canción rotulados, identificación, tarjeta o carné de la asociación, comprobante de inscripción.','Cita de bronceado profesional (dos capas: noche anterior y mañana del show) y ropa oscura holgada para no mancharla.','Comida de tarima en recipientes, sal, agua, ligas para el pump, toalla, chanclas, rasuradora.','Hora de registro, reunión técnica y orden de categorías confirmados con la AFFCR.']}
+];
+
+var COMP_SOURCES=[
+ ['IFBB · Men\'s Classic Physique Rules 2024','https://ifbb.com/wp-content/uploads/2024/02/Mens-Classic-Physique-2024.pdf'],
+ ['IFBB · Men\'s Bodybuilding Rules 2026','https://ifbb.com/wp-content/uploads/2025/07/Mens-Bodybuilding-Rules-2026-1.pdf'],
+ ['IFBB · Men\'s Classic Bodybuilding & Games Classic 2026','https://ifbb.com/wp-content/uploads/2026/03/Mens-Classic-Bodybuilding-Rules-2026-2.pdf'],
+ ['IFBB · Men\'s Physique Rules 2024','https://ifbb.com/wp-content/uploads/2025/04/Mens-Physique-2024.pdf'],
+ ['IFBB · General Rules 2024','https://ifbb.com/wp-content/uploads/2024/08/01-IFBB-General-Rules-2024-edition-1.pdf'],
+ ['IFBB · Reporte de inspección San José Internacional 2025','https://ifbb.com/wp-content/uploads/2025/02/REPORTE-INSPECCION-SAN-JOSE-INTERNACIONAL-2025.pdf'],
+ ['IFBB · Calendario 2026 (San José Internacional 22 nov)','https://ifbb.com/wp-content/uploads/2026/06/calendar-2026.pdf'],
+ ['AFFCR · Calendario (Novatos 5 dic)','https://www.fecofidea.com/'],
+ ['WADA · Lista de Prohibiciones 2026','https://www.wada-ama.org/en/prohibited-list'],
+ ['Escalante et al. 2021 · Peak week recommendations for bodybuilders (J Int Soc Sports Nutr)','https://pmc.ncbi.nlm.nih.gov/articles/PMC8201693'],
+ ['Barakat et al. 2022 · Peak week case study (Sports)','https://www.mdpi.com/2075-4663/10/7/106'],
+ ['Jukic et al. 2024 · Carbohydrate loading and muscle thickness (Abertay)','https://rke.abertay.ac.uk/en/publications/the-effect-of-a-bodybuilding-carbohydrate-loading-protocol-on-ant/']
+];
+
+/* ── render ── */
+function _cItems(arr,color){var h='';for(var j=0;j<arr.length;j++){var t=arr[j];var hi=false;if(typeof t==='string'&&t.charAt(0)==='§'){hi=true;t=t.replace(/§/g,'');}h+='<div class="cat-item'+(hi?' cat-hi':'')+'"><span class="cat-dot"'+(color?' style="color:'+color+'"':'')+'>•</span><span>'+t+'</span></div>';}return h;}
+function _cSec(title,body){return '<div class="cat-section"><div class="cat-sec-title">'+title+'</div>'+body+'</div>';}
+function _myCatCard(){
+  var L=cpLimit();var h=_hgt();var w=getCurrentWeight();var gw=getGoalWeight();var p=getProfile();var d=p.compDate?Math.round((parseD(p.compDate)-parseD(today()))/86400000):null;
+  var diff=Math.round((w-L.max)*10)/10;
+  return '<div class="card mycat"><div class="card-sub" style="font-weight:600">Classic Physique · '+h+' cm · clase '+L.cls+'</div>'
+    +'<div class="mycat-row"><div><div class="mycat-n">'+L.max+'<small> kg</small></div><div class="card-sub">tope en el pesaje</div></div>'
+    +'<div><div class="mycat-n" style="color:'+(diff>0?'var(--gold)':'var(--green)')+'">'+_numTxt(Math.round(w*10)/10)+'<small> kg</small></div><div class="card-sub">hoy'+(diff>0?' · sobran '+_numTxt(diff):' · '+_numTxt(-diff)+' bajo el tope')+'</div></div>'
+    +'<div><div class="mycat-n">'+(gw?_numTxt(gw):'—')+'<small> kg</small></div><div class="card-sub">tu meta</div></div></div>'
+    +'<div class="card-sub" style="line-height:1.5">'+(d!==null?(d>0?'Faltan '+d+' días':d===0?'Es hoy':'Fue hace '+(-d)+' días')+' · ':'')+'Tope = (estatura − 100) + 8 kg en tu clase. Las demás divisiones de abajo muestran tu número con la misma estatura.</div></div>';
+}
+function buildCatList(){
+  var el=document.getElementById('catList');if(!el)return;var h=_myCatCard();
+  for(var i=0;i<COMP_DIVS.length;i++){var c=COMP_DIVS[i];var open=i===0;
+    h+='<div class="cat-card'+(open?' open':'')+'" id="cat-'+c.id+'">';
+    h+='<button class="cat-hd cat-tog" onclick="togCat(\''+c.id+'\')"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><div class="cat-title">'+c.name+'</div><span class="badge '+c.badgeClass+'">'+c.badge+'</span></div><div class="cat-sub">'+c.desc+'</div><div class="cat-doc">'+c.doc+' · toca para '+(open?'cerrar':'abrir')+'</div></button>';
+    h+='<div class="cat-body">';
+    h+=_cSec('Físico que buscan los jueces','<div class="cat-sec-body">'+c.fisico+'</div>');
+    h+=_cSec('Clases y tope de peso',_cItems(c.limitFn()));
+    h+=_cSec('Rondas',_cItems(c.rondas));
+    h+=_cSec('Poses obligatorias','<div class="cat-sec-body">'+POSE_SETS[c.set].map(function(id,k){return (k+1)+'. '+POSE_LIB[id].name;}).join(' · ')+'. <button class="lnk" onclick="swComp(\'poses\');setPoseSet(\''+c.set+'\')">Ver ilustradas ›</button></div>');
+    h+=_cSec('Vestimenta',_cItems(c.vestimenta));
+    h+=_cSec('Bronceado y aceite',_cItems(c.bronceado));
+    h+=_cSec('Rutina libre',_cItems(c.rutina));
+    h+=_cSec('Errores que cuestan puestos',_cItems(c.errores));
+    h+=_cSec('Recomendaciones',_cItems(c.tips));
+    h+='</div></div>';}
+  h+='<div class="note note-gold" style="margin:0 14px 12px">Reglamentos IFBB vigentes al 14 de octubre de 2026 (ediciones 2024 y 2026). La AFFCR aplica estas reglas en sus eventos; las clases por estatura o peso de cada campeonato las fija la convocatoria. Confirma la tuya con la asociación.</div>';
+  el.innerHTML=h;
+}
+function togCat(id){var c=document.getElementById('cat-'+id);if(!c)return;c.classList.toggle('open');var d=c.querySelector('.cat-doc');if(d)d.textContent=d.textContent.replace(/toca para (abrir|cerrar)/,'toca para '+(c.classList.contains('open')?'cerrar':'abrir'));}
+var _poseSet='cp';
+function setPoseSet(s){_poseSet=s;buildPosesList();}
+function buildPosesList(){
+  var el=document.getElementById('posesList');if(!el)return;
+  var sets=[['cp','Classic Physique'],['bb','Fisicoculturismo y Clásico'],['mp','Men\'s Physique']];
+  var h='<div class="chips" style="margin:0 14px 12px">'+sets.map(function(s){return '<button class="chip'+(s[0]===_poseSet?' on':'')+'" onclick="setPoseSet(\''+s[0]+'\')">'+s[1]+'</button>';}).join('')+'</div>';
+  var intro={cp:'Las 7 poses de Classic Physique en el orden oficial de comparación. En la eliminatoria se piden la 1, 2, 3 y el vacuum. En la final se hacen en orden y luego en orden inverso.',bb:'Las 7 poses de Fisicoculturismo y Fisicoculturismo Clásico en el orden oficial. En la eliminatoria se piden doble bíceps de frente, pecho de lado, doble bíceps de espaldas y abdominales y muslos.',mp:'Los cuatro cuartos de giro de Men\'s Physique y Muscular Men\'s Physique, en el orden en que los pide el juez principal: frente, giro a la derecha, espalda, giro a la derecha. Sin poses de fuerza.'};
+  h+='<div class="hint" style="margin:0 14px 12px">'+intro[_poseSet]+'</div>';
+  POSE_SETS[_poseSet].forEach(function(id,i){var p=POSE_LIB[id];
+    h+='<div class="pose-card"><div class="pose-fig">'+poseSvg(POSE_FIG[id])+'</div><div class="pose-main">';
+    h+='<div class="pose-num">'+(i+1)+'</div><div class="pose-name">'+p.name+'</div><div class="pose-en">'+p.en+'</div>';
+    h+='<div class="pose-sec"><div class="pose-sec-t">Reglamento</div><div class="pose-txt">'+p.oficial+'</div></div>';
+    h+='<div class="pose-sec"><div class="pose-sec-t">Cómo hacerla bien</div>'+_cItems(p.tecnica)+'</div>';
+    h+='<div class="pose-sec"><div class="pose-sec-t">Qué miran los jueces</div><div class="pose-txt">'+p.jueces+'</div></div>';
+    h+='<div class="pose-sec"><div class="pose-sec-t">Errores</div>'+_cItems(p.errores,'var(--gold)')+'</div>';
+    h+='</div></div>';});
+  el.innerHTML=h;
+}
+function buildRulesPanel(){
+  var el=document.getElementById('rulesList');if(!el)return;var h='';
+  COMP_RULES.forEach(function(r){var items=typeof r.items==='function'?r.items():r.items;h+='<div class="card"><div class="card-title" style="margin-bottom:10px">'+r.t+'</div>'+_cItems(items)+'</div>';});
+  h+='<div class="card"><div class="card-title" style="margin-bottom:10px">Fuentes</div>'+COMP_SOURCES.map(function(s){return '<div class="cat-item"><span class="cat-dot">•</span><a class="src" href="'+s[1]+'" target="_blank" rel="noopener">'+s[0]+'</a></div>';}).join('')+'</div>';
+  el.innerHTML=h;
+}
+
+/* ── PEAK WEEK: protocolo día por día, con tus kilos ──
+   Base: Escalante, Stevenson, Barakat, Helms et al. 2021 (revisión), Barakat et al. 2022 (caso con ultrasonido y DEXA),
+   Jukic et al. 2024 (carga 9 g/kg y grosor muscular), de Moraes et al. (carga y preferencia de jueces), Mitchell et al.
+   (carga de agua), y las reglas antidopaje. Los gramos se calculan con tu peso actual; los litros con tu peso en ml/kg. */
+var PEAK_WEEK=[
+  {day:'Día 7',title:'Depleción 1',color:'var(--gold)'},
+  {day:'Días 6-5',title:'Depleción 2 y 3',color:'var(--gold)'},
+  {day:'Días 4-3',title:'Carga de carbohidratos',color:'var(--green)'},
+  {day:'Día 2',title:'Registro, pesaje y afinado',color:'var(--blue)'},
+  {day:'Día 1',title:'Día de tarima',color:'var(--red)'}
+];
+var PEAK_ITEMS=[
+ ['Carbohidratos: 1-1.5 g/kg ([[1-1.5]]) de verduras fibrosas y algo de arroz o papa: vacías glucógeno para que la carga lo rellene de más.','Proteína: 2.5-3 g/kg ([[2.5-3]]).','Grasa: 1-1.5 g/kg ([[1-1.5]]) (sube cuando bajan los carbos).','Agua: 60-80 ml/kg ([[L:0.06-0.08]]) repartidos en el día, constantes toda la semana.','Sodio: el de siempre, constante (sala tu comida normal); no lo subas ni lo bajes.','Potasio adecuado: papa, aguacate, espinaca; el glucógeno se guarda con potasio.','Entreno de depleción: cuerpo completo, piernas primero, series de 12-15 sin fallo; evita ejercicios en estiramiento (RDL, pullover, aperturas): dañan y retienen.','Cardio: el último hoy; se elimina antes de la carga.','Posing: 20-30 min, aguantando cada pose 10-15 s.'],
+ ['Carbohidratos: 1-1.5 g/kg ([[1-1.5]]).','Proteína: 2.5-3 g/kg ([[2.5-3]]).','Grasa: 1-1.5 g/kg ([[1-1.5]]).','Agua: igual, 60-80 ml/kg ([[L:0.06-0.08]]).','Sodio y potasio: iguales.','Día 6: segunda sesión de depleción (torso) más ligera. Día 5: sin pesas, solo posing.','Foto en ayunas con la misma luz cada mañana: es tu referencia de "plano".','Es normal verte vacío y sin energía: no cambies nada por el espejo de estos días.','Creatina: si la tomas, sigue con tu dosis de siempre; no la suspendas ni cargues ahora.'],
+ ['Carbohidratos: 8-10 g/kg ([[8-10]]) en 6-8 comidas; si el día 4 respondes bien (lleno y seco), el día 3 puedes subir a 10-12 g/kg ([[10-12]]).','Fuentes bajas en fibra y grasa: arroz blanco, crema de arroz, papa sin cáscara, galletas de arroz, pan blanco, miel, maltodextrina o dextrina cíclica si el volumen te cuesta.','Proteína: 1.6-2 g/kg ([[1.6-2]]), siempre con cada comida de carbos (ayuda a guardar glucógeno y deja espacio).','Grasa: menos de 0.5 g/kg ([[0.3-0.5]]).','Agua: igual que toda la semana, 60-80 ml/kg ([[L:0.06-0.08]]); el glucógeno entra con agua: nunca la cortes mientras cargas.','Sodio: igual que siempre y nunca menos: la absorción intestinal de glucosa es sodio-dependiente; cortar sal mientras cargas es la forma más segura de quedar plano.','Potasio: alto por la papa y el plátano de la carga; no añadas suplementos sin médico.','Sin pesas; posing 15-20 min por la mañana y pump ligero.','Control de "spillover" (te ves acuoso o suave en la foto de la mañana): baja los carbos del día un 30-40 % y mantén el agua; nunca respondas quitando agua o sal.','Sin alimentos nuevos: todo lo que comas esta semana ya lo probaste en el ensayo general.'],
+ ['Pesaje (en Classic Physique el tope manda): desayuna ligero y pésate en casa antes de salir; la comida grande de carbos va después de la báscula. Si vas sobrado, el día 3 reduce carbos de la noche y haz el pesaje a primera hora.','Carbohidratos: 3-5 g/kg ([[3-5]]) según la foto de la mañana: lleno y seco = 3; plano = 5.','Proteína: 2.5-3 g/kg ([[2.5-3]]).','Grasa: 0.8-1 g/kg ([[0.8-1]]) (carne roja, yema, aguacate): da redondez y sacia sin carbos.','Agua: igual que toda la semana hasta media tarde; desde la noche solo lo que pida la sed. Nunca un corte total ni más del 30-40 % menos que los días anteriores.','Sodio: igual; con la carne roja y la sal normal basta. Nada de cortar la sal "para secar".','Fibra mínima y comidas pequeñas y secas (menos volumen abdominal).','Opcional con evidencia preliminar: dormir con la cabecera ligeramente baja (4-6°) moviliza 1 kg de líquido; evítalo si tienes reflujo.','Revisa el traje en el registro, pide tu número y confirma la hora de tu categoría y la reunión técnica.','Bronceado: primera capa en la noche, ropa oscura y holgada; sin sauna, baños calientes ni "sudar": pierdes agua del músculo, no de la piel.'],
+ ['Al despertar: foto, cafeína si la usas (misma dosis de siempre; no la suspendas hoy).','Desayuno 3-4 h antes del prejuzgamiento: 1-1.5 g/kg ([[1-1.5]]) de carbos de siempre (crema de arroz, pan blanco con miel) + 0.3 g/kg ([[0.3]]) de proteína + una pizca de sal.','Cada 60-90 min hasta tu categoría: 25-50 g de carbos simples (galletas de arroz con miel o mermelada, plátano maduro).','Agua: sorbos de 100-200 ml cada hora con la comida; deja de beber 60-90 min antes de salir, no antes.','30-45 min antes: 30-50 g de carbos simples + una pizca de sal; opcional una cucharada de crema de cacahuate (práctica común, evidencia limitada).','Pump-up 10-15 min antes: 2-3 series ligeras de 12-15 por grupo (ligas, lagartijas, remo con liga, curl, elevaciones laterales); piernas solo 1-2 series: el pump excesivo quita separación.','Segunda capa de bronceado por la mañana y aceite mínimo justo antes de salir.','Entre prejuzgamiento y final: comida de carbos + proteína + sal igual que el desayuno, posing ligero, repetir el protocolo de 60-90 min para la final.','Si en algún momento hay calambres, mareo, palpitaciones u orina muy oscura: agua con sal y carbos y avisa; es señal de que se exageró.']
+];
+var PEAK_EXTRA=[
+ {t:'Antes de la semana',c:'var(--text2)',items:['Ensayo general 2-4 semanas antes: repite los días 4-3-2 completos y fotografía cada mañana; así sabes cuántos gramos te llenan sin ponerte acuoso. Sin ensayo, la revisión de Escalante recomienda no tocar agua ni sodio.','Llega magro: la carga solo se ve si la condición ya está; ninguna manipulación de la última semana sustituye 2-3 semanas de dieta.','Define tu peso de pesaje con margen: la carga sube 1-2 kg de peso corporal (Barakat: +2 % de masa magra en DEXA con la carga).','Pide a tu médico un perfil básico antes de la semana (electrolitos, creatinina, hematocrito, presión): es tu red de seguridad.']},
+ {t:'Lo que no se hace (y por qué)',c:'var(--red-hi)',items:['Diuréticos: furosemida, espironolactona y similares están prohibidos en todo momento por WADA (S5) y la literatura documenta calambres incapacitantes, arritmias y hospitalizaciones. CONAD puede tomar muestra en el pesaje.','Corte total de agua 24 h o "secado" con sauna: el músculo es ~75 % agua; al deshidratarte pierdes agua intracelular casi 1:1 con la extracelular, te ves más plano y pequeño y suben los calambres.','Cargar agua a 10-12 L "para luego cortar": Mitchell et al. lo reportan como ineficaz y hay casos con trastornos graves de electrolitos.','Quitar la sal mientras cargas carbohidratos: el glucógeno no entra sin sodio y a las 24-48 h la aldosterona retiene más de lo que soltaste.','Alimentos nuevos, alcohol, laxantes o "diuréticos naturales" sin ensayo previo.']},
+ {t:'Señales de alarma',c:'var(--gold)',items:['Calambres dolorosos, debilidad, mareo al levantarte, palpitaciones, confusión u orina muy oscura: detén la manipulación, toma agua con sal y carbos, y busca atención médica. Estos son los síntomas de los casos graves publicados.','Subida de peso súbita (más de 2-3 kg en 48 h) con aspecto hinchado: suele ser estrés y falta de sueño más que carbos; baja carbos un 30 %, duerme y no cortes agua.']}
+];
+function _peakTok(t){var w=getCurrentWeight();
+  t=t.replace(/\[\[L:([\d.]+)-([\d.]+)\]\]/g,function(m,a,b){var r=function(x){return (Math.round(x*w*10)/10).toFixed(1).replace(/\.0$/,'');};return '≈'+r(a)+'-'+r(b)+' L';});
+  t=t.replace(/\[\[([\d.]+)-([\d.]+)\]\]/g,function(m,a,b){var r=function(x){return Math.round(w*x/5)*5;};return '≈'+r(a)+'-'+r(b)+' g';});
+  t=t.replace(/\[\[([\d.]+)\]\]/g,function(m,a){return '≈'+Math.round(w*a/5)*5+' g';});
+  return t;}
+function buildPeakGuide(){
+  var el=document.getElementById('peakGuide');if(!el)return;var p=getProfile();var w=getCurrentWeight();
+  var h='<div class="note" style="margin:0 14px 12px">Protocolo de peak week con evidencia (Escalante 2021, Barakat 2022, Jukic 2024): <b style="color:var(--text)">llega magro, vacía y recarga glucógeno con sodio y agua constantes, baja la fibra y protege el pesaje</b>. Todo lo estricto que se puede sin diuréticos ni cortes de agua: esos aplanan y están prohibidos.'+(p.compDate?' Días calculados con tu fecha ('+fmtDate(p.compDate)+')':'')+' y gramos con tu peso de hoy ('+_numTxt(Math.round(w*10)/10)+' kg). Tu plan de comidas no se modifica solo: estas cantidades son la guía para armarlo.</div>';
+  for(var i=0;i<PEAK_WEEK.length;i++){var pk=PEAK_WEEK[i];var items=PEAK_ITEMS[i];
+    h+='<div class="card" style="border-left:3px solid '+pk.color+'">';
+    h+='<div class="card-sub" style="font-weight:600;margin-bottom:2px">'+escH(_peakLbl(i))+'</div>';
+    h+='<div style="font-family:var(--fd);font-size:21px;font-weight:700;color:'+pk.color+';margin-bottom:10px">'+pk.title+'</div>';
+    for(var j=0;j<items.length;j++)h+='<div class="cat-item"><span class="cat-dot" style="color:'+pk.color+'">•</span><span>'+escH(_peakTok(items[j]))+'</span></div>';
+    h+='</div>';}
+  PEAK_EXTRA.forEach(function(x){h+='<div class="card" style="border-left:3px solid '+x.c+'"><div style="font-family:var(--fd);font-size:19px;font-weight:700;color:'+x.c+';margin-bottom:10px">'+x.t+'</div>'+x.items.map(function(t){return '<div class="cat-item"><span class="cat-dot" style="color:'+x.c+'">•</span><span>'+escH(_peakTok(t))+'</span></div>';}).join('')+'</div>';});
+  h+='<div class="card-sub" style="margin:0 18px 14px;line-height:1.5">Esto no sustituye a tu coach ni a tu médico. Las cantidades son rangos de la literatura; tu ensayo general decide el punto exacto.</div>';
+  el.innerHTML=h;
+}
+function swComp(id,tabEl){
+  var panels=['cats','poses','rules','peak'];
+  for(var i=0;i<panels.length;i++){var p=document.getElementById('compP-'+panels[i]);if(p)p.classList.remove('on');}
+  var panel=document.getElementById('compP-'+id);if(panel)panel.classList.add('on');
+  var tabs=document.querySelectorAll('.comp-tab');for(var i=0;i<tabs.length;i++){var on=tabEl?tabs[i]===tabEl:(tabs[i].dataset&&tabs[i].dataset.p===id);tabs[i].classList.toggle('on',!!on);}
+  var ct=document.getElementById('content');if(ct&&tabEl)ct.scrollTop=0;
+}
+function compSetNovatos(){var p=getProfile();var n={};for(var k in p)n[k]=p[k];n.comp='Campeonato de Novatos AFFCR (IFBB)';S.set('profile',n);try{buildRulesPanel();}catch(e){}try{rDash();}catch(e){}toast('Evento actualizado en tu perfil');}
+function rComp(){try{buildCatList();}catch(e){}try{buildPosesList();}catch(e){}try{buildRulesPanel();}catch(e){}try{buildPeakGuide();}catch(e){}}
+
+
+/* ════════ BIBLIOTECA FARMACOLÓGICA (V31) ════════
+   Referencia educativa: qué es cada producto, tipos y ésteres, para qué se describe, etapa en que suele usarse, vía,
+   riesgos, qué vigilar en sangre, combinaciones delicadas, estatus legal en Costa Rica y estatus antidopaje (WADA 2026).
+   No incluye dosis: el campo "Mi dosis" y las notas los escribe el usuario. Fuentes: etiquetas FDA/DailyMed, Federal
+   Register (oxandrolona 2023), Lista de Prohibiciones WADA 2026, Ministerio de Salud de Costa Rica (alertas 2022 y
+   advertencia sanitaria N.º 14 de 2025), Ley General de Salud 5395, revisiones clínicas sobre AAS. */
+var PH_CATS=[['testosterona','Testosterona'],['blends','Blends'],['trembolona','Trembolona'],['boldenona','Boldenona'],['deca','Decadurabolin'],['masteron','Masteron'],['primobolan','Primobolan'],['dianabol','Dianabol'],['anadrol','Anadrol'],['anavar','Anavar'],['winstrol','Winstrol'],['clembuterol','Clembuterol'],['hormona','Hormona'],['peptidos','Péptidos'],['sarms','SARMs'],['postciclo','Post ciclo']];
+var PH_STAGES=[['base','Base del ciclo'],['volumen','Volumen'],['definicion','Definición'],['precomp','Pre-competencia'],['ancilar','Ancilar (durante)'],['postciclo','Post ciclo'],['recuperacion','Recuperación']];
+var _LEG_RX='Medicamento de venta con receta en Costa Rica (el Ministerio de Salud cita, por ejemplo, Nebido y Chemico como productos que solo se venden en farmacia con receta). Comprar, vender o usar presentaciones sin registro sanitario viola la Ley General de Salud 5395 (alertas del Ministerio contra la venta de anabólicos en línea, 2022).';
+var _LEG_NO='Sin registro sanitario para uso humano en Costa Rica: su importación, venta y uso están prohibidos por la Ley General de Salud 5395. Lo que circula viene de laboratorios clandestinos, sin control de contenido ni esterilidad.';
+var _LEG_VET='Producto de uso veterinario, sin registro sanitario para personas en Costa Rica: su venta para uso humano es ilegal (Ley 5395).';
+var _W_S1='S1.1 Esteroides anabólicos androgénicos · prohibido en todo momento (dentro y fuera de competencia).';
+var PHARMA_LIB=[
+ /* ── TESTOSTERONA ── */
+ {id:'testo',n:'Testosterona',aka:['Test','Testo'],cat:'testosterona',cls:'Esteroide anabólico androgénico (AAS) · hormona base',via:'Inyectable intramuscular en aceite (ésteres) · oral (undecanoato) · transdérmica (gel, parche)',
+  tipos:[['Propionato','Éster corto: vida media ≈ 0.8 días; niveles con picos y valles rápidos y más molestia en el sitio de inyección.'],['Fenilpropionato','Corto-medio (≈ 2-3 días); componente de Sustanon.'],['Isocaproato','Medio; componente de Sustanon.'],['Enantato','Largo: vida media ≈ 4.5 días, 2-4 semanas de acción en uso médico (Testoviron Depot, Primoteston Depot). El estándar de TRT en Europa.'],['Cipionato','Largo, casi idéntico al enantato (vida media ≈ 8 días según su etiqueta; Depo-Testosterone). El estándar de TRT en EE. UU.'],['Decanoato','Muy largo; componente de Sustanon.'],['Undecanoato inyectable (Nebido, Aveed)','Ultra largo: vida media ≈ 34 días en aceite de ricino; en uso médico se aplica cada 10-14 semanas. Riesgo de microembolia pulmonar de aceite (tos y disnea al inyectar).'],['Undecanoato oral (Andriol, Jatenzo, Tlando, Kyzatrex)','Absorción linfática con comida grasa; vida corta; no es 17α-alquilado, así que no daña el hígado como los orales clásicos.'],['Suspensión acuosa (sin éster)','Acción de horas, inyección dolorosa, picos bruscos.'],['Gel y parche','Niveles estables; riesgo de transferir el gel a pareja o niños por contacto.']],
+  que:'La hormona androgénica principal del hombre. Todos los demás AAS derivan de ella, de la DHT o de la 19-nortestosterona. Se aromatiza a estradiol y se reduce a DHT, y de ahí vienen buena parte de sus efectos secundarios.',
+  uso:'Uso médico: hipogonadismo (terapia de reemplazo, TRT). En culturismo se describe como la "base" de cualquier protocolo, tanto en volumen como en definición, porque mantiene libido, ánimo y estradiol en rango cuando los otros compuestos apagan la producción propia.',
+  etapas:['base','volumen','definicion'],
+  riesgos:['Apaga el eje hipotálamo-hipófisis-testículo (LH y FSH a cero): atrofia testicular e infertilidad, no siempre reversible.','Policitemia (hematocrito alto) con riesgo de trombosis: es el efecto que más obliga a bajar dosis o a donar sangre en TRT.','Estradiol alto: ginecomastia, retención de agua, presión arterial elevada.','Baja el HDL y sube el LDL; sube la presión; con uso prolongado, hipertrofia del ventrículo izquierdo.','Acné, caída de pelo (DHT), crecimiento prostático, apnea del sueño, cambios de ánimo.','Undecanoato IM: tos, opresión y disnea súbita tras la inyección (microembolia de aceite).'],
+  labs:['Testosterona total y libre, estradiol (método sensible), LH y FSH.','Hematocrito y hemoglobina cada 3 meses.','Perfil de lípidos (HDL, LDL, triglicéridos), ALT/AST, creatinina.','PSA, presión arterial, ferritina; ecocardiograma si el uso es prolongado.'],
+  inter:['Inhibidores de aromatasa: bajar demasiado el estradiol hunde lípidos, libido y ánimo.','Con nandrolona o trembolona: suma supresión y carga cardiovascular.','Anticoagulantes (potencia su efecto), insulina e hipoglucemiantes (puede bajar la glucosa), corticoides (edema).'],
+  legal:_LEG_RX,wada:_W_S1+' Se detecta por la relación testosterona/epitestosterona y por isótopos de carbono: el éster no cambia nada.'},
+ /* ── BLENDS ── */
+ {id:'sustanon',n:'Sustanon 250 / Omnadren',aka:['Sust','Testosterona mix'],cat:'blends',cls:'Mezcla farmacéutica de 4 ésteres de testosterona',via:'Inyectable intramuscular',
+  tipos:[['Composición por ml (250 mg)','Propionato 30 mg + fenilpropionato 60 mg + isocaproato 60 mg + decanoato 100 mg (Omnadren usa caproato en lugar de decanoato).'],['Objetivo de la mezcla','Niveles más estables con menos inyecciones en TRT: los ésteres cortos suben rápido y los largos sostienen.']],
+  que:'Medicamento registrado (Organon/Aspen) para hipogonadismo. Es testosterona: mismos efectos, mismos riesgos y mismo estatus antidopaje.',uso:'Descrito como base del ciclo igual que cualquier testosterona.',etapas:['base','volumen','definicion'],
+  riesgos:['Los de la testosterona (ver ficha).','Los picos del propionato pueden dar más fluctuación de estradiol y de ánimo que un éster único.'],labs:['Los de la testosterona.'],inter:['Las de la testosterona.'],legal:_LEG_RX,wada:_W_S1},
+ {id:'test400',n:'Test 400 / mezclas de testosterona de laboratorio clandestino',aka:['Test mix','Test 400','Test 450'],cat:'blends',cls:'Mezcla de ésteres de testosterona a alta concentración (producto sin registro)',via:'Inyectable intramuscular',
+  tipos:[['Composición típica','Enantato + cipionato + propionato (a veces decanoato) en 400-450 mg/ml.'],['Por qué duele','Para disolver tanta hormona usan más alcohol bencílico y solventes: irritación, nódulos y "flu" post inyección.']],
+  que:'No existe como medicamento: es una preparación de laboratorio clandestino. En programas independientes de verificación son los productos con mayor desviación entre etiqueta y contenido.',uso:'Se describe como base del ciclo en volumen.',etapas:['base','volumen'],
+  riesgos:['Los de la testosterona, más la incertidumbre de contenido y esterilidad.','Abscesos e infecciones en el sitio de inyección.'],labs:['Los de la testosterona.'],inter:['Las de la testosterona.'],legal:_LEG_NO,wada:_W_S1},
+ {id:'tritren',n:'Tri-Tren / mezclas de trembolona',aka:['Tren mix','Tri-Trenabol'],cat:'blends',cls:'Mezcla de ésteres de trembolona (producto sin registro)',via:'Inyectable intramuscular',
+  tipos:[['Composición típica','Acetato + enantato + hexahidrobencilcarbonato en un solo vial.'],['Problema','No puedes ajustar el éster corto sin mover los largos; los efectos adversos duran lo que dure el éster más largo.']],
+  que:'Preparación de laboratorio clandestino; no existe producto humano registrado de trembolona.',uso:'Se describe en definición y pre-competencia.',etapas:['definicion','precomp'],
+  riesgos:['Todos los de la trembolona (ver ficha), sin poder retirarla rápido si aparecen.'],labs:['Los de la trembolona.'],inter:['Las de la trembolona.'],legal:_LEG_NO,wada:_W_S1},
+ {id:'cutmix',n:'Cut mix / Rip blend',aka:['Rip 200','Cut stack','TMT'],cat:'blends',cls:'Mezcla de testosterona propionato + trembolona acetato + drostanolona propionato (sin registro)',via:'Inyectable intramuscular',
+  tipos:[['Composición típica','Tres ésteres cortos en partes iguales (p. ej. 50/50/50 o 75/75/75 mg/ml).'],['Lógica descrita','Todo de acción corta para la recta final de una definición.']],
+  que:'Preparación clandestina pensada para pre-competencia. Combina los perfiles de riesgo de sus tres componentes.',uso:'Definición y pre-competencia.',etapas:['definicion','precomp'],
+  riesgos:['Cardiovascular (trembolona), DHT (drostanolona: pelo, próstata), inyecciones frecuentes y dolorosas (propionatos).','Imposible saber qué parte del efecto adverso viene de cuál componente.'],labs:['Presión arterial, lípidos, prolactina, hematocrito, función renal.'],inter:['Con clenbuterol o T3: carga cardíaca aditiva.'],legal:_LEG_NO,wada:_W_S1},
+ {id:'massmix',n:'Mass blend / Bulk mix',aka:['Mass 500','Bulk stack'],cat:'blends',cls:'Mezcla de testosterona + nandrolona + boldenona (ésteres largos, sin registro)',via:'Inyectable intramuscular',
+  tipos:[['Composición típica','Testosterona enantato/cipionato + nandrolona decanoato + boldenona undecilenato.'],['Problema','Tres ésteres largos: cualquier efecto adverso tarda semanas en revertir.']],
+  que:'Preparación clandestina para volumen.',uso:'Volumen.',etapas:['volumen'],
+  riesgos:['Hematocrito muy alto (testosterona + boldenona), prolactina y disfunción eréctil (nandrolona), estradiol.'],labs:['Hematocrito, prolactina, estradiol, presión, lípidos.'],inter:['Las de sus tres componentes.'],legal:_LEG_NO,wada:_W_S1},
+ /* ── TREMBOLONA ── */
+ {id:'tren',n:'Trembolona',aka:['Tren','Trenbolona','Finaplix','Parabolan'],cat:'trembolona',cls:'AAS 19-nor (derivado de nandrolona) de uso veterinario',via:'Inyectable intramuscular en aceite',
+  tipos:[['Acetato','Éster corto: vida media ≈ 1-2 días. El más usado; permite retirarlo rápido si hay efectos adversos.'],['Enantato','Largo (≈ 5-7 días); nunca fue medicamento.'],['Hexahidrobencilcarbonato (Parabolan)','Largo (≈ 7-8 días); fue medicamento humano en Francia hasta 1997, hoy solo clandestino.']],
+  que:'Esteroide muy androgénico y anabólico que no aromatiza, pero con actividad progestágena. Uso aprobado solo en ganado (implantes de engorde); no existe ningún producto humano registrado.',
+  uso:'Se describe en definición y pre-competencia por la dureza, la vascularidad y el efecto sobre la grasa; también en volumen. Es el compuesto con peor relación beneficio/daño de esta biblioteca.',etapas:['definicion','precomp','volumen'],
+  riesgos:['El peor perfil cardiovascular descrito entre los AAS: colapso del HDL, presión arterial alta, daño renal y endotelial.','Insomnio, sudoración nocturna, ansiedad, irritabilidad y "tren cough" (tos y ahogo tras inyectar).','Prolactina y progesterona: ginecomastia, disfunción eréctil y pérdida de libido.','Supresión profunda del eje y recuperación lenta; caída de pelo y acné severos.','No hay datos de seguridad en humanos: todo lo que circula sobre dosis viene del uso ilícito.'],
+  labs:['Presión arterial diaria, lípidos, prolactina, hematocrito, creatinina y cistatina C, función hepática.','Ecocardiograma si aparecen disnea, edema o palpitaciones.'],
+  inter:['Con clenbuterol, estimulantes o T3: sobrecarga cardíaca.','Con nandrolona: suma prolactina.','La cabergolina se describe como ancilar para la prolactina (ver Post ciclo).'],legal:_LEG_VET,wada:_W_S1},
+ /* ── BOLDENONA ── */
+ {id:'bold',n:'Boldenona',aka:['Equipoise','EQ','Bold'],cat:'boldenona',cls:'AAS derivado de testosterona (1-deshidrotestosterona) de uso veterinario',via:'Inyectable intramuscular en aceite',
+  tipos:[['Undecilenato (Equipoise)','Éster muy largo: semanas de acción; la forma estándar.'],['Acetato / propionato','Raros, solo de laboratorio clandestino.']],
+  que:'Esteroide veterinario para caballos. Aromatiza menos que la testosterona.',uso:'Se describe en volumen "limpio" y en definición por vascularidad y apetito; de acción lenta.',etapas:['volumen','definicion'],
+  riesgos:['Sube mucho el hematocrito (policitemia marcada) con riesgo de trombosis.','Ansiedad y palpitaciones en algunas personas; presión arterial.','Éster larguísimo: los efectos adversos tardan semanas en revertir y se detecta en antidopaje por más de un año.','Supresión del eje, acné, caída de pelo.'],
+  labs:['Hematocrito y hemoglobina, presión arterial, lípidos, estradiol, función hepática y renal.'],inter:['Con testosterona u otros que suben hematocrito: efecto aditivo.','Con inhibidores de aromatasa: estradiol demasiado bajo.'],legal:_LEG_VET,wada:_W_S1+' Detección muy prolongada.'},
+ /* ── DECA ── */
+ {id:'deca',n:'Nandrolona',aka:['Deca-Durabolin','Deca','NPP'],cat:'deca',cls:'AAS 19-nor',via:'Inyectable intramuscular en aceite',
+  tipos:[['Decanoato (Deca-Durabolin)','Largo: 3-4 semanas de acción.'],['Fenilpropionato (NPP, Durabolin)','Corto: ≈ 10 días de acción; más fácil de retirar.']],
+  que:'19-nortestosterona. Medicamento humano registrado históricamente para anemia por insuficiencia renal y osteoporosis. Aromatiza poco; tiene actividad progestágena.',uso:'Se describe en volumen y por el alivio articular subjetivo (retiene líquido en la articulación).',etapas:['volumen'],
+  riesgos:['Prolactina y progesterona: ginecomastia, disfunción eréctil ("deca dick") y libido baja.','Supresión del eje más larga que la testosterona; recuperación lenta.','Retención de agua, presión arterial, HDL bajo.','Metabolitos detectables en antidopaje durante muchos meses (hasta más de un año).'],
+  labs:['Prolactina, estradiol, lípidos, presión arterial, hematocrito.'],inter:['En la práctica descrita nunca va sin testosterona, por la disfunción sexual.','Con trembolona suma prolactina.','Los inhibidores de 5α-reductasa (finasterida) empeoran sus efectos androgénicos negativos.'],legal:_LEG_RX,wada:_W_S1},
+ /* ── MASTERON ── */
+ {id:'mast',n:'Drostanolona',aka:['Masteron','Mast'],cat:'masteron',cls:'AAS derivado de DHT',via:'Inyectable intramuscular en aceite',
+  tipos:[['Propionato','Corto (≈ 2 días); la forma clásica.'],['Enantato','Largo (≈ 5-7 días).']],
+  que:'Derivado de la DHT que no aromatiza; fue medicamento contra el cáncer de mama (Masteril) y se discontinuó.',uso:'Se describe en definición y pre-competencia (dureza, "look seco") y como anti-estrógeno leve; poco útil en volumen.',etapas:['definicion','precomp'],
+  riesgos:['Caída de pelo y acné (DHT), crecimiento prostático.','HDL bajo.','Supresión del eje.'],labs:['Lípidos, PSA, hematocrito, presión.'],inter:['Con inhibidores de aromatasa: estradiol demasiado bajo (ya es anti-estrogénico).'],legal:_LEG_NO,wada:_W_S1},
+ /* ── PRIMOBOLAN ── */
+ {id:'primo',n:'Metenolona',aka:['Primobolan','Primo','Methenolone'],cat:'primobolan',cls:'AAS derivado de DHT, no 17α-alquilado',via:'Inyectable intramuscular (enantato) · oral (acetato)',
+  tipos:[['Enantato inyectable (Primobolan Depot)','Largo: ≈ 2 semanas de acción.'],['Acetato oral','Corto; no es 17α-alquilado, así que es poco hepatotóxico pero de baja biodisponibilidad.']],
+  que:'Esteroide suave que no aromatiza. Medicamento humano registrado en pocos países (Turquía, Japón).',uso:'Se describe en definición y pre-competencia por retener masa magra con pocos efectos secundarios.',etapas:['definicion','precomp'],
+  riesgos:['Supresión del eje (menor que otros), lípidos, caída de pelo.','Es el AAS más falsificado del mercado negro: se vende testosterona, otro esteroide o nada.'],labs:['Lípidos, hematocrito, función hepática (oral), presión.'],inter:['Pocas; suma supresión con otros AAS.'],legal:_LEG_NO,wada:_W_S1},
+ /* ── DIANABOL ── */
+ {id:'dbol',n:'Metandienona',aka:['Dianabol','Dbol','Metandrostenolona'],cat:'dianabol',cls:'AAS oral 17α-alquilado',via:'Oral (tabletas); existe inyectable',
+  tipos:[['Oral','Vida media corta (3-6 h).'],['Inyectable','Rara; misma molécula, misma toxicidad hepática.']],
+  que:'Primer esteroide oral de uso masivo (1958). Aromatiza mucho.',uso:'Se describe en volumen como "arranque" de las primeras semanas por el aumento rápido de fuerza y peso (buena parte es agua).',etapas:['volumen'],
+  riesgos:['Hepatotoxicidad (17α-alquilado): ALT/AST altas, colestasis, peliosis hepática.','Estradiol alto: ginecomastia, retención de agua, presión arterial.','HDL muy bajo, dolores de cabeza.'],labs:['ALT, AST, GGT, bilirrubina; lípidos; estradiol; presión arterial.'],inter:['Con otros orales 17α-alquilados, alcohol o paracetamol en exceso: daño hepático aditivo.'],legal:_LEG_NO,wada:'S1.1 (metandienona) · prohibido en todo momento.'},
+ /* ── ANADROL ── */
+ {id:'oxy',n:'Oximetolona',aka:['Anadrol','Anapolon','Oxy'],cat:'anadrol',cls:'AAS oral 17α-alquilado derivado de DHT',via:'Oral',
+  tipos:[['Oximetolona 50 mg (Anadrol-50)','Único formato farmacéutico; vida media ≈ 8-9 h.']],
+  que:'Medicamento registrado en EE. UU. para anemias. No aromatiza, pero tiene actividad estrogénica propia.',uso:'Se describe en volumen por el aumento rápido de fuerza y peso, y algunos lo describen para "llenar" las últimas semanas antes de competir.',etapas:['volumen','precomp'],
+  riesgos:['De los más hepatotóxicos: peliosis hepática y tumores hepáticos (advertencia en caja).','Retención de agua, presión arterial muy alta, dolor de cabeza, letargo.','HDL colapsado; pérdida de apetito.'],labs:['Función hepática completa, lípidos, presión, hematocrito.'],inter:['Con otros orales: hepatotoxicidad aditiva.','Anticoagulantes: potencia su efecto.'],legal:_LEG_NO,wada:_W_S1},
+ /* ── ANAVAR ── */
+ {id:'oxa',n:'Oxandrolona',aka:['Anavar','Oxandrin','Var'],cat:'anavar',cls:'AAS oral 17α-alquilado derivado de DHT',via:'Oral',
+  tipos:[['Oxandrolona 2.5 / 10 mg','Vida media ≈ 9-10 h.']],
+  que:'Esteroide oral suave que no aromatiza. Fue medicamento para recuperar peso tras quemaduras y cirugías; la FDA retiró su aprobación el 28 de junio de 2023 por peliosis hepática, tumores hepáticos y daño a los lípidos.',uso:'Se describe en definición y pre-competencia (dureza sin retención) y para preservar masa en déficit.',etapas:['definicion','precomp'],
+  riesgos:['Hepatotoxicidad menor que otros orales, pero real.','Caída marcada del HDL y subida del LDL incluso con dosis bajas.','Supresión del eje, calambres, caída de pelo.','Muy falsificada: se vende metandienona o estanozolol como oxandrolona.'],labs:['Lípidos (HDL/LDL), ALT/AST, testosterona y LH, presión.'],inter:['Anticoagulantes (potencia), otros orales (hígado).'],legal:'Sin aprobación de la FDA desde 2023 y sin registro sanitario vigente en Costa Rica: todo lo que circula es clandestino (Ley 5395).',wada:_W_S1},
+ /* ── WINSTROL ── */
+ {id:'stan',n:'Estanozolol',aka:['Winstrol','Winny','Stanozolol'],cat:'winstrol',cls:'AAS 17α-alquilado derivado de DHT',via:'Oral (tabletas) · inyectable (suspensión acuosa, también 17α-alquilada)',
+  tipos:[['Oral','Vida media ≈ 9 h.'],['Suspensión acuosa inyectable (Winstrol Depot)','≈ 24 h; misma molécula y misma toxicidad hepática que la oral.']],
+  que:'Fue medicamento para angioedema hereditario; discontinuado en EE. UU.',uso:'Se describe en definición y pre-competencia por dureza y vascularidad; "seca" las articulaciones.',etapas:['definicion','precomp'],
+  riesgos:['Hepatotoxicidad (también en inyectable).','HDL mínimo y LDL alto; dolor articular y tendinopatías (hay roturas de tendón descritas).','Caída de pelo, acné, supresión del eje.'],labs:['Función hepática, lípidos, presión.'],inter:['Otros orales (hígado); anticoagulantes.'],legal:_LEG_NO,wada:_W_S1+' (el caso Ben Johnson, 1988).'},
+ /* ── CLEMBUTEROL ── */
+ {id:'clen',n:'Clenbuterol',aka:['Clembuterol','Clen','Ventipulmin','Spiropent'],cat:'clembuterol',cls:'Agonista β2-adrenérgico (broncodilatador); no es un esteroide',via:'Oral (tabletas de 20 y 40 mcg, jarabe); inyectable veterinario',
+  tipos:[['Clorhidrato de clenbuterol','Vida media larga (≈ 36 h): se acumula.'],['Ventipulmin','Presentación veterinaria para caballos.']],
+  que:'Broncodilatador aprobado para asma en algunos países y para caballos; nunca aprobado para humanos en EE. UU. Prohibido en animales de engorde por los residuos en la carne.',uso:'Se describe en definición y pre-competencia por termogénesis y efecto anticatabólico, típicamente en bloques de dos semanas porque el receptor se desensibiliza.',etapas:['definicion','precomp'],
+  riesgos:['Taquicardia, palpitaciones, arritmias y daño del músculo cardíaco; temblor, insomnio, ansiedad.','Hipopotasemia (calambres) e hiperglucemia.','Intoxicaciones por productos falsificados con dosis erróneas: en Costa Rica el Ministerio de Salud detectó un "Clen 40" que no contenía el principio activo declarado.','Positivo antidopaje incluso por carne contaminada; con uso deliberado no hay defensa.'],
+  labs:['Presión y frecuencia cardíaca, potasio, glucosa; ECG si hay palpitaciones.'],inter:['Con trembolona, cafeína, efedrina, T3 o cualquier estimulante: riesgo cardíaco aditivo.','Los beta-bloqueadores anulan su efecto; los diuréticos agravan la hipopotasemia.'],legal:'Sin registro sanitario para uso humano en Costa Rica; su uso veterinario está regulado por SENASA. Venderlo para personas es ilegal.',wada:'S1.2 Otros agentes anabólicos · prohibido en todo momento.'},
+ /* ── HORMONA ── */
+ {id:'gh',n:'Hormona de crecimiento (somatropina)',aka:['GH','HGH','Somatropina'],cat:'hormona',cls:'Hormona peptídica (191 aminoácidos, ADN recombinante)',via:'Subcutánea',
+  tipos:[['Somatropina 191 aa','La auténtica, de farmacia: Genotropin, Norditropin, Omnitrope, Saizen, Humatrope.'],['Somatrem 192 aa','Versión antigua con metionina extra, más inmunogénica; típica de genéricos "grises".'],['GH liofilizada "genérica" (kits de 10 UI)','Origen chino sin registro; calidad y cadena de frío desconocidas.']],
+  que:'Hormona hipofisaria que actúa a través del IGF-1 hepático. Uso médico: déficit de GH, síndrome de Turner, caquexia por VIH.',uso:'Se describe en volumen y en definición por lipólisis y "fullness"; de efecto lento (meses) y caro.',etapas:['base','volumen','definicion','precomp'],
+  riesgos:['Resistencia a la insulina e hiperglucemia; retención de agua, túnel carpiano, dolor articular.','Crecimiento de órganos (acromegalia, "GH gut" junto con insulina), apnea del sueño.','Teórico pero serio: crecimiento de tumores existentes.','Productos falsificados o degradados por mala cadena de frío.'],labs:['IGF-1, glucosa en ayunas y HbA1c, perfil tiroideo, presión arterial.'],inter:['Con insulina: hipoglucemias y distensión abdominal.','Con T3: sinergia metabólica y más catabolismo.'],legal:'Medicamento de receta con control especial; las presentaciones sin registro sanitario son ilegales (Ley 5395).',wada:'S2 Hormonas peptídicas · prohibida en todo momento (se detecta por isoformas y biomarcadores).'},
+ {id:'ins',n:'Insulina',aka:['Humalog','Novorapid','Lantus'],cat:'hormona',cls:'Hormona peptídica',via:'Subcutánea',
+  tipos:[['Rápidas y ultrarrápidas','Lispro, aspart, glulisina, regular.'],['Lentas','Glargina, detemir, degludec.']],
+  que:'Hormona pancreática. En culturismo se usa fuera de indicación por su efecto anabólico y anticatabólico; es el fármaco con riesgo de muerte más inmediato de esta lista.',uso:'Se describe en volumen alrededor del entrenamiento, a menudo con GH.',etapas:['volumen'],
+  riesgos:['Hipoglucemia grave: convulsiones, coma y muerte (hay casos en culturistas, varios dormidos).','Ganancia de grasa, distensión abdominal, resistencia a la insulina.'],labs:['Glucosa capilar (glucómetro siempre a mano), HbA1c, péptido C.'],inter:['Alcohol, ayuno, GH, ejercicio intenso: suman riesgo de hipoglucemia.'],legal:'Medicamento de receta (regulado).',wada:'S4.4.2 Insulinas · prohibida en todo momento (solo con TUE por diabetes).'},
+ {id:'igf',n:'IGF-1 LR3 / DES',aka:['IGF-1','Mecasermina'],cat:'hormona',cls:'Factor de crecimiento (análogos sintéticos)',via:'Subcutánea o intramuscular',
+  tipos:[['IGF-1 LR3','Vida media larga (20-30 h).'],['IGF-1 DES','Corta, efecto local.'],['Mecasermina (Increlex)','El único medicamento registrado (déficit primario de IGF-1 en niños).']],
+  que:'Mediador de la GH. Los análogos LR3 y DES son reactivos de investigación sin registro.',uso:'Se describe en volumen y "recuperación"; la evidencia de hipertrofia en adultos sanos es nula.',etapas:['volumen'],
+  riesgos:['Hipoglucemia, crecimiento de órganos y de tumores, dolor articular.'],labs:['Glucosa, IGF-1.'],inter:['Insulina y GH: hipoglucemia aditiva.'],legal:_LEG_NO,wada:'S2 · prohibido en todo momento.'},
+ {id:'t3',n:'Hormonas tiroideas (T3 / T4)',aka:['Liotironina','Cytomel','Levotiroxina','Eutirox'],cat:'hormona',cls:'Hormonas tiroideas',via:'Oral',
+  tipos:[['Liotironina (T3)','La hormona activa; vida media ≈ 1 día.'],['Levotiroxina (T4)','Prohormona; vida media ≈ 7 días.']],
+  que:'Medicamentos de hipotiroidismo. En culturismo se usan fuera de indicación para subir el gasto energético.',uso:'Se describen en definición y pre-competencia; la T3 es muy catabólica para el músculo si no hay anabólicos.',etapas:['definicion','precomp'],
+  riesgos:['Taquicardia, arritmias, pérdida de músculo, osteoporosis con uso prolongado, supresión tiroidea de rebote al suspender.'],labs:['TSH, T3 libre, T4 libre, frecuencia cardíaca.'],inter:['Clenbuterol y estimulantes: riesgo cardíaco.'],legal:'Medicamentos de receta.',wada:'No están en la Lista de Prohibiciones de WADA 2026; siguen siendo medicamentos de receta.'},
+ /* ── PÉPTIDOS ── */
+ {id:'bpc',n:'BPC-157',aka:['Body Protection Compound'],cat:'peptidos',cls:'Péptido de investigación (fragmento de proteína gástrica)',via:'Subcutánea u oral',
+  tipos:[['Acetato de BPC-157','Formato habitual en viales liofilizados.'],['Oral (arginato)','Estabilizado para el estómago.']],
+  que:'Pentadecapéptido derivado de una proteína gástrica. Estudios casi exclusivamente en roedores; sin registro en ningún país.',uso:'Se describe en recuperación de tendones, ligamentos e intestino.',etapas:['recuperacion'],
+  riesgos:['Sin datos de seguridad en humanos; viales sin control de esterilidad ni de contenido.'],labs:['No aplica.'],inter:['No documentadas.'],legal:_LEG_NO,wada:'S0 Sustancias no aprobadas · prohibido en todo momento; WADA lo nombra expresamente desde 2022.'},
+ {id:'tb500',n:'TB-500 (timosina β4)',aka:['Thymosin beta-4'],cat:'peptidos',cls:'Péptido de investigación',via:'Subcutánea',
+  tipos:[['TB-500','Fragmento sintético de la timosina β4.']],
+  que:'Fragmento de una proteína que participa en la migración celular y la reparación. Sin registro.',uso:'Se describe en recuperación de lesiones y flexibilidad.',etapas:['recuperacion'],
+  riesgos:['Sin datos en humanos; teórico: favorece angiogénesis (y tumores).'],labs:['No aplica.'],inter:['No documentadas.'],legal:_LEG_NO,wada:'S2 (timosina β4 y derivados, nombra TB-500) · prohibido en todo momento.'},
+ {id:'ghrp',n:'GHRP-6 / GHRP-2 / Hexarelina',aka:['Pralmorelina','Examorelina'],cat:'peptidos',cls:'Secretagogos de GH (GHRP) · agonistas del receptor de ghrelina',via:'Subcutánea',
+  tipos:[['GHRP-6','Sube mucho el apetito.'],['GHRP-2 (pralmorelina)','Liberación de GH más fuerte, menos hambre.'],['Hexarelina','El más potente, pero desensibiliza rápido.']],
+  que:'Estimulan la liberación pulsátil de GH por la hipófisis.',uso:'Se describen en volumen (GHRP-6 por el apetito) y como alternativa barata a la GH, casi siempre junto con un análogo de GHRH.',etapas:['volumen','base'],
+  riesgos:['Suben cortisol y prolactina (GHRP-2 y 6), hambre extrema, retención de agua, hormigueo; hexarelina pierde efecto en semanas.'],labs:['IGF-1, glucosa, prolactina, cortisol.'],inter:['Con GH exógena no suman nada; con insulina: hipoglucemia.'],legal:_LEG_NO,wada:'S2 · prohibidos en todo momento (nombrados: GHRP-1 a 6, hexarelina).'},
+ {id:'ipa',n:'Ipamorelina',aka:['Ipa'],cat:'peptidos',cls:'Secretagogo de GH selectivo (GHRP)',via:'Subcutánea',
+  tipos:[['Ipamorelina','Pulso de GH sin elevar cortisol ni prolactina de forma relevante.']],
+  que:'El GHRP "limpio": libera GH con menos efectos sobre apetito, cortisol y prolactina.',uso:'Se describe en definición, recuperación y sueño, normalmente con CJC-1295 sin DAC.',etapas:['base','definicion','recuperacion'],
+  riesgos:['Retención leve, dolor de cabeza, reacciones en el sitio; sin datos a largo plazo.'],labs:['IGF-1, glucosa.'],inter:['Con insulina: hipoglucemia.'],legal:_LEG_NO,wada:'S2 · prohibida en todo momento (nombrada).'},
+ {id:'cjc',n:'CJC-1295 / Sermorelina / Tesamorelina',aka:['Mod GRF 1-29','Egrifta'],cat:'peptidos',cls:'Análogos de GHRH',via:'Subcutánea',
+  tipos:[['CJC-1295 sin DAC (Mod GRF 1-29)','Vida corta: pulso de GH natural.'],['CJC-1295 con DAC','Dura días: elevación continua de GH, no fisiológica.'],['Sermorelina','Medicamento (diagnóstico y déficit de GH en niños) en algunos países.'],['Tesamorelina (Egrifta)','Aprobada para grasa visceral en lipodistrofia por VIH.']],
+  que:'Estimulan la hipófisis para que secrete GH. Se combinan con un GHRP por sinergia.',uso:'Se describen en definición (tesamorelina reduce grasa visceral en VIH) y como base "suave".',etapas:['definicion','base'],
+  riesgos:['Retención de agua, hiperglucemia leve, reacciones en el sitio; con DAC, GH elevada de forma continua.'],labs:['IGF-1, glucosa.'],inter:['Con insulina: hipoglucemia.'],legal:'Tesamorelina y sermorelina son medicamentos de receta donde están registrados; CJC-1295 no tiene registro en ningún país (Ley 5395).',wada:'S2 · prohibidos en todo momento (nombrados: CJC-1293, CJC-1295, sermorelina, tesamorelina).'},
+ {id:'mk677',n:'MK-677 (ibutamoren)',aka:['Ibuta','Nutrobal'],cat:'peptidos',cls:'Secretagogo de GH oral (no peptídico)',via:'Oral',
+  tipos:[['Ibutamoren mesilato','Cápsulas o líquido "de investigación".']],
+  que:'Agonista oral del receptor de ghrelina; nunca aprobado. En Costa Rica el Ministerio de Salud lo alertó en agosto de 2025 (vendido como "Ibuta").',uso:'Se describe en volumen por apetito y sueño; sube GH e IGF-1 de forma sostenida.',etapas:['volumen'],
+  riesgos:['Resistencia a la insulina e hiperglucemia, retención de agua, letargo, apetito voraz; un ensayo clínico se suspendió por insuficiencia cardíaca en adultos mayores.'],labs:['Glucosa y HbA1c, IGF-1, presión.'],inter:['Con GH o insulina: más hiperglucemia o hipoglucemia según el momento.'],legal:'Sin registro sanitario; advertencia sanitaria N.º 14 del Ministerio de Salud (22 de agosto de 2025): venta y distribución no autorizadas.',wada:'S2 · prohibido en todo momento (nombrado como ibutamoren).'},
+ {id:'frag',n:'HGH Fragment 176-191 / AOD-9604',aka:['Frag','AOD'],cat:'peptidos',cls:'Fragmentos de la hormona de crecimiento',via:'Subcutánea',
+  tipos:[['Fragment 176-191','Fragmento C-terminal de la GH.'],['AOD-9604','Versión estabilizada que llegó a ensayos clínicos.']],
+  que:'Se vendieron como lipolíticos "sin los efectos de la GH"; en ensayos clínicos AOD-9604 no redujo grasa frente a placebo.',uso:'Se describe en definición.',etapas:['definicion'],
+  riesgos:['Sin eficacia demostrada; producto sin registro.'],labs:['No aplica.'],inter:['No documentadas.'],legal:_LEG_NO,wada:'S2 · prohibidos en todo momento (nombrados).'},
+ {id:'mt2',n:'Melanotan II',aka:['MT2','MT-II'],cat:'peptidos',cls:'Análogo sintético de α-MSH',via:'Subcutánea',
+  tipos:[['Melanotan II','Oscurece la piel y causa erecciones espontáneas; nunca aprobado.'],['Melanotan I (afamelanotida)','Medicamento real (Scenesse) para protoporfiria; no se vende suelto.']],
+  que:'Péptido que estimula la melanina. Se usa fuera de toda regulación para el bronceado de base antes de competir.',uso:'Pre-competencia (bronceado).',etapas:['precomp'],
+  riesgos:['Náusea, aparición y oscurecimiento de lunares (hay reportes de melanoma), priapismo, hipertensión; viales sin esterilidad.'],labs:['Revisión dermatológica de lunares antes y después.'],inter:['No documentadas.'],legal:_LEG_NO,wada:'No está nombrado, pero cae en S0 (sustancia no aprobada) · prohibido en todo momento.'},
+ {id:'glp1',n:'Semaglutida / Tirzepatida',aka:['Ozempic','Wegovy','Mounjaro','Zepbound'],cat:'peptidos',cls:'Agonistas del receptor GLP-1 (y GIP)',via:'Subcutánea semanal · oral (Rybelsus)',
+  tipos:[['Semaglutida','GLP-1; Ozempic/Wegovy (inyectable), Rybelsus (oral).'],['Tirzepatida','GLP-1 + GIP; Mounjaro/Zepbound.']],
+  que:'Medicamentos registrados para diabetes tipo 2 y obesidad.',uso:'Se describen en definición para controlar el apetito; sin proteína y entrenamiento adecuados se pierde masa magra.',etapas:['definicion'],
+  riesgos:['Náusea, vómito, estreñimiento, pancreatitis, gastroparesia; pérdida de músculo; hipoglucemia si se combinan con insulina.'],labs:['Glucosa; lipasa si hay dolor abdominal.'],inter:['Insulina: hipoglucemia; retrasan la absorción de otros fármacos orales.'],legal:'Medicamentos de receta; muchas versiones "compounded" o importadas no tienen registro (Ley 5395).',wada:'No prohibidos por WADA en 2026.'},
+ /* ── SARMs ── */
+ {id:'osta',n:'Ostarine (enobosarm, MK-2866)',aka:['Ostarina','Enobosarm'],cat:'sarms',cls:'SARM (modulador selectivo del receptor androgénico)',via:'Oral',
+  tipos:[['MK-2866','Líquido o cápsulas "de investigación".']],
+  que:'Nunca aprobado: falló en fase 3 para caquexia. En Costa Rica el Ministerio de Salud lo incluyó en la advertencia sanitaria N.º 14 (2025).',uso:'Se describe en definición y en recomposición "suave".',etapas:['definicion'],
+  riesgos:['Sí suprime la testosterona; baja el HDL; eleva enzimas hepáticas con casos de daño hepático agudo.','La FDA lo asocia a infarto, ACV, psicosis, disfunción sexual e infertilidad.','Es el positivo antidopaje más frecuente por contaminación de suplementos.'],labs:['Testosterona y LH, lípidos, ALT/AST.'],inter:['Con otros SARMs u orales: hígado.'],legal:'Sin registro sanitario; advertencia sanitaria N.º 14 (22 ago 2025): venta y distribución no autorizadas.',wada:'S1.2 Otros agentes anabólicos (SARMs) · prohibido en todo momento.'},
+ {id:'lgd',n:'Ligandrol (LGD-4033)',aka:['LGD'],cat:'sarms',cls:'SARM',via:'Oral',
+  tipos:[['LGD-4033','Más potente que ostarine.']],
+  que:'SARM en desarrollo clínico que nunca se aprobó.',uso:'Se describe en volumen.',etapas:['volumen'],
+  riesgos:['Supresión marcada de testosterona (demostrada en ensayos), HDL bajo, hepatotoxicidad reportada.'],labs:['Testosterona y LH, lípidos, ALT/AST.'],inter:['Con otros SARMs u orales: hígado.'],legal:_LEG_NO,wada:'S1.2 · prohibido en todo momento (nombrado).'},
+ {id:'rad',n:'Testolone (RAD-140)',aka:['RAD140','Testolona'],cat:'sarms',cls:'SARM',via:'Oral',
+  tipos:[['RAD-140','Uno de los SARMs más potentes.']],
+  que:'Nunca aprobado. Incluido en la advertencia sanitaria N.º 14 de Costa Rica (2025).',uso:'Se describe en volumen.',etapas:['volumen'],
+  riesgos:['Casos publicados de lesión hepática colestásica; supresión de testosterona; HDL bajo; la FDA lo asocia a infarto y ACV.'],labs:['ALT/AST/bilirrubina, testosterona y LH, lípidos.'],inter:['Con otros SARMs u orales: hígado.'],legal:'Sin registro sanitario; advertencia sanitaria N.º 14 (22 ago 2025).',wada:'S1.2 · prohibido en todo momento (nombrado).'},
+ {id:'s4',n:'Andarine (S-4)',aka:['S4','GTx-007'],cat:'sarms',cls:'SARM',via:'Oral',
+  tipos:[['S-4','Desarrollo abandonado.']],
+  que:'SARM de primera generación.',uso:'Se describe en definición.',etapas:['definicion'],
+  riesgos:['Alteraciones visuales (tinte amarillo, mala visión nocturna), supresión, lípidos.'],labs:['Testosterona, lípidos, ALT/AST.'],inter:['Con otros SARMs: hígado.'],legal:_LEG_NO,wada:'S1.2 · prohibido en todo momento (nombrado).'},
+ {id:'yk11',n:'YK-11',aka:['YK11'],cat:'sarms',cls:'Esteroide sintético vendido como SARM (inhibidor de miostatina in vitro)',via:'Oral',
+  tipos:[['YK-11','Derivado esteroideo 17α-alquilado-like.']],
+  que:'No es un SARM en sentido estricto; solo hay datos en células. Sin estudios en humanos.',uso:'Se describe en volumen.',etapas:['volumen'],
+  riesgos:['Hepatotoxicidad, supresión; riesgo desconocido por falta de datos.'],labs:['ALT/AST, testosterona.'],inter:['Con otros orales: hígado.'],legal:_LEG_NO,wada:'S1.2 · prohibido en todo momento (nombrado).'},
+ {id:'s23',n:'S-23',aka:['S23'],cat:'sarms',cls:'SARM',via:'Oral',
+  tipos:[['S-23','Ensayado como anticonceptivo masculino.']],
+  que:'SARM muy supresor (por eso se estudió como anticonceptivo).',uso:'Se describe en definición y "dureza".',etapas:['definicion'],
+  riesgos:['Supresión casi total de testosterona, caída de pelo, agresividad, lípidos.'],labs:['Testosterona y LH, lípidos.'],inter:['Con otros SARMs: supresión aditiva.'],legal:_LEG_NO,wada:'S1.2 · prohibido en todo momento (nombrado).'},
+ {id:'gw',n:'Cardarine (GW-501516)',aka:['GW','Endurobol'],cat:'sarms',cls:'Agonista PPARδ (no es un SARM)',via:'Oral',
+  tipos:[['GW-501516','Desarrollo abandonado en 2007.']],
+  que:'Su desarrollo se abandonó por cáncer en múltiples órganos en roedores. En Costa Rica el Ministerio de Salud alertó en 2013 que su comercialización nunca fue autorizada y lo volvió a señalar en 2022.',uso:'Se describe en definición y resistencia.',etapas:['definicion'],
+  riesgos:['Cáncer en animales a dosis múltiples; sin datos de seguridad a largo plazo en humanos.'],labs:['Lípidos, ALT/AST.'],inter:['No documentadas.'],legal:'Nunca autorizado en Costa Rica (alerta sanitaria 2013; alerta 2022).',wada:'S4.4.1 Moduladores metabólicos (agonistas PPARδ) · prohibido en todo momento.'},
+ {id:'sr9009',n:'Stenabolic (SR9009)',aka:['Stenabol','SR9009'],cat:'sarms',cls:'Agonista Rev-erbα (no es un SARM)',via:'Oral',
+  tipos:[['SR9009','Biodisponibilidad oral casi nula en animales.']],
+  que:'Molécula de investigación sobre ritmo circadiano. Incluida en la advertencia sanitaria N.º 14 de Costa Rica (2025) como "Stenabol".',uso:'Se describe en definición y resistencia; eficacia oral no demostrada.',etapas:['definicion'],
+  riesgos:['Sin datos en humanos; producto sin registro.'],labs:['No aplica.'],inter:['No documentadas.'],legal:'Sin registro sanitario; advertencia sanitaria N.º 14 (22 ago 2025).',wada:'S4.4.1 (agonistas Rev-erbα) · prohibido en todo momento.'},
+ /* ── POST CICLO Y ANCILARES ── */
+ {id:'clomi',n:'Clomifeno',aka:['Clomid','Omifin'],cat:'postciclo',cls:'SERM (modulador selectivo del receptor de estrógeno)',via:'Oral',
+  tipos:[['Citrato de clomifeno','Mezcla de dos isómeros (enclomifeno + zuclomifeno).']],
+  que:'Medicamento de infertilidad femenina. En hombres bloquea el estrógeno en el hipotálamo y sube LH y FSH; uso fuera de indicación.',uso:'Se describe como pilar de la terapia post ciclo (PCT) para reactivar el eje tras la supresión.',etapas:['postciclo'],
+  riesgos:['Alteraciones visuales (pueden persistir), cambios de ánimo, náusea, ginecomastia por el isómero zuclomifeno en algunos.'],labs:['LH, FSH, testosterona y estradiol a las 4-6 semanas de terminar.'],inter:['No documentadas relevantes.'],legal:'Medicamento de receta.',wada:'S4.2 Antiestrógenos y SERM · prohibido en todo momento.'},
+ {id:'enclo',n:'Enclomifeno',aka:['Androxal'],cat:'postciclo',cls:'SERM (isómero activo del clomifeno)',via:'Oral',
+  tipos:[['Enclomifeno','Sin el isómero zuclomifeno (menos efectos estrogénicos y de ánimo).']],
+  que:'Isómero del clomifeno estudiado para hipogonadismo secundario; no aprobado en EE. UU.',uso:'Se describe en PCT y como "mantenimiento" del eje.',etapas:['postciclo'],
+  riesgos:['Dolor de cabeza, náusea, cambios de ánimo; datos a largo plazo limitados.'],labs:['LH, FSH, testosterona, estradiol.'],inter:['No documentadas.'],legal:'Sin registro sanitario en Costa Rica.',wada:'Cubierto por S4.2 (antiestrógenos con estructura o efecto similar) · prohibido en todo momento.'},
+ {id:'tamox',n:'Tamoxifeno',aka:['Nolvadex'],cat:'postciclo',cls:'SERM',via:'Oral',
+  tipos:[['Citrato de tamoxifeno','Tabletas de 10 y 20 mg (uso oncológico).']],
+  que:'Medicamento de cáncer de mama. Bloquea el receptor de estrógeno en la mama y sube LH/FSH.',uso:'Se describe en PCT y para prevenir o tratar ginecomastia durante el ciclo.',etapas:['postciclo','ancilar'],
+  riesgos:['Trombosis, cataratas, bochornos, baja el IGF-1, hígado graso; puede mejorar el HDL.'],labs:['LH, FSH, testosterona, estradiol, lípidos.'],inter:['Anticoagulantes; con inhibidores de aromatasa se usa poco.'],legal:'Medicamento de receta.',wada:'S4.2 · prohibido en todo momento.'},
+ {id:'ralox',n:'Raloxifeno',aka:['Evista'],cat:'postciclo',cls:'SERM',via:'Oral',
+  tipos:[['Raloxifeno','Medicamento de osteoporosis posmenopáusica.']],
+  que:'SERM que en estudios pequeños redujo la ginecomastia puberal más que el tamoxifeno.',uso:'Se describe como ancilar para ginecomastia.',etapas:['ancilar'],
+  riesgos:['Trombosis, bochornos, calambres en piernas.'],labs:['Estradiol, lípidos.'],inter:['Anticoagulantes.'],legal:'Medicamento de receta.',wada:'S4.2 · prohibido en todo momento.'},
+ {id:'hcg',n:'hCG (gonadotropina coriónica)',aka:['Pregnyl','Ovidrel','Choriomon'],cat:'postciclo',cls:'Hormona peptídica (imita a la LH)',via:'Subcutánea o intramuscular',
+  tipos:[['hCG urinaria (Pregnyl, Choriomon)','Viales de 1 500-10 000 UI.'],['hCG recombinante (Ovidrel)','Jeringa precargada.']],
+  que:'Medicamento de fertilidad. En hombres estimula directamente el testículo: mantiene su tamaño y la producción intratesticular de testosterona mientras el eje está suprimido.',uso:'Se describe durante el ciclo o justo antes del PCT; no junto con los SERM al final, porque suprime la LH propia.',etapas:['ancilar','postciclo'],
+  riesgos:['Sube el estradiol (ginecomastia), desensibiliza el testículo si se exagera, retención de agua, cambios de ánimo.'],labs:['Estradiol, testosterona.'],inter:['Con inhibidores de aromatasa se describe para controlar el estradiol.'],legal:'Medicamento de receta.',wada:'S2 · prohibida en todo momento en hombres.'},
+ {id:'ai',n:'Anastrozol / Letrozol / Exemestano',aka:['Arimidex','Femara','Aromasin'],cat:'postciclo',cls:'Inhibidores de aromatasa',via:'Oral',
+  tipos:[['Anastrozol (Arimidex)','No esteroideo, reversible; el más usado como ancilar.'],['Letrozol (Femara)','El más potente; muy fácil "crashear" el estradiol.'],['Exemestano (Aromasin)','Esteroideo, inactivación irreversible de la enzima; efecto menos brusco sobre lípidos.']],
+  que:'Medicamentos de cáncer de mama que bloquean la conversión de testosterona en estradiol.',uso:'Se describen como ancilares durante el ciclo para controlar el estradiol; en PCT algunos los usan brevemente.',etapas:['ancilar'],
+  riesgos:['Estradiol demasiado bajo: dolor articular, libido y ánimo por el suelo, peores lípidos y pérdida de densidad ósea.','Ajustarlos "a ojo" sin estradiol sensible es la causa más común de sentirse mal en un ciclo.'],labs:['Estradiol por método sensible (LC-MS), lípidos, densidad ósea si el uso es largo.'],inter:['Con drostanolona o compuestos que ya bajan estrógeno: exceso.','Tamoxifeno reduce los niveles de anastrozol.'],legal:'Medicamentos de receta.',wada:'S4.1 Inhibidores de aromatasa · prohibidos en todo momento.'},
+ {id:'caber',n:'Cabergolina',aka:['Dostinex'],cat:'postciclo',cls:'Agonista dopaminérgico (D2)',via:'Oral',
+  tipos:[['Cabergolina','Tabletas de 0.5 mg; vida media muy larga (días).']],
+  que:'Medicamento de hiperprolactinemia y adenomas hipofisarios.',uso:'Se describe como ancilar con nandrolona o trembolona para la prolactina y la disfunción eréctil asociada.',etapas:['ancilar'],
+  riesgos:['Valvulopatía cardíaca con uso prolongado (fibrosis valvular), náusea, hipotensión, somnolencia, conductas compulsivas.'],labs:['Prolactina; ecocardiograma si el uso es prolongado.'],inter:['Antipsicóticos y otros antagonistas D2 anulan su efecto.'],legal:'Medicamento de receta.',wada:'No prohibida por WADA.'},
+ {id:'prov',n:'Mesterolona',aka:['Proviron'],cat:'postciclo',cls:'Andrógeno oral derivado de DHT (no 17α-alquilado)',via:'Oral',
+  tipos:[['Mesterolona 25 mg','Medicamento de hipogonadismo e infertilidad masculina en algunos países.']],
+  que:'Andrógeno oral débil que no aromatiza y se une a la SHBG.',uso:'Se describe como ancilar para libido y como anti-estrógeno leve en definición y pre-competencia.',etapas:['ancilar','precomp'],
+  riesgos:['Caída de pelo, acné, próstata; supresión leve; lípidos.'],labs:['Lípidos, PSA.'],inter:['Con inhibidores de aromatasa: estradiol demasiado bajo.'],legal:'Medicamento de receta donde está registrado; sin registro vigente en Costa Rica.',wada:_W_S1},
+ {id:'fina',n:'Finasterida / Dutasterida',aka:['Propecia','Avodart'],cat:'postciclo',cls:'Inhibidores de 5α-reductasa',via:'Oral',
+  tipos:[['Finasterida','Inhibe la 5α-reductasa tipo 2.'],['Dutasterida','Inhibe tipos 1 y 2; más potente y de vida media larga.']],
+  que:'Medicamentos de alopecia e hiperplasia prostática; bloquean la conversión de testosterona a DHT.',uso:'Se describen como ancilares para la caída de pelo con testosterona.',etapas:['ancilar'],
+  riesgos:['Disfunción sexual y ánimo bajo que pueden persistir al suspender (síndrome post-finasterida descrito).','Con nandrolona y trembolona empeoran los efectos androgénicos negativos (no "protegen" el pelo con ellos).'],labs:['PSA (lo reduce a la mitad: hay que corregirlo).'],inter:['Nandrolona, trembolona (ver arriba).'],legal:'Medicamentos de receta.',wada:'No prohibidos por WADA (salieron de la lista en 2009).'}
+];
+
+/* ── estado del usuario: ediciones, fichas propias, categorías propias, ocultas ── */
+function _phU(){var u=S.obj('pharmUser',null);if(!u||typeof u!=='object'||Array.isArray(u))u={};if(!u.items||typeof u.items!=='object')u.items={};if(!Array.isArray(u.cats))u.cats=[];if(!u.hide||typeof u.hide!=='object')u.hide={};return u;}
+function _phSave(u){S.set('pharmUser',u);}
+function phCats(){var u=_phU();var out=PH_CATS.map(function(c){return {id:c[0],n:c[1],own:false};});u.cats.forEach(function(c){if(c&&c.id&&c.n)out.push({id:c.id,n:c.n,own:true});});return out;}
+function phCatName(id){var cs=phCats();for(var i=0;i<cs.length;i++)if(cs[i].id===id)return cs[i].n;return id||'Sin categoría';}
+function phStageName(id){for(var i=0;i<PH_STAGES.length;i++)if(PH_STAGES[i][0]===id)return PH_STAGES[i][1];return id;}
+function _phBase(id){for(var i=0;i<PHARMA_LIB.length;i++)if(PHARMA_LIB[i].id===id)return PHARMA_LIB[i];return null;}
+function _phClone(o){return JSON.parse(JSON.stringify(o));}
+/* ficha efectiva: base + override del usuario (o ficha propia) */
+function phGet(id){var u=_phU();var b=_phBase(id);var o=u.items[id];if(!b&&!o)return null;var f=b?_phClone(b):{id:id,custom:true};if(o){for(var k in o)if(k!=='id')f[k]=_phClone(o[k]);f.edited=!!b&&Object.keys(o).some(function(k){return k!=='dose'&&k!=='note';});}f.builtin=!!b;return f;}
+function phAll(){var u=_phU();var ids=[];var seen={};PHARMA_LIB.forEach(function(b){ids.push(b.id);seen[b.id]=1;});Object.keys(u.items).forEach(function(id){if(!seen[id])ids.push(id);});return ids.map(phGet).filter(function(f){return f&&!u.hide[f.id];});}
+function phIsHidden(id){return !!_phU().hide[id];}
+
+/* ── lista ── */
+var _phCat='all',_phStage='all';
+function openPharma(){_phCat='all';_phStage='all';var q=document.getElementById('ph-q');if(q)q.value='';buildPharma();openSheet('sh-pharma');}
+function phSetCat(c){_phCat=c;buildPharma();}
+function phSetStage(s){_phStage=s;buildPharma();}
+function _phMatch(f,q){if(!q)return true;var hay=[f.n,(f.aka||[]).join(' '),f.cls,phCatName(f.cat)].join(' ').toLowerCase();return hay.indexOf(q)>=0;}
+function buildPharma(){
+  var el=document.getElementById('ph-list');if(!el)return;var q=((_v('ph-q')||'')+'').trim().toLowerCase();
+  var cats=phCats();var chips='<button class="chip'+(_phCat==='all'?' on':'')+'" onclick="phSetCat(\'all\')">Todas</button>'+cats.map(function(c){return '<button class="chip'+(_phCat===c.id?' on':'')+'" onclick="phSetCat(\''+c.id+'\')">'+escH(c.n)+'</button>';}).join('');
+  var cc=document.getElementById('ph-cats');if(cc)cc.innerHTML=chips;
+  var sc=document.getElementById('ph-stages');if(sc)sc.innerHTML='<button class="chip ph-st'+(_phStage==='all'?' on':'')+'" onclick="phSetStage(\'all\')">Cualquier etapa</button>'+PH_STAGES.map(function(s){return '<button class="chip ph-st'+(_phStage===s[0]?' on':'')+'" onclick="phSetStage(\''+s[0]+'\')">'+s[1]+'</button>';}).join('');
+  var all=phAll().filter(function(f){return (_phCat==='all'||f.cat===_phCat)&&(_phStage==='all'||(f.etapas||[]).indexOf(_phStage)>=0)&&_phMatch(f,q);});
+  if(!all.length){el.innerHTML='<div class="empty"><b>Nada por aquí</b>Cambia el filtro o agrega una ficha.</div>';return;}
+  var h='';var byCat={};all.forEach(function(f){(byCat[f.cat]=byCat[f.cat]||[]).push(f);});
+  var order=cats.map(function(c){return c.id;});Object.keys(byCat).forEach(function(c){if(order.indexOf(c)<0)order.push(c);});
+  order.forEach(function(cid){var L=byCat[cid];if(!L)return;h+='<div class="ph-sec">'+escH(phCatName(cid))+'</div><div class="list" style="margin:0 0 12px">';
+    L.forEach(function(f){var st=(f.etapas||[]).map(phStageName).join(' · ');var dose=(f.dose||'').trim();
+      h+='<div class="row" onclick="openPharmItem(\''+f.id+'\')"><div class="row-main"><div class="row-t">'+escH(f.n)+(f.edited?' <span class="brand-tag">editado</span>':'')+(f.custom?' <span class="brand-tag">propio</span>':'')+'</div><div class="row-s">'+escH(f.cls||'')+(st?' · '+escH(st):'')+(dose?' · <b style="color:var(--gold)">'+escH(dose)+'</b>':'')+'</div></div><span class="ph-chev">'+IC.chevR+'</span></div>';});
+    h+='</div>';});
+  el.innerHTML=h;
+}
+function _phSecList(title,arr,color){if(!arr||!arr.length)return '';return '<div class="cat-section"><div class="cat-sec-title">'+title+'</div>'+arr.map(function(t){return '<div class="cat-item"><span class="cat-dot"'+(color?' style="color:'+color+'"':'')+'>•</span><span>'+escH(t)+'</span></div>';}).join('')+'</div>';}
+function _phSecTxt(title,t){if(!t)return '';return '<div class="cat-section"><div class="cat-sec-title">'+title+'</div><div class="cat-sec-body">'+escH(t)+'</div></div>';}
+var _phCur=null;
+function openPharmItem(id){
+  var f=phGet(id);if(!f)return;_phCur=id;
+  document.getElementById('pi2-title').textContent=f.n;
+  var h='<div class="ph-tags"><span class="badge badge-muted">'+escH(phCatName(f.cat))+'</span>'+(f.etapas||[]).map(function(s){return '<span class="badge badge-gold">'+escH(phStageName(s))+'</span>';}).join('')+'</div>';
+  if(f.aka&&f.aka.length)h+='<div class="card-sub" style="margin:-4px 0 12px">También: '+escH(f.aka.join(', '))+'</div>';
+  h+='<div class="ph-mine"><div class="inp-lbl">Mi dosis (la escribes tú)</div><input type="text" class="inp" id="ph-dose" placeholder="Ej. lo que te indicó tu médico" value="'+escA(f.dose||'')+'" onchange="phSaveMine()">';
+  h+='<div class="inp-lbl" style="margin-top:12px">Mis notas</div><textarea class="inp" id="ph-note" placeholder="Cómo te fue, marca, lote, fechas…" onchange="phSaveMine()">'+escH(f.note||'')+'</textarea></div>';
+  h+=_phSecTxt('Qué es',f.que);
+  if(f.cls)h+=_phSecTxt('Clase',f.cls);
+  if(f.tipos&&f.tipos.length)h+='<div class="cat-section"><div class="cat-sec-title">Tipos y ésteres</div>'+f.tipos.map(function(t){return '<div class="ph-type"><b>'+escH(t[0])+'</b><div>'+escH(t[1]||'')+'</div></div>';}).join('')+'</div>';
+  h+=_phSecTxt('Para qué se describe',f.uso);
+  h+=_phSecTxt('Vía',f.via);
+  h+=_phSecList('Riesgos',f.riesgos,'var(--red-hi)');
+  h+=_phSecList('Qué vigilar en sangre',f.labs,'var(--blue)');
+  h+=_phSecList('Combinaciones delicadas',f.inter,'var(--gold)');
+  h+=_phSecTxt('Estatus en Costa Rica',f.legal);
+  h+=_phSecTxt('Antidopaje (WADA 2026)',f.wada);
+  h+='<div class="btn-row" style="margin-top:6px"><button class="btn btn-red" style="flex:1" onclick="phToSupp()">Agregar a mis suplementos</button><button class="btn btn-ghost" style="flex:1" onclick="openPharmEdit(\''+f.id+'\')">Editar ficha</button></div>';
+  if(f.edited)h+='<button class="btn btn-line" style="margin-top:10px" onclick="phRestore()">Restaurar la ficha original</button>';
+  h+='<button class="btn btn-line" style="margin-top:10px;color:var(--red-hi)" onclick="phRemove()">'+(f.custom?'Eliminar ficha':'Ocultar de la biblioteca')+'</button>';
+  document.getElementById('pi2-body').innerHTML=h;openSheet('sh-pharm-item');
+}
+function phSaveMine(){if(!_phCur)return;var u=_phU();var o=u.items[_phCur]||{};var d=(_v('ph-dose')||'').trim();var n=(_v('ph-note')||'').trim();if(d)o.dose=d;else delete o.dose;if(n)o.note=n;else delete o.note;
+  if(!Object.keys(o).length)delete u.items[_phCur];else u.items[_phCur]=o;_phSave(u);buildPharma();}
+function phRestore(){if(!_phCur)return;var id=_phCur;confirmDlg('¿Restaurar la ficha original?','Se borran tus cambios al texto de esta ficha. Tu dosis y tus notas se conservan.','Restaurar',function(){var u=_phU();var o=u.items[id]||{};var keep={};if(o.dose)keep.dose=o.dose;if(o.note)keep.note=o.note;if(Object.keys(keep).length)u.items[id]=keep;else delete u.items[id];_phSave(u);openPharmItem(id);buildPharma();toast('Ficha restaurada');});}
+function phRemove(){if(!_phCur)return;var id=_phCur;var f=phGet(id);if(!f)return;
+  confirmDlg(f.custom?'¿Eliminar esta ficha?':'¿Ocultar esta ficha?',f.custom?'Se borra la ficha con tu dosis y tus notas.':'Deja de verse en la biblioteca; puedes volver a mostrarla desde el botón "Ocultas".',f.custom?'Eliminar':'Ocultar',function(){var u=_phU();if(f.custom)delete u.items[id];else u.hide[id]=1;_phSave(u);closeSheet('sh-pharm-item');buildPharma();toast(f.custom?'Ficha eliminada':'Ficha oculta');});}
+function phShowHidden(){var u=_phU();var ids=Object.keys(u.hide);if(!ids.length){toast('No tienes fichas ocultas');return;}confirmDlg('Mostrar fichas ocultas','Vuelven a verse: '+ids.map(function(id){var b=_phBase(id);return b?b.n:id;}).join(', ')+'.','Mostrar',function(){u.hide={};_phSave(u);buildPharma();toast('Listo');});}
+function phToSupp(){var f=_phCur&&phGet(_phCur);if(!f)return;closeSheet('sh-pharm-item');closeSheet('sh-pharma');try{goPage('nutri');swNutri('supl');}catch(e){}
+  openSuppSheet(-1);var n=document.getElementById('ns-n');if(n)n.value=f.n;var d=document.getElementById('ns-d');if(d)d.value=(f.dose||'')+(f.dose&&f.cls?' · ':'')+(f.cls||'');
+  var p=f.dose?_parseDose(f.dose):null;if(p&&p.amt>0){_nsComps=[{id:_cid(),n:'',amt:p.amt,unit:p.unit,wk:''}];if(d)d.value=(p.note||'')+((p.note&&f.cls)?' · ':'')+(f.cls||'');_renderComps();}
+  toast('Completa cantidad y frecuencia');}
+
+/* ── editar / nueva ficha ── */
+var _phEdit=null,_phEdStages=[];
+function _phLines(arr){return (arr||[]).join('\n');}
+function _phLinesIn(id){return (_v(id)||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);}
+function openPharmEdit(id){
+  var f=id?phGet(id):null;_phEdit=id||null;_phEdStages=f?(f.etapas||[]).slice():[];
+  document.getElementById('pe-title').textContent=f?'Editar ficha':'Nueva ficha';
+  var set=function(k,v){var e=document.getElementById(k);if(e)e.value=v||'';};
+  set('pe-n',f?f.n:'');set('pe-aka',f?(f.aka||[]).join(', '):'');set('pe-cls',f?f.cls:'');set('pe-via',f?f.via:'');
+  set('pe-tipos',f?(f.tipos||[]).map(function(t){return t[0]+': '+(t[1]||'');}).join('\n'):'');
+  set('pe-que',f?f.que:'');set('pe-uso',f?f.uso:'');set('pe-riesgos',f?_phLines(f.riesgos):'');set('pe-labs',f?_phLines(f.labs):'');set('pe-inter',f?_phLines(f.inter):'');set('pe-legal',f?f.legal:'');set('pe-wada',f?f.wada:'');
+  var sel=document.getElementById('pe-cat');if(sel){sel.innerHTML=phCats().map(function(c){return '<option value="'+escA(c.id)+'">'+escH(c.n)+'</option>';}).join('')+'<option value="__new">Nueva categoría…</option>';sel.value=f&&f.cat?f.cat:(_phCat!=='all'?_phCat:'testosterona');if(!sel.value)sel.value='testosterona';}
+  var nc=document.getElementById('pe-newcat');if(nc){nc.value='';nc.style.display='none';}
+  _phRenderStages();var del=document.getElementById('pe-del');if(del)del.style.display='none';
+  openSheet('sh-pharm-edit');
+}
+function peCatChange(){var sel=document.getElementById('pe-cat');var nc=document.getElementById('pe-newcat');if(!sel||!nc)return;nc.style.display=sel.value==='__new'?'block':'none';if(sel.value==='__new')try{nc.focus();}catch(e){}}
+function _phRenderStages(){var el=document.getElementById('pe-stages');if(!el)return;el.innerHTML=PH_STAGES.map(function(s){return '<button class="chip'+(_phEdStages.indexOf(s[0])>=0?' on':'')+'" onclick="peStage(\''+s[0]+'\')">'+s[1]+'</button>';}).join('');}
+function peStage(s){var i=_phEdStages.indexOf(s);if(i>=0)_phEdStages.splice(i,1);else _phEdStages.push(s);_phRenderStages();}
+function savePharmEdit(){
+  var n=(_v('pe-n')||'').trim();if(!n){toast('Escribe el nombre');return;}
+  var u=_phU();var cat=_v('pe-cat');
+  if(cat==='__new'){var nn=(_v('pe-newcat')||'').trim();if(!nn){toast('Escribe el nombre de la categoría');return;}var cid='c_'+nn.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');if(!cid||cid==='c_')cid='c_'+Date.now().toString(36);
+    var exists=phCats().some(function(c){return c.id===cid;});if(!exists)u.cats.push({id:cid,n:nn});cat=cid;}
+  var tipos=_phLinesIn('pe-tipos').map(function(l){var i=l.indexOf(':');return i>0?[l.slice(0,i).trim(),l.slice(i+1).trim()]:[l,''];});
+  var o={n:n,aka:(_v('pe-aka')||'').split(',').map(function(s){return s.trim();}).filter(Boolean),cat:cat,cls:(_v('pe-cls')||'').trim(),via:(_v('pe-via')||'').trim(),tipos:tipos,que:(_v('pe-que')||'').trim(),uso:(_v('pe-uso')||'').trim(),etapas:_phEdStages.slice(),riesgos:_phLinesIn('pe-riesgos'),labs:_phLinesIn('pe-labs'),inter:_phLinesIn('pe-inter'),legal:(_v('pe-legal')||'').trim(),wada:(_v('pe-wada')||'').trim()};
+  var id=_phEdit;if(!id){id='u_'+Date.now().toString(36);o.custom=true;}
+  var prev=u.items[id]||{};if(prev.dose)o.dose=prev.dose;if(prev.note)o.note=prev.note;if(prev.custom)o.custom=true;
+  var b=_phBase(id);if(b){/* guardar solo lo que cambió respecto a la base */var diff={};Object.keys(o).forEach(function(k){if(JSON.stringify(o[k])!==JSON.stringify(b[k]))diff[k]=o[k];});if(!Object.keys(diff).length)delete u.items[id];else u.items[id]=diff;}
+  else u.items[id]=o;
+  _phSave(u);closeSheet('sh-pharm-edit');buildPharma();if(document.getElementById('sh-pharm-item').classList.contains('open'))openPharmItem(id);toast(n+' guardado');
+}
+function openNewPharm(){openPharmEdit(null);}
+
+/* ── TXT ── */
+function pharmaTxt(){var L=['MI BIBLIOTECA FARMACOLÓGICA — '+fmtDate(today())];var cats=phCats();
+  cats.forEach(function(c){var L2=phAll().filter(function(f){return f.cat===c.id;});if(!L2.length)return;L.push('');L.push(c.n.toUpperCase());
+    L2.forEach(function(f){L.push('- '+f.n+(f.aka&&f.aka.length?' ('+f.aka.join(', ')+')':'')+' — '+(f.cls||'')+(f.etapas&&f.etapas.length?' · Etapa: '+f.etapas.map(phStageName).join(', '):'')+(f.dose?' · Mi dosis: '+f.dose:'')+(f.note?' · Notas: '+f.note:''));
+      if(f.tipos&&f.tipos.length)L.push('  Tipos: '+f.tipos.map(function(t){return t[0];}).join(', '));
+      if(f.wada)L.push('  Antidopaje: '+f.wada);});});
+  return L.join('\n');}
+function exportPharmaTxt(){_shareTxt('Biblioteca farmacológica',pharmaTxt(),'farmacologia-'+today()+'.txt');}
 
 bootStorage(initApp);
 
