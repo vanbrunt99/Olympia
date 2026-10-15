@@ -612,6 +612,18 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 .ph-chev{flex-shrink:0;width:18px;height:18px;color:var(--muted);display:inline-flex;}
 .ph-chev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
 #ph-cats .chip,#ph-stages .chip{white-space:nowrap;flex-shrink:0;}
+/* ── V32: importar plan del día ── */
+.imp-sum{display:flex;gap:10px;justify-content:space-between;background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:12px;}
+.imp-sum>div{flex:1;min-width:0;}
+.imp-n{font-family:var(--fd);font-size:26px;font-weight:800;color:var(--text);line-height:1;}
+.imp-mac{font-size:14px;color:var(--text);font-weight:600;}
+.imp-meal{margin-bottom:12px;}
+.imp-meal-hd{display:flex;justify-content:space-between;font-weight:700;color:var(--text);font-size:15px;margin-bottom:4px;}
+.imp-it{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+.imp-it:last-child{border-bottom:none;}
+.imp-it-n{font-size:15px;color:var(--text);}
+.imp-it-k{font-family:var(--fd);font-weight:700;color:var(--text2);flex-shrink:0;}
+#imp-prompt-txt{min-height:150px;font-size:13px;line-height:1.4;}
 
 </style>
 </head>
@@ -693,7 +705,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
   </div>
   <div id="planCard"></div>
   <div class="card">
-    <div class="card-hd"><div class="card-title">Registro</div><button class="btn-inline btn-inline-ghost" onclick="openQuickMacros()">Solo macros</button></div>
+    <div class="card-hd"><div class="card-title">Registro</div><div style="display:flex;gap:6px"><button class="btn-inline btn-inline-red" onclick="openImport()">Importar</button><button class="btn-inline btn-inline-ghost" onclick="openQuickMacros()">Solo macros</button></div></div>
     <div id="foodLog"></div>
   </div>
   </div>
@@ -798,7 +810,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 31</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 32</div>
 </div>
 
 </div><!-- /content -->
@@ -1220,6 +1232,22 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="fgroup"><div class="inp-lbl">Antidopaje</div><input type="text" class="inp" id="pe-wada" placeholder="S1.1 · prohibido en todo momento" autocomplete="off"></div>
     <button class="btn btn-red" onclick="savePharmEdit()">Guardar</button>
     <div class="hint" style="margin-top:10px">Tu dosis y tus notas se editan desde la ficha, no aquí.</div>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-import"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Importar plan del día</div><button class="sheet-close" onclick="closeSheet('sh-import')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="hint">Pega el plan que te dio ChatGPT y la app crea tus comidas del día. Reimportar el mismo día reemplaza lo importado antes, sin duplicar.</div>
+    <div class="fgroup"><div class="inp-lbl">Día</div><input type="date" class="inp" id="imp-date" onchange="impDateChanged()"></div>
+    <button class="btn btn-line btn-sm" style="width:100%;margin:0 0 12px" onclick="toggleImportPrompt()">Ver el prompt para ChatGPT</button>
+    <div id="imp-prompt-box" style="display:none;margin:0 0 14px">
+      <textarea class="inp" id="imp-prompt-txt" rows="7" readonly onclick="this.select()"></textarea>
+      <button class="btn btn-ghost" style="margin-top:8px" onclick="copyImportPrompt()">Copiar el prompt</button>
+    </div>
+    <div class="fgroup"><div class="inp-lbl">Pega aquí el plan</div><textarea class="inp" id="imp-text" rows="7" placeholder="PLAN OLYMPIA&#10;Fecha: 2026-10-15&#10;# Desayuno&#10;- Avena | 80 g | P 10 | C 54 | G 6 | 300 kcal" oninput="previewImport()"></textarea></div>
+    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Reemplazar lo del día</div><div class="card-sub" style="font-size:12.5px">Borra también lo registrado a mano ese día; no toca los alimentos de un plan aceptado</div></div><button class="sw" id="imp-wipe" role="switch" aria-checked="false" onclick="impToggleWipe()"><i></i></button></div>
+    <div id="imp-preview" style="margin-bottom:14px"></div>
+    <button class="btn btn-red" id="imp-go" onclick="doImport()" disabled>Importar al registro</button>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-macros"><div class="sheet"><div class="sheet-handle"></div>
@@ -3091,7 +3119,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-31',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-32',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -6076,6 +6104,150 @@ function pharmaTxt(){var L=['MI BIBLIOTECA FARMACOLÓGICA — '+fmtDate(today())
       if(f.wada)L.push('  Antidopaje: '+f.wada);});});
   return L.join('\n');}
 function exportPharmaTxt(){_shareTxt('Biblioteca farmacológica',pharmaTxt(),'farmacologia-'+today()+'.txt');}
+
+
+/* ════════ IMPORTAR EL PLAN DEL DÍA DESDE TEXTO (V32) ════════
+   Jonathan arma su plan en ChatGPT. Pega (o sube) el texto y la app crea las comidas del día sin meterlas a mano.
+   - No toca otros días ni los alimentos ligados a un plan aceptado.
+   - Reimportar el mismo día reemplaza lo importado antes (no duplica); lo registrado a mano se conserva salvo que marques "reemplazar".
+   - No se inventan alimentos: solo se registra lo que viene en el texto, con sus macros. */
+
+var IMPORT_PROMPT=[
+'Quiero que me entregues mi plan de comidas de UN día en un formato de texto plano que mi app pueda importar. Respeta EXACTAMENTE este formato, sin tablas, sin negritas, sin emojis y sin texto adicional:',
+'',
+'PLAN OLYMPIA',
+'Fecha: AAAA-MM-DD',
+'# Nombre de la comida',
+'- Alimento | cantidad | P proteína | C carbohidratos | G grasa | kcal kcal',
+'',
+'Reglas:',
+'1. La primera línea es exactamente "PLAN OLYMPIA".',
+'2. "Fecha:" en formato AAAA-MM-DD (por ejemplo 2026-10-15). Si no te doy fecha, usa la de mañana.',
+'3. Una línea que empiece con "# " por cada comida. Usa estos nombres cuando apliquen: Desayuno, Pre-entreno, Almuerzo, Snack, Post-entreno, Cena.',
+'4. Una línea que empiece con "- " por cada alimento, con las barras "|" en este orden: nombre | cantidad | P | C | G | kcal.',
+'5. La cantidad va en gramos (g), mililitros (ml) o unidades (por ejemplo "2 huevos" o "150 g").',
+'6. P, C y G son los gramos TOTALES de esa porción (no por 100 g). kcal es opcional; si lo pones, déjalo como "320 kcal".',
+'7. Usa punto decimal, nunca coma. No agregues totales, comentarios ni ninguna línea fuera de este formato.',
+'',
+'Ejemplo de una comida:',
+'# Desayuno',
+'- Avena en hojuelas | 80 g | P 10 | C 54 | G 6 | 300 kcal',
+'- Claras de huevo | 200 g | P 22 | C 2 | G 0 | 100 kcal',
+''
+].join('\n');
+
+var _impDateTouched=false;
+function impDateChanged(){_impDateTouched=true;previewImport();}
+function openImport(){_impDateTouched=false;
+  var e=document.getElementById('imp-date');if(e)e.value=foodLogDate;
+  var t=document.getElementById('imp-text');if(t)t.value='';
+  var w=document.getElementById('imp-wipe');if(w){w.classList.remove('on');w.setAttribute('aria-checked','false');}
+  var pb=document.getElementById('imp-prompt-box');if(pb)pb.style.display='none';
+  previewImport();openSheet('sh-import');
+}
+function toggleImportPrompt(){
+  var pb=document.getElementById('imp-prompt-box');if(!pb)return;
+  var show=pb.style.display==='none'||!pb.style.display;pb.style.display=show?'block':'none';
+  var ta=document.getElementById('imp-prompt-txt');if(ta&&show)ta.value=IMPORT_PROMPT;
+}
+function copyImportPrompt(){_copyTxt(IMPORT_PROMPT,'Prompt copiado · pégalo en ChatGPT');}
+function _copyTxt(txt,msg){
+  var ok=function(){toast(msg||'Copiado');};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,function(){_copyFb(txt,ok);});return;}}catch(e){}
+  _copyFb(txt,ok);
+}
+function _copyFb(txt,ok){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.focus();ta.select();var done=document.execCommand('copy');document.body.removeChild(ta);if(done){ok();return;}}catch(e){}toast('Cópialo manualmente');}
+function impToggleWipe(){var w=document.getElementById('imp-wipe');if(!w)return;var on=!w.classList.contains('on');w.classList.toggle('on',on);w.setAttribute('aria-checked',on?'true':'false');previewImport();}
+
+/* ── parser tolerante ── */
+function _impStrip(s){return String(s||'').toLowerCase().replace(/[áà]/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/[úü]/g,'u').replace(/ñ/g,'n');}
+function _impNum(s){var m=String(s==null?'':s).match(/-?\d+(?:[.,]\d+)?/);return m?parseFloat(m[0].replace(',','.')):null;}
+function _impMealCanon(t){var n=_impStrip(t).replace(/^[#\[\]\s>*\-]+/,'').replace(/[\]:]+\s*$/,'').trim();
+  if(/desayun/.test(n))return 'Desayuno';
+  if(/pre[\s\-]*(entren|work|wo\b)/.test(n))return 'Pre-entreno';
+  if(/post[\s\-]*(entren|work|wo\b)/.test(n))return 'Post-entreno';
+  if(/almuerz|lunch/.test(n)||/^comida(\s|$)(?!.*\d)/.test(n))return 'Almuerzo';
+  if(/snack|merienda|colacion/.test(n))return 'Snack';
+  if(/cena|dinner/.test(n))return 'Cena';
+  return null;}
+function _impMealName(t){var c=_impMealCanon(t);if(c)return c;var s=String(t||'').replace(/^[#\[\]\s>*\-]+/,'').replace(/[\]:]+\s*$/,'').trim();return s||'Comida';}
+function _impDate(s){s=String(s||'').trim();var m;
+  if((m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)))return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);
+  if((m=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/))){var y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}
+  return '';}
+function _impItem(line){
+  var s=line.replace(/^[\s>]*[-*•·]\s*/,'').replace(/^\s*\d+[.)]\s*/,'').trim();if(!s)return null;
+  var parts=s.split('|');var name=(parts[0]||'').trim();var qty='';var p=null,c=null,f=null,k=null;
+  for(var i=1;i<parts.length;i++){var seg=parts[i].trim();if(!seg)continue;var low=_impStrip(seg);
+    if(/^p(rot(eina)?)?\b/.test(low)&&_impNum(seg)!=null){p=_impNum(seg);}
+    else if(/^c(arb(o\w*)?)?\b/.test(low)&&_impNum(seg)!=null){c=_impNum(seg);}
+    else if(/^g(r(asa?)?)?\b/.test(low)&&_impNum(seg)!=null){f=_impNum(seg);}
+    else if(/k?cal/.test(low)){k=_impNum(seg);}
+    else if(_impNum(seg)!=null&&!qty){qty=seg;}
+  }
+  /* respaldo: si no vino con barras, saca macros del texto con palabras completas y limpia el nombre */
+  if(p==null&&c==null&&f==null){var low=_impStrip(s);var g;
+    if((g=low.match(/prote[ií]?na?\s*[:=]?\s*(-?\d+(?:[.,]\d+)?)/)))p=parseFloat(g[1].replace(',','.'));
+    if((g=low.match(/carbo\w*\s*[:=]?\s*(-?\d+(?:[.,]\d+)?)/)))c=parseFloat(g[1].replace(',','.'));
+    if((g=low.match(/gras\w*\s*[:=]?\s*(-?\d+(?:[.,]\d+)?)/)))f=parseFloat(g[1].replace(',','.'));
+    if((g=low.match(/(-?\d+(?:[.,]\d+)?)\s*k?cal/))&&k==null)k=parseFloat(g[1].replace(',','.'));
+    if(parts.length===1){var cut=s.search(/\s+(prote|carbo|gras|\d*\s*kcal)/i);if(cut>0)name=s.slice(0,cut).trim();
+      var qm=name.match(/(\d+(?:[.,]\d+)?\s*(?:g|ml|mcg|kg|l|unidad\w*|porci\w*|huevos?|scoops?|rebanad\w*|taz\w*|vaso\w*))\b/i);if(qm&&!qty){qty=qm[1];name=name.replace(qm[0],'').replace(/\s+/g,' ').trim();}}
+  }
+  if(k==null){for(var j=1;j<parts.length;j++){var sg=_impStrip(parts[j]);if(/k?cal/.test(sg)){k=_impNum(parts[j]);break;}}}
+  name=name.replace(/\s+/g,' ').trim();
+  if(p==null&&c==null&&f==null&&(k==null||!(k>0)))return {name:name||s,qty:qty,bad:true};
+  return {name:name||'Alimento',qty:qty,p:p||0,c:c||0,f:f||0,k:(k!=null&&k>0)?k:0};
+}
+function parseMealImport(text){
+  var lines=String(text||'').split(/\r?\n/);var date='';var meals=[];var cur=null;var bad=[];
+  for(var i=0;i<lines.length;i++){var t=lines[i].trim();if(!t)continue;
+    if(/^#{0,3}\s*plan\s+olympia/i.test(t))continue;
+    if(/^#{0,3}\s*fecha\b/i.test(t)){var d=_impDate(t.replace(/^#{0,3}\s*fecha\s*[:=]?/i,''));if(d&&!meals.length)date=d;continue;}
+    var hasBar=t.indexOf('|')>=0;var bullet=/^[-*•·]/.test(t)||/^\d+[.)]/.test(t);
+    var isHeader=/^[#\[]/.test(t)||(!hasBar&&!bullet&&_impMealCanon(t)!=null);
+    if(isHeader){cur={name:_impMealName(t),items:[]};meals.push(cur);continue;}
+    if(!hasBar&&!bullet)continue; /* texto suelto que no es comida ni alimento */
+    var it=_impItem(t);if(!it)continue;
+    if(it.bad){bad.push(it.name);continue;}
+    if(!cur){cur={name:'Almuerzo',items:[]};meals.push(cur);}
+    cur.items.push(it);
+  }
+  meals=meals.filter(function(m){return m.items.length;});
+  return {date:date,meals:meals,bad:bad};
+}
+function _impTotals(r){var t={p:0,c:0,f:0,k:0,n:0};r.meals.forEach(function(m){m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;t.p+=p;t.c+=c;t.f+=f;t.k+=(it.k>0?it.k:_kcal(p,c,f));t.n++;});});t.p=r1(t.p);t.c=r1(t.c);t.f=r1(t.f);t.k=r1(t.k);return t;}
+function previewImport(){
+  var el=document.getElementById('imp-preview');var go=document.getElementById('imp-go');if(!el)return;
+  var raw=_v('imp-text')||'';if(!raw.trim()){el.innerHTML='<div class="hint" style="margin:0">Pega aquí arriba el plan que te dio ChatGPT y te muestro cómo quedará antes de importar.</div>';if(go)go.disabled=true;return;}
+  var r=parseMealImport(raw);var tot=_impTotals(r);
+  if(r.date&&!_impDateTouched){var de=document.getElementById('imp-date');if(de)de.value=r.date;}
+  if(!tot.n){el.innerHTML='<div class="note note-gold" style="margin:0">No reconocí ninguna comida. Revisa que cada alimento tenga el formato con barras: <b>nombre | cantidad | P .. | C .. | G ..</b>. Toca «Ver el prompt para ChatGPT».</div>';if(go)go.disabled=true;return;}
+  var T=null;try{T=macroTarget();}catch(e){}
+  var h='<div class="imp-sum"><div><div class="imp-n">'+tot.n+'</div><div class="card-sub">alimentos</div></div>';
+  h+='<div><div class="imp-n">'+_numTxt(tot.k)+'</div><div class="card-sub">kcal'+(T&&T.kcal?' / '+Math.round(T.kcal):'')+'</div></div>';
+  h+='<div><div class="imp-mac">P '+_numTxt(tot.p)+' · C '+_numTxt(tot.c)+' · G '+_numTxt(tot.f)+'</div>'+(T?'<div class="card-sub">meta P '+Math.round(T.prot)+' · C '+Math.round(T.carb)+' · G '+Math.round(T.fat)+'</div>':'')+'</div></div>';
+  r.meals.forEach(function(m){var mk=0;m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;mk+=(it.k>0?it.k:_kcal(p,c,f));});
+    h+='<div class="imp-meal"><div class="imp-meal-hd"><span>'+escH(mealLbl(m.name))+'</span><span class="card-sub">'+kfmt(mk)+' kcal</span></div>';
+    m.items.forEach(function(it){h+='<div class="imp-it"><div><div class="imp-it-n">'+escH(it.name)+(it.qty?' <span class="card-sub">'+escH(it.qty)+'</span>':'')+'</div><div class="card-sub">P '+_numTxt(it.p)+' · C '+_numTxt(it.c)+' · G '+_numTxt(it.f)+'</div></div><div class="imp-it-k">'+kfmt(it.k>0?it.k:_kcal(+it.p||0,+it.c||0,+it.f||0))+'</div></div>';});
+    h+='</div>';});
+  if(r.bad.length)h+='<div class="note note-gold" style="margin:10px 0 0">No pude leer '+r.bad.length+' línea'+(r.bad.length===1?'':'s')+' (sin macros): '+escH(r.bad.slice(0,3).join(' · '))+(r.bad.length>3?'…':'')+'. Lo demás sí se importa.</div>';
+  el.innerHTML=h;if(go)go.disabled=false;
+}
+function doImport(){
+  var raw=_v('imp-text')||'';var r=parseMealImport(raw);
+  if(!_impTotals(r).n){toast('No encontré comidas para importar');return;}
+  var date=_impDate(_v('imp-date'))||r.date||foodLogDate||today();
+  var wipe=(document.getElementById('imp-wipe')||{classList:{contains:function(){return false;}}}).classList.contains('on');
+  var all=S.get('foods',[]);
+  all=all.filter(function(f){if(f.fecha!==date)return true;if(f.planItem)return true;if(f.imp)return false;return !wipe;});
+  var n=0;
+  r.meals.forEach(function(m){m.items.forEach(function(it){var p=r1(+it.p||0),c=r1(+it.c||0),f=r1(+it.f||0);var k=(it.k>0)?r1(it.k):_kcal(p,c,f);
+    all.push({id:_uid(),fecha:date,nombre:it.name||'Alimento',g:it.qty||'',comida:m.name,p:p,c:c,f:f,k:k,imp:true});n++;});});
+  S.set('foods',all);closeSheet('sh-import');
+  if(foodLogDate!==date)setFoodDate(date);else refreshNutri();
+  toast('Importé '+n+' alimento'+(n===1?'':'s')+' al '+fmtDate(date));
+}
 
 bootStorage(initApp);
 
