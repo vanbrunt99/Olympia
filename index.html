@@ -1237,7 +1237,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 <div class="sheet-ov" id="sh-import"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
   <div class="sheet-hd"><div class="sheet-title">Importar plan del día</div><button class="sheet-close" onclick="closeSheet('sh-import')" aria-label="Cerrar"></button></div>
   <div class="sheet-body">
-    <div class="hint">Pega el plan que te dio ChatGPT y la app crea tus comidas del día. Reimportar el mismo día reemplaza lo importado antes, sin duplicar.</div>
+    <div class="hint">Pega el plan que te dio ChatGPT y la app arma tu Plan del día con esas comidas, donde marcas cada alimento o «Comí todo». Funciona aunque el texto venga todo en una sola línea.</div>
     <div class="fgroup"><div class="inp-lbl">Día</div><input type="date" class="inp" id="imp-date" onchange="impDateChanged()"></div>
     <button class="btn btn-line btn-sm" style="width:100%;margin:0 0 12px" onclick="toggleImportPrompt()">Ver el prompt para ChatGPT</button>
     <div id="imp-prompt-box" style="display:none;margin:0 0 14px">
@@ -1245,9 +1245,9 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
       <button class="btn btn-ghost" style="margin-top:8px" onclick="copyImportPrompt()">Copiar el prompt</button>
     </div>
     <div class="fgroup"><div class="inp-lbl">Pega aquí el plan</div><textarea class="inp" id="imp-text" rows="7" placeholder="PLAN OLYMPIA&#10;Fecha: 2026-10-15&#10;# Desayuno&#10;- Avena | 80 g | P 10 | C 54 | G 6 | 300 kcal" oninput="previewImport()"></textarea></div>
-    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Reemplazar lo del día</div><div class="card-sub" style="font-size:12.5px">Borra también lo registrado a mano ese día; no toca los alimentos de un plan aceptado</div></div><button class="sw" id="imp-wipe" role="switch" aria-checked="false" onclick="impToggleWipe()"><i></i></button></div>
+    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Reemplazar lo del día</div><div class="card-sub" style="font-size:12.5px">Borra también lo que registraste a mano ese día. El plan importado anterior siempre se reemplaza.</div></div><button class="sw" id="imp-wipe" role="switch" aria-checked="false" onclick="impToggleWipe()"><i></i></button></div>
     <div id="imp-preview" style="margin-bottom:14px"></div>
-    <button class="btn btn-red" id="imp-go" onclick="doImport()" disabled>Importar al registro</button>
+    <button class="btn btn-red" id="imp-go" onclick="doImport()" disabled>Importar al plan del día</button>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-macros"><div class="sheet"><div class="sheet-handle"></div>
@@ -6107,10 +6107,11 @@ function exportPharmaTxt(){_shareTxt('Biblioteca farmacológica',pharmaTxt(),'fa
 
 
 /* ════════ IMPORTAR EL PLAN DEL DÍA DESDE TEXTO (V32) ════════
-   Jonathan arma su plan en ChatGPT. Pega (o sube) el texto y la app crea las comidas del día sin meterlas a mano.
-   - No toca otros días ni los alimentos ligados a un plan aceptado.
-   - Reimportar el mismo día reemplaza lo importado antes (no duplica); lo registrado a mano se conserva salvo que marques "reemplazar".
-   - No se inventan alimentos: solo se registra lo que viene en el texto, con sus macros. */
+   Jonathan arma su plan en ChatGPT. Pega el texto y la app crea el PLAN DEL DÍA (aceptado) con esas comidas, donde
+   va marcando cada alimento o "Comí todo", como siempre. Tolera que el texto venga todo en una sola línea.
+   - Solo toca el día importado. Reimportar reemplaza el plan importado anterior de ese día, sin duplicar.
+   - Lo que registró a mano ese día se conserva (salvo que marque "Reemplazar lo del día").
+   - No inventa alimentos: solo arma el plan con lo que viene en el texto, con sus macros exactas. */
 
 var IMPORT_PROMPT=[
 'Quiero que me entregues mi plan de comidas de UN día en un formato de texto plano que mi app pueda importar. Respeta EXACTAMENTE este formato, sin tablas, sin negritas, sin emojis y sin texto adicional:',
@@ -6200,11 +6201,17 @@ function _impItem(line){
   return {name:name||'Alimento',qty:qty,p:p||0,c:c||0,f:f||0,k:(k!=null&&k>0)?k:0};
 }
 function parseMealImport(text){
-  var lines=String(text||'').split(/\r?\n/);var date='';var meals=[];var cur=null;var bad=[];
+  var raw=String(text||'').replace(/\u00a0/g,' ').replace(/[\u2022\u00b7]/g,'-').replace(/[\u2013\u2014]/g,'-');
+  /* fecha en cualquier parte del texto */
+  var date='';var dm=raw.match(/fecha\s*[:=]?\s*([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}|[0-9]{1,2}[\/\-][0-9]{1,2}[\/\-][0-9]{2,4})/i);
+  if(dm)date=_impDate(dm[1]);
+  /* si viene todo pegado en una sola línea: separa antes de cada comida (#) y cada alimento ( - ) */
+  var norm=raw.replace(/\s*#\s*/g,'\n# ').replace(/\s+-\s+/g,'\n- ');
+  var lines=norm.split(/\r?\n/);var meals=[];var cur=null;var bad=[];
   for(var i=0;i<lines.length;i++){var t=lines[i].trim();if(!t)continue;
     if(/^#{0,3}\s*plan\s+olympia/i.test(t))continue;
-    if(/^#{0,3}\s*fecha\b/i.test(t)){var d=_impDate(t.replace(/^#{0,3}\s*fecha\s*[:=]?/i,''));if(d&&!meals.length)date=d;continue;}
-    var hasBar=t.indexOf('|')>=0;var bullet=/^[-*•·]/.test(t)||/^\d+[.)]/.test(t);
+    if(/^#{0,3}\s*fecha\b/i.test(t))continue;
+    var hasBar=t.indexOf('|')>=0;var bullet=/^[-*]/.test(t)||/^\d+[.)]/.test(t);
     var isHeader=/^[#\[]/.test(t)||(!hasBar&&!bullet&&_impMealCanon(t)!=null);
     if(isHeader){cur={name:_impMealName(t),items:[]};meals.push(cur);continue;}
     if(!hasBar&&!bullet)continue; /* texto suelto que no es comida ni alimento */
@@ -6216,10 +6223,28 @@ function parseMealImport(text){
   meals=meals.filter(function(m){return m.items.length;});
   return {date:date,meals:meals,bad:bad};
 }
+/* cantidad "160 g" / "200 ml" / "3 huevos" → amt + tipo para armar el ítem del plan */
+function _impSingular(w){w=String(w||'');if(/ces$/i.test(w))return w.replace(/ces$/i,'z');if(/es$/i.test(w)&&w.length>4)return w.slice(0,-2);if(/s$/i.test(w)&&w.length>3)return w.slice(0,-1);return w;}
+function _impQty(s){s=String(s||'').trim();var m=s.match(/-?\d+(?:[.,]\d+)?/);var amt=m?parseFloat(m[0].replace(',','.')):1;if(!(amt>0))amt=1;
+  var rest=_impStrip(s.replace(m?m[0]:'','')).trim();
+  if(/^ml\b|mililitr/.test(rest))return {amt:amt,kind:'ml'};
+  if(/^kg\b|kilo/.test(rest))return {amt:amt*1000,kind:'g'};
+  if(/^l\b|litro/.test(rest))return {amt:amt*1000,kind:'ml'};
+  if(/^g\b|gramo/.test(rest)||rest==='')return {amt:amt,kind:(rest===''&&!m)?'unit':'g',unitN:'porcion'};
+  var w=_impSingular(rest.split(/\s+/)[0]);return {amt:amt,kind:'unit',unitN:w||'porcion'};}
+/* ítem de plan bloqueado con macros exactas: 1 "unidad"/g/ml = sus macros, no lo reajusta el solver */
+function _impPlanItem(it){
+  var p=+it.p||0,c=+it.c||0,f=+it.f||0,k=(it.k>0?it.k:_kcal(p,c,f));
+  var q=_impQty(it.qty);var amt=q.amt>0?q.amt:1;
+  var o={id:_uid(),name:(it.name||'Alimento'),cat:'otro',pg:p/amt,cg:c/amt,fg:f/amt,kpg:k/amt,unitG:0,unitN:'',byUnit:false,g:amt,lo:amt,hi:amt,step:1,minKeep:amt,locked:true,fixed:false,extra:true,imp:true};
+  if(q.kind==='ml')o.ml=true;
+  if(q.kind==='unit'){o.byUnit=true;o.unitN=q.unitN||'porcion';o.portionU=amt;}
+  return o;
+}
 function _impTotals(r){var t={p:0,c:0,f:0,k:0,n:0};r.meals.forEach(function(m){m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;t.p+=p;t.c+=c;t.f+=f;t.k+=(it.k>0?it.k:_kcal(p,c,f));t.n++;});});t.p=r1(t.p);t.c=r1(t.c);t.f=r1(t.f);t.k=r1(t.k);return t;}
 function previewImport(){
   var el=document.getElementById('imp-preview');var go=document.getElementById('imp-go');if(!el)return;
-  var raw=_v('imp-text')||'';if(!raw.trim()){el.innerHTML='<div class="hint" style="margin:0">Pega aquí arriba el plan que te dio ChatGPT y te muestro cómo quedará antes de importar.</div>';if(go)go.disabled=true;return;}
+  var raw=_v('imp-text')||'';if(!raw.trim()){el.innerHTML='<div class="hint" style="margin:0">Pega arriba el plan que te dio ChatGPT y te muestro cómo quedará el plan del día antes de importarlo.</div>';if(go)go.disabled=true;return;}
   var r=parseMealImport(raw);var tot=_impTotals(r);
   if(r.date&&!_impDateTouched){var de=document.getElementById('imp-date');if(de)de.value=r.date;}
   if(!tot.n){el.innerHTML='<div class="note note-gold" style="margin:0">No reconocí ninguna comida. Revisa que cada alimento tenga el formato con barras: <b>nombre | cantidad | P .. | C .. | G ..</b>. Toca «Ver el prompt para ChatGPT».</div>';if(go)go.disabled=true;return;}
@@ -6239,14 +6264,19 @@ function doImport(){
   if(!_impTotals(r).n){toast('No encontré comidas para importar');return;}
   var date=_impDate(_v('imp-date'))||r.date||foodLogDate||today();
   var wipe=(document.getElementById('imp-wipe')||{classList:{contains:function(){return false;}}}).classList.contains('on');
-  var all=S.get('foods',[]);
-  all=all.filter(function(f){if(f.fecha!==date)return true;if(f.planItem)return true;if(f.imp)return false;return !wipe;});
-  var n=0;
-  r.meals.forEach(function(m){m.items.forEach(function(it){var p=r1(+it.p||0),c=r1(+it.c||0),f=r1(+it.f||0);var k=(it.k>0)?r1(it.k):_kcal(p,c,f);
-    all.push({id:_uid(),fecha:date,nombre:it.name||'Alimento',g:it.qty||'',comida:m.name,p:p,c:c,f:f,k:k,imp:true});n++;});});
-  S.set('foods',all);closeSheet('sh-import');
+  /* registros del plan importado anterior de ese día: se limpian para no dejar sueltos. Lo manual se conserva (salvo wipe). */
+  var old=getPlan(date);var kill={};if(old&&old.meals)old.meals.forEach(function(m){m.items.forEach(function(it){if(it.imp||(old.imp&&!it.fromLog))kill[it.id]=1;});});
+  var foods=S.get('foods',[]).filter(function(f){if(f.fecha!==date)return true;if(f.imp)return false;if(f.planItem&&kill[f.planItem])return false;return !wipe;});
+  S.set('foods',foods);
+  /* arma el plan del día (propio y aceptado) con los alimentos importados, cada uno como ítem marcable */
+  var pr=getPlanPrefs();var mt=macroTarget();var n=0;var byName={},order=[];
+  r.meals.forEach(function(m){if(!byName[m.name]){byName[m.name]={name:m.name,items:[]};order.push(m.name);}m.items.forEach(function(it){byName[m.name].items.push(_impPlanItem(it));n++;});});
+  var plan={id:'p'+Date.now(),date:date,target:{p:mt.prot,c:mt.carb,f:mt.fat,k:mt.kcal},manual:!!mt.manual,training:pr.training!==false,trainTime:pr.trainTime||'tarde',meals:order.map(function(nm){return byName[nm];}),excluded:[],seed:0,variant:0,warnings:[],own:true,imp:true,approvedAt:Date.now()};
+  _savePlan(plan);try{_syncLogged(plan);}catch(e){}
+  try{if(_plan&&_plan.date===date){_plan=null;_planDirty=false;}}catch(e){}
+  closeSheet('sh-import');
   if(foodLogDate!==date)setFoodDate(date);else refreshNutri();
-  toast('Importé '+n+' alimento'+(n===1?'':'s')+' al '+fmtDate(date));
+  toast('Importé '+n+' alimento'+(n===1?'':'s')+' al plan del '+fmtDate(date));
 }
 
 bootStorage(initApp);
