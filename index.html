@@ -3126,7 +3126,7 @@ function exportBackup(){
   var dl=function(){try{var blob=new Blob([json],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);try{a.remove();}catch(e){}},2000);_markBackup();toast('Respaldo descargado');}catch(e){toast('No se pudo descargar. Usa Sync y guarda el código');}};
   try{
     if(typeof File==='function'&&navigator.canShare){var file=new File([json],name,{type:'application/json'});
-      if(navigator.canShare({files:[file]})){navigator.share({files:[file],title:'Respaldo OLYMPIA'}).then(function(){_markBackup();toast('Respaldo guardado');},function(err){if(!err||err.name!=='AbortError')dl();});return;}}
+      if(navigator.canShare({files:[file]})){navigator.share({files:[file]}).then(function(){_markBackup();toast('Respaldo guardado');},function(err){if(!err||err.name!=='AbortError')dl();});return;}}
   }catch(e){}
   dl();
 }
@@ -3294,7 +3294,7 @@ function _shareTxt(title,txt,fname){
     copy().then(function(ok){toast('TXT descargado'+(ok?' · también quedó copiado':''));});};
   try{
     if(typeof File==='function'&&navigator.canShare){var file=new File([txt],fname,{type:'text/plain'});
-      if(navigator.canShare({files:[file]})){navigator.share({files:[file],title:title}).then(function(){toast('Listo');},function(err){if(err&&err.name==='AbortError')return;dl();});return;}}
+      if(navigator.canShare({files:[file]})){navigator.share({files:[file]}).then(function(){toast('Listo');},function(err){if(err&&err.name==='AbortError')return;dl();});return;}}
     if(navigator.share){navigator.share({title:title,text:txt}).then(function(){},function(err){if(err&&err.name==='AbortError')return;dl();});return;}
   }catch(e){}
   dl();
@@ -5118,7 +5118,7 @@ function openMealActions(ctx,k){
   var P=_mealPlanOf(ctx);if(!P||!P.meals[k])return;var m=P.meals[k];_mealCtx={ctx:ctx,k:k,name:m.name};
   document.getElementById('ma-title').textContent=mealLbl(m.name);
   var a=function(ic,txt,fn,cls){return '<button class="action'+(cls?' '+cls:'')+'" onclick="'+fn+'">'+ic+txt+'</button>';};
-  var n=P.meals.length;var h='<div class="action-list">'+a(IC.edit,'Cambiar nombre','openMealName()');
+  var n=P.meals.length;var h='<div class="action-list">'+(MEAL_DEFAULT_ORDER.indexOf(m.name)>=0?a(IC.edit,'Cambiar nombre','openMealName()'):'');
   if(k>0)h+=a(IC.up,'Pasar antes de '+escH(mealLbl(P.meals[k-1].name)),'mealMove(-1)');
   if(k<n-1)h+=a(IC.down,'Pasar después de '+escH(mealLbl(P.meals[k+1].name)),'mealMove(1)');
   h+='</div>';
@@ -6213,7 +6213,7 @@ function parseMealImport(text){
     if(/^#{0,3}\s*fecha\b/i.test(t))continue;
     var hasBar=t.indexOf('|')>=0;var bullet=/^[-*]/.test(t)||/^\d+[.)]/.test(t);
     var isHeader=/^[#\[]/.test(t)||(!hasBar&&!bullet&&_impMealCanon(t)!=null);
-    if(isHeader){cur={name:_impMealName(t),items:[]};meals.push(cur);continue;}
+    if(isHeader){cur={name:_impMealName(t),raw:t,items:[]};meals.push(cur);continue;}
     if(!hasBar&&!bullet)continue; /* texto suelto que no es comida ni alimento */
     var it=_impItem(t);if(!it)continue;
     if(it.bad){bad.push(it.name);continue;}
@@ -6221,6 +6221,13 @@ function parseMealImport(text){
     cur.items.push(it);
   }
   meals=meals.filter(function(m){return m.items.length;});
+  /* cada encabezado # es su propia comida: si dos caen en el mismo tipo (Snack y Snack de la tarde), el segundo
+     conserva su nombre tal cual; si el nombre se repite exacto, se numera (Snack 2) */
+  var used={};meals.forEach(function(m){var canon=m.raw?_impMealCanon(m.raw):null;var nm=m.name;
+    if(canon&&!used[canon.toLowerCase()])nm=canon;
+    else if(m.raw){nm=String(m.raw).replace(/^[#\[\]\s>*\-]+/,'').replace(/[\]:]+\s*$/,'').replace(/\s+/g,' ').trim()||nm;}
+    var base=nm,i=2;while(used[nm.toLowerCase()]){nm=base+' '+i;i++;}
+    used[nm.toLowerCase()]=1;m.name=nm;delete m.raw;});
   return {date:date,meals:meals,bad:bad};
 }
 /* cantidad "160 g" / "200 ml" / "3 huevos" → amt + tipo para armar el ítem del plan */
