@@ -650,6 +650,24 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 .comp-pick{margin:0 14px 14px;}
 .comp-pick .chips{flex-wrap:wrap;}
 .comp-pick .chip svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+/* ── V39: Apple Salud ── */
+.hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.hl-stat{background:var(--card2);padding:12px 10px;cursor:default;min-width:0;}
+.hl-stat .stat-v{font-size:22px;white-space:nowrap;}
+.hl-stat .stat-d{font-size:11.5px;line-height:1.3;}
+.hl-days .li-row:last-child{border-bottom:none;}
+.hl-w{display:flex;flex-direction:column;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--text2);}
+.hl-w:last-child{border-bottom:none;}
+.hl-w b{color:var(--text);font-weight:600;}
+.hl-prev-ok{background:var(--card);border-radius:14px;padding:12px 14px;font-size:14.5px;line-height:1.6;color:var(--text);}
+.hl-guide{background:var(--card);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14.5px;line-height:1.5;color:var(--text2);}
+.hl-guide p{margin:0 0 10px;}
+.hl-guide ol{margin:0 0 10px;padding-left:20px;}
+.hl-guide li{margin-bottom:8px;}
+.hl-guide ul{margin:6px 0 0;padding-left:18px;}
+.hl-guide b{color:var(--text);}
+.hl-guide code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--card2);padding:1px 5px;border-radius:5px;color:var(--gold);word-break:normal;overflow-wrap:anywhere;}
+.hl-stat .stat-l{overflow-wrap:break-word;hyphens:auto;}
 
 </style>
 </head>
@@ -774,7 +792,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
 
 <!-- ═══ PROGRESO ═══ -->
 <div class="page" id="pg-prog">
-  <div class="ptitle"><h1>Progreso</h1><p>Peso, medidas y presión arterial</p></div>
+  <div class="ptitle"><h1>Progreso</h1><p>Peso, medidas, presión arterial y Apple Salud</p></div>
   <div class="card">
     <div class="card-hd"><div class="card-title">Tendencia</div><div class="card-sub" id="wTrend2"></div></div>
     <canvas id="wChart2" style="width:100%;height:170px;display:block"></canvas>
@@ -791,6 +809,10 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
   <div class="card">
     <div class="card-hd"><div class="card-title">Presión arterial</div><div style="display:flex;gap:6px"><button class="btn-inline btn-inline-ghost" onclick="exportBPTxt()">TXT</button><button class="btn-inline btn-inline-red" onclick="openBPSheet('')">+ Registro</button></div></div>
     <div id="bpBox"></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title">Apple Salud</div><div style="display:flex;gap:6px"><button class="btn-inline btn-inline-ghost" onclick="openHealthExport()">TXT</button><button class="btn-inline btn-inline-red" onclick="openHealthImport(false)">Importar</button></div></div>
+    <div id="hlBox"></div>
   </div>
 </div>
 
@@ -837,7 +859,7 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 38</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 39</div>
 </div>
 
 </div><!-- /content -->
@@ -1313,6 +1335,47 @@ html.hdr-low .topbar{padding-top:calc(var(--safe-t) + 20px);}
     <div class="chips" id="gx-opts" style="margin-bottom:14px"></div>
     <div class="card-sub" id="gx-sum" style="margin-bottom:16px;font-size:14px"></div>
     <button class="btn btn-red" onclick="exportGymTxt()">Exportar TXT</button>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-health"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Apple Salud</div><button class="sheet-close" onclick="closeSheet('sh-health')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="hint">Corre tu atajo «OLYMPIA Salud» y luego toca Pegar. Si el atajo guarda un archivo, toca Elegir archivo.</div>
+    <div class="btn-row" style="margin-bottom:10px"><button class="btn btn-red" style="flex:1" onclick="hlPaste()">Pegar</button><button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('hl-file').click()">Elegir archivo</button></div>
+    <input type="file" id="hl-file" accept=".txt,text/plain" style="display:none" onchange="hlFile(this)">
+    <textarea class="inp" id="hl-text" rows="5" placeholder="PASOS|2026-10-21T00:00:00-06:00|9120&#10;FCREPOSO|2026-10-21T00:00:00-06:00|57&#10;SUENO|2026-10-20T22:41:00-06:00|2026-10-20T23:20:00-06:00|Núcleo" oninput="hlPreview()" style="margin-bottom:12px"></textarea>
+    <div id="hl-prev" style="margin-bottom:14px"></div>
+    <button class="btn btn-red" id="hl-go" onclick="doHealthImport()" disabled>Importar</button>
+    <button class="btn btn-line btn-sm" style="width:100%;margin-top:14px" onclick="hlToggleGuide()">Cómo crear el atajo (una sola vez)</button>
+    <div id="hl-guide" class="hl-guide" style="display:none">
+      <p>Apple solo deja leer Salud a las apps de la App Store; por eso el puente es un atajo de la app <b>Atajos</b>. Se arma una vez y después es un toque.</p>
+      <ol>
+        <li>Abre <b>Atajos</b>, toca <b>+</b> y ponle de nombre <b>OLYMPIA Salud</b>.</li>
+        <li><b>Pasos.</b> Agrega la acción <b>Buscar muestras de salud</b>. Tipo: <b>Pasos</b>. Fecha de inicio: <b>está en los últimos 7 días</b>. Agrupar por: <b>Día</b>.</li>
+        <li>Agrega <b>Repetir con cada elemento</b> (usa las muestras del paso anterior).</li>
+        <li>Dentro del repetir agrega <b>Texto</b> y escribe <code>PASOS|</code>. Inserta la variable <b>Elemento de repetición</b>, tócala, elige <b>Fecha de inicio</b> y en formato de fecha elige <b>ISO 8601</b>. Escribe otra <code>|</code> e inserta otra vez <b>Elemento de repetición</b> → <b>Valor</b>. Queda: <code>PASOS|Fecha de inicio|Valor</code></li>
+        <li>Dentro del repetir, abajo del Texto, agrega <b>Añadir a variable</b> con el nombre <b>Salud</b>.</li>
+        <li>Duplica ese bloque (mantén presionada cada acción → Duplicar) y en cada copia cambia el Tipo y la palabra del inicio:
+          <ul><li>Distancia caminando y corriendo → <code>DISTANCIA</code></li><li>Energía activa → <code>ACTIVA</code></li><li>Frecuencia cardiaca en reposo → <code>FCREPOSO</code></li><li>Variabilidad de la frecuencia cardiaca → <code>VFC</code></li><li>Opcionales: Minutos de ejercicio → <code>EJERCICIO</code> · Frecuencia cardiaca → <code>FC</code></li></ul></li>
+        <li><b>Sueño.</b> Buscar muestras de salud con Tipo <b>Análisis del sueño</b> (o <b>Sueño</b>), últimos <b>8</b> días y <b>sin agrupar</b>. Repetir con cada elemento → Texto: <code>SUENO|Fecha de inicio|Fecha de finalización|Valor</code> (las dos fechas en ISO 8601) → Añadir a variable Salud.</li>
+        <li><b>Entrenamientos.</b> Buscar muestras de salud con Tipo <b>Entrenamientos</b>, últimos 7 días. Repetir → Texto: <code>ENTRENO|Fecha de inicio|Fecha de finalización|Tipo de entrenamiento|Energía activa|Distancia</code> → Añadir a variable Salud. Si en tu iPhone no aparece Entrenamientos como tipo, sáltate este bloque y avísame.</li>
+        <li>Al final, fuera de todos los repetir, agrega <b>Copiar al portapapeles</b> con la variable <b>Salud</b>.</li>
+        <li>Córrelo una vez: iOS te pide permiso para que Atajos lea Salud. Activa esos datos.</li>
+      </ol>
+      <p><b>Cada día:</b> corre el atajo (desde la app Atajos, un widget o Siri), abre OLYMPIA → Progreso → Apple Salud → Importar → Pegar → Importar. Reimportar los mismos días los actualiza; no se duplica nada.</p>
+      <p>Si prefieres archivo: cambia el último paso por <b>Guardar archivo</b> (en Archivos, reemplazando el anterior) y aquí usa Elegir archivo.</p>
+    </div>
+    <button class="btn btn-line btn-sm" style="width:100%;margin-top:10px;color:var(--red-hi)" onclick="hlClearAll()">Borrar datos de Apple Salud</button>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-health-exp"><div class="sheet"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Exportar Apple Salud</div><button class="sheet-close" onclick="closeSheet('sh-health-exp')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="hint">Sueño, FC en reposo, VFC, pasos, distancia, calorías activas y entrenamientos por día.</div>
+    <div class="inp-lbl">Rango</div>
+    <div class="chips" id="hlx-opts" style="margin-bottom:14px"></div>
+    <div class="card-sub" id="hlx-sum" style="margin-bottom:16px;font-size:14px"></div>
+    <button class="btn btn-red" onclick="exportHealthTxt()">Exportar TXT</button>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-macros"><div class="sheet"><div class="sheet-handle"></div>
@@ -1877,7 +1940,7 @@ function openSessEdit(id){
 /* GOAL & MAS */
 
 /* BACKUP / SYNC */
-var BACKUP_KEYS=['weights','foods','sessions','routines','userGoal','userSupps','suppChk','medidas','profile','waterToday','foodLibrary','customPhases','mvManual','mvConfig','kcalAdj','faseManual','waterGoal','customTemplates','hiddenTemplates','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','bpLog','pharmUser','foodGroups','compOff'];
+var BACKUP_KEYS=['weights','foods','sessions','routines','userGoal','userSupps','suppChk','medidas','profile','waterToday','foodLibrary','customPhases','mvManual','mvConfig','kcalAdj','faseManual','waterGoal','customTemplates','hiddenTemplates','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','bpLog','pharmUser','foodGroups','compOff','healthLog'];
 
 /* COMPETITION */
 var COMP_CATS=[
@@ -3069,7 +3132,7 @@ function sanitizeStorage(){
   var arrKeys=['weights','foods','sessions','routines','userSupps','foodLibrary','customTemplates','hiddenTemplates','bpLog','foodGroups'];
   for(var i=0;i<arrKeys.length;i++){var raw=_raw(arrKeys[i]);if(raw===null)continue;var v=_parseAs(raw,null);if(!Array.isArray(v))S.set(arrKeys[i],[]);}
   var cp=S.get('customPhases',null);if(cp!==null&&(!Array.isArray(cp)||!cp.length||!cp[0]||!cp[0].id))S.del('customPhases');
-  var objKeys=['profile','medidas','userGoal','faseManual','kcalAdj','mvManual','mvConfig','waterGoal','waterToday','suppChk','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','pharmUser','compOff'];
+  var objKeys=['profile','medidas','userGoal','faseManual','kcalAdj','mvManual','mvConfig','waterGoal','waterToday','suppChk','activeSession','exNotes','exLibCustom','exLibHidden','macroManual','mealPlans','planPrefs','waterLog','profilePhoto','exMeta','exTechR','pharmUser','compOff','healthLog'];
   for(var j=0;j<objKeys.length;j++){var r2=_raw(objKeys[j]);if(r2===null)continue;var v2=_parseAs(r2,null);if(v2===null||typeof v2!=='object'||Array.isArray(v2))S.del(objKeys[j]);}
   var pf=S.obj('profile',null);if(pf&&!pf.name)S.del('profile');
   /* elementos dentro de cada lista: descartar basura y normalizar numeros */
@@ -3159,7 +3222,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-38',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-39',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -4228,6 +4291,11 @@ function _mergeDaily(data){
   /* presión arterial: union por id */
   var lbp=S.get('bpLog',[]);lbp=Array.isArray(lbp)?lbp.filter(function(r){return r&&r.id&&_isD(r.fecha)&&r.fecha>=cut;}):[];
   if(lbp.length){var ib=arr(D.bpLog).slice();var bid={};ib.forEach(function(r){if(r&&r.id)bid[r.id]=1;});lbp.forEach(function(r){if(!bid[r.id]){ib.push(r);kept.bp=(kept.bp||0)+1;}});ib.sort(function(a,b){var u=(a.fecha||'')+' '+(a.hora||''),v=(b.fecha||'')+' '+(b.hora||'');return u<v?-1:u>v?1:0;});D.bpLog=ib;}
+  /* Apple Salud: lo importado en este dispositivo que no traiga el respaldo se conserva */
+  try{var lh=S.obj('healthLog',null);if(lh&&typeof lh==='object'&&(lh.d||lh.n||lh.w)){var ih=obj(D.healthLog);ih.d=obj(ih.d);ih.n=obj(ih.n);ih.w=arr(ih.w).slice();var hk=0;
+    ['d','n'].forEach(function(k){var src=lh[k]&&typeof lh[k]==='object'?lh[k]:{};Object.keys(src).forEach(function(dt){if(!ih[k][dt]){ih[k][dt]=src[dt];hk++;}});});
+    var wk={};ih.w.forEach(function(x){if(x)wk[x.s+'|'+x.t]=1;});arr(lh.w).forEach(function(x){if(x&&!wk[x.s+'|'+x.t]){ih.w.push(x);hk++;}});ih.w.sort(function(a,b){return a.s<b.s?-1:a.s>b.s?1:0;});
+    if(lh.at&&(!ih.at||lh.at>ih.at))ih.at=lh.at;if(hk||D.healthLog===undefined)D.healthLog=ih;}}catch(e){}
   return kept;
 }
 function _applyData(data){
@@ -5088,7 +5156,7 @@ function bpTxt(){
   return L.join('\n');
 }
 function exportBPTxt(){var t=bpTxt();if(!t){toast('Todavía no tienes registros de presión');return;}_shareTxt('Presión arterial',t,'presion-arterial-'+today()+'.txt');}
-function rProg(){try{buildMeasGrid();}catch(e){}try{buildPesoHistory();}catch(e){}try{buildBP();}catch(e){}try{drawChart();}catch(e){}}
+function rProg(){try{buildMeasGrid();}catch(e){}try{buildPesoHistory();}catch(e){}try{buildBP();}catch(e){}try{buildHealth();}catch(e){}try{drawChart();}catch(e){}}
 
 /* migraciones no destructivas de la versión 30 */
 /* una sola vez: la "Máquina Hack búlgara" pasa a llamarse "Prensa vertical unilateral" (rutinas, biblioteca propia, nota personal e historial,
@@ -6673,6 +6741,172 @@ var POSE_IMG={
   qs2:[545,609,'data:image/webp;base64,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']
  }
 };
+
+/* ════════ V39 · Apple Salud (vía atajo de la app Atajos) ════════
+   Una app web no puede leer Salud: Apple solo lo permite a apps nativas. El atajo «OLYMPIA Salud» lee los datos
+   y los copia como líneas  ETIQUETA|fecha|valor  (o SUENO|inicio|fin|etapa, ENTRENO|inicio|fin|tipo|kcal|distancia).
+   Aquí se pegan (o se elige el archivo), se guardan por día en healthLog y se exportan en TXT.
+   healthLog = {d:{fecha:{steps,dist,act,ex,hr,rhr,hrv}}, n:{noche:{tot,deep,core,rem,unsp,awake,inbed,bed,wake}},
+                w:[{s,e,t,min,kcal,dist}], at:'última importación'}
+   La noche se cuenta en el día en que despiertas (corte a las 6 p. m.). */
+var HL_TAGS={PASOS:'steps',DISTANCIA:'dist',ACTIVA:'act',EJERCICIO:'ex',FC:'hr',FCREPOSO:'rhr',VFC:'hrv',HRV:'hrv'};
+var HL_CUMUL={steps:1,dist:1,act:1,ex:1};
+var HL_LIM={steps:[0,200000],dist:[0,300],act:[0,10000],ex:[0,1440],hr:[25,230],rhr:[25,150],hrv:[1,400]};
+var HL_LBL={steps:'Pasos',dist:'Distancia',act:'Calorías activas',ex:'Minutos de ejercicio',hr:'FC promedio',rhr:'FC en reposo',hrv:'Variabilidad cardiaca (VFC)'};
+function hlGet(){var h=S.obj('healthLog',null);if(!h||typeof h!=='object'||Array.isArray(h))h={};
+  if(!h.d||typeof h.d!=='object'||Array.isArray(h.d))h.d={};if(!h.n||typeof h.n!=='object'||Array.isArray(h.n))h.n={};if(!Array.isArray(h.w))h.w=[];return h;}
+function _hlTag(s){return _fgKey(s).toUpperCase().replace(/[^A-Z]/g,'');}
+var _HL_MES={ene:1,jan:1,feb:2,mar:3,abr:4,apr:4,may:5,jun:6,jul:7,ago:8,aug:8,sep:9,set:9,oct:10,nov:11,dic:12,dec:12};
+function _hlP2(n){return (n<10?'0':'')+n;}
+/* fecha de Atajos: ISO 8601 (2026-10-21T23:48:00-06:00) o formatos comunes en español; se usa la hora local escrita */
+function _hlDate(s){s=String(s||'').trim();if(!s)return null;var y,mo,d,h=0,mi=0,m;
+  if((m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2}))?/))){y=+m[1];mo=+m[2];d=+m[3];if(m[4]!=null){h=+m[4];mi=+m[5];}}
+  else if((m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[\s,]+(\d{1,2}):(\d{2}))?/))){d=+m[1];mo=+m[2];y=+m[3];if(y<100)y+=2000;if(m[4]!=null){h=+m[4];mi=+m[5];}}
+  else{var k=_fgKey(s);m=k.match(/(\d{1,2})\s*(?:de\s*)?([a-z]{3,})\.?\s*(?:de\s*)?(\d{4})(?:[^\d]*(\d{1,2}):(\d{2}))?/);if(!m)return null;mo=_HL_MES[m[2].slice(0,3)];if(!mo)return null;d=+m[1];y=+m[3];if(m[4]!=null){h=+m[4];mi=+m[5];}}
+  if(/p\.?\s?m\b|p\.\s?m\./i.test(s)&&h<12)h+=12;else if(/a\.?\s?m\b|a\.\s?m\./i.test(s)&&h===12)h=0;
+  if(!(y>2000&&mo>=1&&mo<=12&&d>=1&&d<=31&&h<24&&mi<60))return null;
+  return {d:y+'-'+_hlP2(mo)+'-'+_hlP2(d),hm:_hlP2(h)+':'+_hlP2(mi),ms:new Date(y,mo-1,d,h,mi).getTime()};}
+/* números con coma o punto decimal y separador de miles (8,423 · 8.423 · 8 423 · 72,5) */
+function _hlNum(s,intish){s=String(s==null?'':s).replace(/[\s  ]/g,'');var m=s.match(/-?[\d.,]*\d/);if(!m)return NaN;var t=m[0];
+  var c=t.lastIndexOf(','),p=t.lastIndexOf('.');
+  if(c>=0&&p>=0){if(c>p)t=t.replace(/\./g,'').replace(',','.');else t=t.replace(/,/g,'');}
+  else if(c>=0){t=(intish&&/^-?\d{1,3}(,\d{3})+$/.test(t))?t.replace(/,/g,''):t.replace(/,/g,'.');}
+  else if(p>=0&&intish&&/^-?\d{1,3}(\.\d{3})+$/.test(t))t=t.replace(/\./g,'');
+  var n=parseFloat(t);return isFinite(n)?n:NaN;}
+/* etapa del sueño: texto en español o inglés, o el código de HealthKit (0 en cama · 1 dormido · 2 despierto · 3 núcleo · 4 profundo · 5 REM) */
+function _hlStage(v){var k=_fgKey(v);if(/^\d$/.test(k))return ['inbed','unsp','awake','core','deep','rem'][+k]||null;
+  if(/cama|in ?bed/.test(k))return 'inbed';if(/despiert|awake/.test(k))return 'awake';if(/profund|deep/.test(k))return 'deep';if(/\brem\b/.test(k))return 'rem';
+  if(/nucleo|core|ligero|light/.test(k))return 'core';if(/dormid|asleep|sueno|durmiendo|unspecified|especificar/.test(k))return 'unsp';return null;}
+function parseHealth(text){
+  var r={days:{},sleep:[],w:[],n:{},unknown:{},bad:0,warn:[]};var cnt={};
+  String(text||'').split(/\r?\n/).forEach(function(raw){var line=raw.trim();if(!line||line.indexOf('|')<0)return;
+    var f=line.split('|').map(function(x){return x.trim();});var tag=_hlTag(f[0]);
+    if(tag==='SUENO'||tag==='SLEEP'){var a=_hlDate(f[1]),b=_hlDate(f[2]),st=_hlStage(f[3]);if(!a||!b||!st||b.ms<=a.ms||b.ms-a.ms>18*3600e3){r.bad++;return;}r.sleep.push({s:a.ms,e:b.ms,st:st});return;}
+    if(tag==='ENTRENO'||tag==='WORKOUT'){var a2=_hlDate(f[1]),b2=_hlDate(f[2]);if(!a2){r.bad++;return;}var mn=b2&&b2.ms>a2.ms?Math.round((b2.ms-a2.ms)/60000):Math.round(_hlNum(f[6])||0);
+      if(!(mn>0)||mn>1440){r.bad++;return;}var kc=_hlNum(f[4],true);r.w.push({s:a2.d+' '+a2.hm,e:b2?b2.d+' '+b2.hm:'',t:_fgNorm(f[3])||'Entrenamiento',min:mn,kcal:kc>0?Math.round(kc):0,dist:_fgNorm(f[5]||'')});return;}
+    var key=HL_TAGS[tag];if(!key){if(tag)r.unknown[tag]=(r.unknown[tag]||0)+1;else r.bad++;return;}
+    var dt=_hlDate(f[1]);var v=_hlNum(f[2],key==='steps'||key==='act'||key==='ex');if(!dt||!isFinite(v)){r.bad++;return;}
+    var L=HL_LIM[key];if(v<L[0]||v>L[1]){r.warn.push(HL_LBL[key]+' del '+fmtDate(dt.d)+' fuera de rango ('+_numTxt(v)+'): no se toma');return;}
+    (r.days[dt.d]=r.days[dt.d]||{})[key]=key==='steps'?Math.round(v):Math.round(v*100)/100;cnt[key]=(cnt[key]||0)+1;});
+  r.n=_hlNights(r.sleep);r.cnt=cnt;return r;
+}
+/* une intervalos que se enciman (reloj y iPhone pueden anotar lo mismo) */
+function _hlUnion(iv){if(!iv.length)return 0;iv=iv.slice().sort(function(a,b){return a[0]-b[0];});var t=0,s=iv[0][0],e=iv[0][1];
+  for(var i=1;i<iv.length;i++){if(iv[i][0]<=e){if(iv[i][1]>e)e=iv[i][1];}else{t+=e-s;s=iv[i][0];e=iv[i][1];}}t+=e-s;return Math.round(t/60000);}
+function _hlNightKey(ms){return dStr(new Date(ms+6*3600e3));}
+function _hlNights(segs){var g={};segs.forEach(function(x){var k=_hlNightKey(x.e);(g[k]=g[k]||[]).push(x);});var out={};
+  Object.keys(g).forEach(function(k){var L=g[k];var by={inbed:[],unsp:[],awake:[],core:[],deep:[],rem:[]};L.forEach(function(x){by[x.st].push([x.s,x.e]);});
+    var asl=by.core.concat(by.deep,by.rem,by.unsp);var o={tot:_hlUnion(asl),deep:_hlUnion(by.deep),core:_hlUnion(by.core),rem:_hlUnion(by.rem),unsp:_hlUnion(by.unsp),awake:_hlUnion(by.awake),inbed:_hlUnion(by.inbed)};
+    var ref=asl.length?asl:by.inbed;if(ref.length){var s=Math.min.apply(null,ref.map(function(a){return a[0];})),e=Math.max.apply(null,ref.map(function(a){return a[1];}));var ds=new Date(s),de=new Date(e);o.bed=_hlP2(ds.getHours())+':'+_hlP2(ds.getMinutes());o.wake=_hlP2(de.getHours())+':'+_hlP2(de.getMinutes());}
+    if(o.tot>0||o.inbed>0)out[k]=o;});
+  return out;}
+/* el día y la noche más viejos del texto pueden venir cortados por la ventana de 7-8 días: no pisan un dato más completo */
+function hlMerge(p){var H=hlGet();var dates=Object.keys(p.days).sort();var oldest=dates.length>1?dates[0]:null;var nd=0,nn=0,nw=0;
+  dates.forEach(function(dt){var cur=H.d[dt]||{};var x=p.days[dt];Object.keys(x).forEach(function(k){if(dt===oldest&&cur[k]!=null){if(HL_CUMUL[k])cur[k]=Math.max(cur[k],x[k]);}else cur[k]=x[k];});H.d[dt]=cur;nd++;});
+  var nk=Object.keys(p.n).sort();nk.forEach(function(dt,i){var o=H.n[dt];if(i===0&&nk.length>1&&o&&o.tot>p.n[dt].tot)return;H.n[dt]=p.n[dt];nn++;});
+  var idx={};H.w.forEach(function(w,i){idx[w.s+'|'+_fgKey(w.t)]=i;});
+  p.w.forEach(function(w){var k=w.s+'|'+_fgKey(w.t);if(idx[k]!=null)H.w[idx[k]]=w;else{H.w.push(w);idx[k]=H.w.length-1;}nw++;});
+  H.w.sort(function(a,b){return a.s<b.s?-1:a.s>b.s?1:0;});
+  var t=new Date();H.at=dStr(t)+' '+_hlP2(t.getHours())+':'+_hlP2(t.getMinutes());S.set('healthLog',H);return {d:nd,n:nn,w:nw};}
+
+/* ── formato ── */
+function _hlHM(m){m=Math.round(+m||0);if(m<60)return m+' min';var h=Math.floor(m/60),mm=m%60;return h+' h '+_hlP2(mm);}
+function _hlInt(n){return Math.round(+n||0).toLocaleString('es-MX');}
+function _hlD(d){var x=parseD(d);return DIAS[x.getDay()]+' '+x.getDate()+' '+MESES[x.getMonth()].slice(0,3);}
+function _hlRange(days){var to=today();var out=[];for(var i=days-1;i>=0;i--)out.push(addDays(to,-i));return out;}
+function _hlAvg(H,dates,get){var v=[];dates.forEach(function(d){var x=get(d);if(x!=null&&isFinite(x)&&x>0)v.push(+x);});if(!v.length)return null;return {v:v.reduce(function(a,b){return a+b;},0)/v.length,n:v.length};}
+function hlStats(H,dates){return {
+  sleep:_hlAvg(H,dates,function(d){return H.n[d]&&H.n[d].tot;}),deep:_hlAvg(H,dates,function(d){return H.n[d]&&H.n[d].deep;}),rem:_hlAvg(H,dates,function(d){return H.n[d]&&H.n[d].rem;}),
+  rhr:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].rhr;}),hrv:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].hrv;}),hr:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].hr;}),
+  steps:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].steps;}),dist:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].dist;}),act:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].act;}),ex:_hlAvg(H,dates,function(d){return H.d[d]&&H.d[d].ex;})};}
+function _hlHas(H){return Object.keys(H.d).length||Object.keys(H.n).length||H.w.length;}
+
+/* ── tarjeta en Progreso ── */
+function buildHealth(){
+  var el=document.getElementById('hlBox');if(!el)return;var H=hlGet();
+  if(!_hlHas(H)){el.innerHTML='<div class="empty"><b>Sin datos de Apple Salud</b>Crea el atajo una vez y luego importa con un toque.</div><button class="btn btn-ghost" onclick="openHealthImport(true)">Cómo conectarlo</button>';return;}
+  var dates=_hlRange(7);var st=hlStats(H,dates);
+  var tile=function(v,l,sub){return '<div class="stat hl-stat"><div class="stat-v">'+v+'</div><div class="stat-l">'+l+'</div>'+(sub?'<div class="stat-d" style="color:var(--muted)">'+sub+'</div>':'')+'</div>';};
+  var h='<div class="card-sub" style="margin:-4px 0 10px">Promedio de los últimos 7 días'+(H.at?' · importado '+fmtDate(H.at.slice(0,10))+' '+H.at.slice(11):'')+'</div>';
+  h+='<div class="hl-grid">'+tile(st.sleep?_hlHM(st.sleep.v):'—','Sueño',st.deep||st.rem?'profundo '+(st.deep?_hlHM(st.deep.v):'—')+' · REM '+(st.rem?_hlHM(st.rem.v):'—'):'')
+    +tile(st.rhr?Math.round(st.rhr.v):'—','FC en reposo',st.rhr?'lpm':'')
+    +tile(st.hrv?Math.round(st.hrv.v):'—','VFC',st.hrv?'ms':'')
+    +tile(st.steps?_hlInt(st.steps.v):'—','Pasos',st.dist?_numTxt(Math.round(st.dist.v*10)/10)+' km':'')
+    +tile(st.act?_hlInt(st.act.v):'—','Kcal activas','referencia de gasto')
+    +tile(_hlInt(H.w.filter(function(w){return w.s.slice(0,10)>=dates[0];}).length),'Entrenos del reloj',_hlHM(H.w.filter(function(w){return w.s.slice(0,10)>=dates[0];}).reduce(function(a,w){return a+w.min;},0))+' en total')+'</div>';
+  var rows=dates.slice().reverse().filter(function(d){return H.d[d]||H.n[d];});
+  if(rows.length){h+='<div class="hl-days">';rows.forEach(function(d){var x=H.d[d]||{},n=H.n[d];var a=[],b=[];
+      if(n)a.push('Sueño '+_hlHM(n.tot));if(x.rhr)a.push('FC reposo '+Math.round(x.rhr));if(x.hrv)a.push('VFC '+Math.round(x.hrv));
+      if(x.steps)b.push(_hlInt(x.steps)+' pasos');if(x.dist)b.push(_numTxt(Math.round(x.dist*10)/10)+' km');if(x.act)b.push(_hlInt(x.act)+' kcal activas');if(x.ex)b.push(_hlInt(x.ex)+' min ejercicio');
+      h+='<div class="li-row"><div style="width:74px;flex-shrink:0"><div style="font-size:14px;color:var(--text)">'+parseD(d).getDate()+' '+MESES[parseD(d).getMonth()].slice(0,3)+'</div><div class="card-sub" style="font-size:12px">'+DIAS[parseD(d).getDay()]+'</div></div><div style="flex:1;min-width:0;padding:6px 0"><div style="font-size:14.5px;color:var(--text)">'+(a.join(' · ')||'—')+'</div>'+(b.length?'<div class="card-sub" style="font-size:12.5px">'+b.join(' · ')+'</div>':'')+'</div></div>';});
+    h+='</div>';}
+  var ws=H.w.filter(function(w){return w.s.slice(0,10)>=dates[0];}).slice().reverse();
+  if(ws.length){h+='<div class="ph-sec" style="padding-top:12px">Entrenamientos del reloj</div>';ws.forEach(function(w){h+='<div class="hl-w"><b>'+escH(w.t)+'</b><span>'+_hlD(w.s.slice(0,10))+' · '+w.s.slice(11)+' · '+_hlHM(w.min)+(w.kcal?' · '+_hlInt(w.kcal)+' kcal':'')+(w.dist?' · '+escH(w.dist):'')+'</span></div>';});}
+  el.innerHTML=h;
+}
+
+/* ── hoja: importar ── */
+var _hlParsed=null;
+function openHealthImport(guide){var t=document.getElementById('hl-text');if(t)t.value='';_hlParsed=null;hlPreview();var g=document.getElementById('hl-guide');if(g)g.style.display=guide?'block':'none';openSheet('sh-health');}
+function hlToggleGuide(){var g=document.getElementById('hl-guide');if(g)g.style.display=g.style.display==='none'?'block':'none';}
+function hlPaste(){var t=document.getElementById('hl-text');
+  if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(x){if(t){t.value=x||'';}hlPreview();if(!x)toast('El portapapeles está vacío: corre primero el atajo');},function(){if(t)t.focus();toast('Mantén presionado el cuadro y elige Pegar');});}
+  else{if(t)t.focus();toast('Mantén presionado el cuadro y elige Pegar');}}
+function hlFile(inp){var f=inp.files&&inp.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(e){var t=document.getElementById('hl-text');if(t)t.value=String(e.target.result||'');hlPreview();};rd.readAsText(f);inp.value='';}
+function hlPreview(){
+  var el=document.getElementById('hl-prev');var btn=document.getElementById('hl-go');var txt=_v('hl-text')||'';
+  if(!txt.trim()){_hlParsed=null;if(el)el.innerHTML='';if(btn)btn.disabled=true;return;}
+  var p=parseHealth(txt);_hlParsed=p;var c=p.cnt||{};var nights=Object.keys(p.n).length;var dd=Object.keys(p.days).sort();
+  var L=[];Object.keys(HL_LBL).forEach(function(k){if(c[k])L.push(HL_LBL[k]+': '+c[k]+(c[k]===1?' día':' días'));});
+  if(nights)L.push('Sueño: '+nights+(nights===1?' noche':' noches'));if(p.w.length)L.push('Entrenamientos: '+p.w.length);
+  var h='';if(L.length){h+='<div class="hl-prev-ok">'+(dd.length?'Del '+fmtDate(dd[0])+' al '+fmtDate(dd[dd.length-1])+'<br>':'')+L.map(escH).join('<br>')+'</div>';}
+  else h+='<div class="note" style="margin:0">No encontré datos del atajo en ese texto. Revisa que cada línea empiece con PASOS|, SUENO|, ENTRENO|…</div>';
+  var uk=Object.keys(p.unknown);if(uk.length)h+='<div class="card-sub" style="margin-top:8px">Etiquetas que no conozco: '+uk.map(escH).join(', ')+'</div>';
+  if(p.bad)h+='<div class="card-sub" style="margin-top:6px;color:var(--gold)">'+p.bad+(p.bad===1?' línea no se pudo leer':' líneas no se pudieron leer')+' (fecha o valor).</div>';
+  p.warn.slice(0,4).forEach(function(w){h+='<div class="card-sub" style="margin-top:6px;color:var(--gold)">'+escH(w)+'</div>';});
+  if(el)el.innerHTML=h;if(btn)btn.disabled=!L.length;
+}
+function doHealthImport(){if(!_hlParsed)hlPreview();var p=_hlParsed;if(!p)return;
+  var any=Object.keys(p.days).length||Object.keys(p.n).length||p.w.length;if(!any){toast('No hay datos para importar');return;}
+  var r=hlMerge(p);closeSheet('sh-health');_hlParsed=null;try{buildHealth();}catch(e){}
+  toast('Importé '+[r.d?r.d+(r.d===1?' día':' días'):'',r.n?r.n+(r.n===1?' noche':' noches'):'',r.w?r.w+(r.w===1?' entrenamiento':' entrenamientos'):''].filter(Boolean).join(' · '));}
+function hlClearAll(){if(!_hlHas(hlGet())){toast('No hay datos de Apple Salud');return;}
+  confirmDlg('¿Borrar datos de Apple Salud?','Se borran de OLYMPIA los días, noches y entrenamientos importados. En la app Salud no se borra nada y puedes volver a importarlos.','Borrar',function(){S.del('healthLog');closeSheet('sh-health');try{buildHealth();}catch(e){}toast('Datos de Apple Salud borrados');});}
+
+/* ── TXT para ChatGPT ── */
+var HL_OPTS=[[7,'7 días'],[14,'2 semanas'],[30,'1 mes'],[90,'3 meses']];var _hlDays=30;
+function openHealthExport(){if(!_hlHas(hlGet())){toast('Primero importa tus datos');return;}_hlDays=30;_hlExpRender();openSheet('sh-health-exp');}
+function hlSetDays(n){_hlDays=n;_hlExpRender();}
+function _hlExpRender(){var c=document.getElementById('hlx-opts');if(c)c.innerHTML=HL_OPTS.map(function(o){return '<button class="chip'+(_hlDays===o[0]?' on':'')+'" onclick="hlSetDays('+o[0]+')">'+o[1]+'</button>';}).join('');
+  var H=hlGet();var ds=_hlRange(_hlDays);var n=ds.filter(function(d){return H.d[d]||H.n[d];}).length;var w=H.w.filter(function(x){return x.s.slice(0,10)>=ds[0];}).length;
+  var s=document.getElementById('hlx-sum');if(s)s.innerHTML=n||w?'<b>'+n+(n===1?' día':' días')+' con datos</b>'+(w?' · '+w+(w===1?' entrenamiento':' entrenamientos'):''):'Sin datos en ese rango.';}
+function healthTxt(days){
+  days=days||_hlDays;var H=hlGet();var ds=_hlRange(days);var st=hlStats(H,ds);var L=[];var opt=HL_OPTS.filter(function(o){return o[0]===days;})[0];
+  var f1=function(o,fn){return o?fn(o.v):'—';};
+  L.push('APPLE SALUD (APPLE WATCH) — OLYMPIA');
+  L.push('Rango: '+_hlD(ds[0])+' '+parseD(ds[0]).getFullYear()+' al '+_hlD(ds[ds.length-1])+' '+parseD(ds[ds.length-1]).getFullYear()+(opt?' ('+({7:'últimos 7 días',14:'últimas 2 semanas',30:'último mes',90:'últimos 3 meses'})[opt[0]]+')':'')+(H.at?' · última importación '+fmtDate(H.at.slice(0,10))+' '+H.at.slice(11):''));
+  L.push('El sueño se anota en el día en que desperté.');
+  L.push('');L.push('PROMEDIOS (solo días con dato)');
+  L.push('- Sueño: '+f1(st.sleep,_hlHM)+' (profundo '+f1(st.deep,_hlHM)+' · REM '+f1(st.rem,_hlHM)+') → recuperación');
+  L.push('- FC en reposo: '+f1(st.rhr,function(v){return Math.round(v)+' lpm';})+' → tendencia de fatiga');
+  L.push('- Variabilidad cardiaca (VFC): '+f1(st.hrv,function(v){return Math.round(v)+' ms';})+' → contexto de recuperación');
+  L.push('- Pasos: '+f1(st.steps,_hlInt)+' · Distancia: '+f1(st.dist,function(v){return _numTxt(Math.round(v*10)/10)+' km';})+' → actividad diaria');
+  L.push('- Calorías activas: '+f1(st.act,function(v){return _hlInt(v)+' kcal';})+' → referencia de gasto, no medición exacta');
+  if(st.ex||st.hr)L.push('- '+[st.ex?'Ejercicio: '+_hlHM(st.ex.v):'',st.hr?'FC promedio: '+Math.round(st.hr.v)+' lpm':''].filter(Boolean).join(' · '));
+  L.push('');L.push('POR DÍA');
+  L.push('Fecha | Día | Sueño | Profundo | REM | Despierto | Se durmió → despertó | FC reposo | VFC | Pasos | Km | Kcal activas'+(st.ex?' | Min ejercicio':''));
+  ds.forEach(function(d){var x=H.d[d]||{},n=H.n[d];if(!H.d[d]&&!n)return;
+    L.push(fmtDate(d)+' | '+DIAS[parseD(d).getDay()]+' | '+(n?_hlHM(n.tot):'—')+' | '+(n&&n.deep?_hlHM(n.deep):'—')+' | '+(n&&n.rem?_hlHM(n.rem):'—')+' | '+(n&&n.awake?_hlHM(n.awake):'—')+' | '+(n&&n.bed?n.bed+' → '+n.wake:'—')+' | '+(x.rhr?Math.round(x.rhr):'—')+' | '+(x.hrv?Math.round(x.hrv)+' ms':'—')+' | '+(x.steps?_hlInt(x.steps):'—')+' | '+(x.dist?_numTxt(Math.round(x.dist*100)/100):'—')+' | '+(x.act?_hlInt(x.act):'—')+(st.ex?' | '+(x.ex?_hlInt(x.ex):'—'):''));});
+  var ws=H.w.filter(function(w){return w.s.slice(0,10)>=ds[0];});
+  L.push('');L.push('ENTRENAMIENTOS DEL RELOJ → control de cardio y fuerza');
+  if(!ws.length)L.push('Sin entrenamientos en el rango.');
+  else{ws.forEach(function(w){L.push('- '+_hlD(w.s.slice(0,10))+' '+w.s.slice(11)+' · '+w.t+' · '+_hlHM(w.min)+(w.kcal?' · '+_hlInt(w.kcal)+' kcal':'')+(w.dist?' · '+w.dist:''));});
+    var tm=ws.reduce(function(a,w){return a+w.min;},0);L.push('Total: '+ws.length+(ws.length===1?' entrenamiento':' entrenamientos')+' · '+_hlHM(tm));}
+  L.push('');L.push('Analiza mi recuperación (sueño, FC en reposo y VFC) junto con mi actividad y mis entrenamientos durante la preparación, y dime si ves señales de fatiga.');
+  return L.join('\n');
+}
+function exportHealthTxt(){var H=hlGet();var ds=_hlRange(_hlDays);if(!ds.some(function(d){return H.d[d]||H.n[d];})&&!H.w.some(function(w){return w.s.slice(0,10)>=ds[0];})){toast('No hay datos en ese rango');return;}
+  var txt=healthTxt(_hlDays);closeSheet('sh-health-exp');_shareTxt('Apple Salud',txt,'apple-salud-'+today()+'.txt');}
 
 bootStorage(initApp);
 
