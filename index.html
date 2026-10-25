@@ -1139,7 +1139,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 41</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 42</div>
 </div>
 
 </div><!-- /content -->
@@ -1236,7 +1236,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <input type="hidden" id="lib-idx">
     <div class="fgroup"><div class="inp-lbl">Nombre</div><input type="text" class="inp" id="lib-name" placeholder="Uvas verdes" autocomplete="off"></div>
     <div class="fgroup"><div class="inp-lbl">Marca (opcional)</div><input type="text" class="inp" id="lib-brand" placeholder="Para distinguir el mismo producto de otra marca" autocomplete="off"></div>
-    <div class="fgroup"><div class="inp-lbl">Subcategoría (opcional)</div><select class="inp" id="lib-grp" onchange="_fgFormChg()"><option value="">Sin subcategoría</option></select><input type="text" class="inp" id="lib-grp-new" placeholder="Nombre de la subcategoría" autocomplete="off" style="display:none;margin-top:8px"></div>
+    <div class="fgroup" id="lib-grp-box" style="display:none"><div class="inp-lbl">Subcategoría (opcional)</div><select class="inp" id="lib-grp" onchange="_fgFormChg()"><option value="">Sin subcategoría</option></select><input type="text" class="inp" id="lib-grp-new" placeholder="Nombre de la subcategoría" autocomplete="off" style="display:none;margin-top:8px"></div>
     <div class="adj-line" style="margin:0 0 16px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Disponible</div><button class="sw on" id="lib-on" role="switch" aria-checked="true" onclick="_setLibOnSw(!this.classList.contains('on'))"><i></i></button></div>
     <div class="inp-lbl">Se mide en</div>
     <div class="seg" style="margin:0 0 14px;background:var(--card)"><button class="seg-i on" id="lib-mode-g" onclick="setLibMode('g')">Gramos</button><button class="seg-i" id="lib-mode-ml" onclick="setLibMode('ml')">Mililitros</button><button class="seg-i" id="lib-mode-u" onclick="setLibMode('u')">Unidades</button></div>
@@ -3475,7 +3475,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-41',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-42',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -6662,10 +6662,12 @@ function doImport(){
 function mvColor(nm,s){var d=MV[nm];var t=Math.max(1,parseInt(d&&d.mav&&d.mav[1])||1);s=+s||0;
   if(s<=0)return 'var(--dim)';if(s>t)return 'var(--violet)';if(s>=t)return 'var(--green)';if(s*2>=t)return 'var(--gold)';return 'var(--red)';}
 
-/* ════════ V35 · biblioteca de alimentos: orden alfabético y subcategorías ════════
-   La subcategoría solo ordena la lista: vive en f.grp (texto) y en foodGroups (nombres, para conservar
-   las que están vacías). No toca el tipo (cat), el plan automático, la importación del plan del día
-   ni el orden en que se guarda la biblioteca. */
+/* ════════ V35 · biblioteca de alimentos: orden alfabético (subcategorías guardadas, sin mostrarse) ════════
+   V42: a pedido de él, la lista vuelve a ser una sola, sin las subcategorías desplegables: todo en orden
+   alfabético (mismo nombre → la marca) y los apagados abajo, también en orden alfabético. El campo
+   Subcategoría del formulario queda oculto. Lo que ya tenía asignado NO se borra: f.grp y foodGroups
+   siguen guardados y en el respaldo (el formulario conserva el valor al guardar), por si algún día vuelven.
+   Nada de esto toca el tipo (cat), el plan automático, la importación del plan del día ni el orden guardado. */
 var _fgOpen={};
 function _fgNorm(s){return String(s==null?'':s).replace(/\s+/g,' ').trim();}
 function _fgKey(s){var t=_fgNorm(s).toLowerCase();try{t=t.normalize('NFD').replace(/[̀-ͯ]/g,'');}catch(e){}return t;}
@@ -6686,7 +6688,7 @@ function _fgRemember(g){g=_fgNorm(g);if(!g)return;var st=_fgStore();var k=_fgKey
 function _libVisible(){
   var lib=getFoodLib();var q=_fgKey(_v('lib-search')||'');var idx=[];
   for(var i=0;i<lib.length;i++){var f=lib[i];
-    if(q){var hay=_fgKey(f.name)+' '+(typeof f.grp==='string'?_fgKey(f.grp):'');if(hay.indexOf(q)<0)continue;}
+    if(q&&_fgKey(f.name).indexOf(q)<0)continue;
     if(libCat!=='all'&&foodCat(f)!==libCat)continue;if(libStatus==='on'&&f.off)continue;if(libStatus==='off'&&!f.off)continue;idx.push(i);}
   idx.sort(function(a,b){if(!!lib[a].off!==!!lib[b].off)return lib[a].off?1:-1;return _foodCmp(lib[a],lib[b]);});
   return idx;
@@ -6704,24 +6706,9 @@ function buildFoodLib(){
   var h='<div class="seg" style="margin:0 0 12px;background:var(--card)"><button class="seg-i'+(libStatus==='all'?' on':'')+'" onclick="setLibStatus(\'all\')">Todos '+st.all+'</button><button class="seg-i'+(libStatus==='on'?' on':'')+'" onclick="setLibStatus(\'on\')">Activos '+st.on+'</button><button class="seg-i'+(libStatus==='off'?' on':'')+'" onclick="setLibStatus(\'off\')">Apagados '+st.off+'</button></div>';
   var sm=_starterMissing().length;
   h+=_fixBanner();h+='<button class="btn btn-line btn-sm" style="width:100%;margin-bottom:'+(sm?'8':'12')+'px" onclick="exportLibraryTxt()">Exportar alimentos activos (TXT)</button>';
-  var q=_fgKey(_v('lib-search')||'');var filt=!!q||libCat!=='all'||libStatus!=='all';
-  var idx=_libVisible();var groups=foodGroups();var gm=_fgMap(groups);
-  h+='<div class="fg-hd"><span class="ph-sec" style="padding:0">Subcategorías</span><button class="lnk" style="padding:0" onclick="openFoodGrp(\'\')">+ Nueva</button></div>';
+  var idx=_libVisible();
   if(!idx.length){h+='<div class="empty"><b>'+(libStatus==='off'?'Nada apagado':'Sin resultados')+'</b>'+(libStatus==='off'?'Todo tu inventario está disponible para el plan.':'Prueba con otro nombre o categoría.')+'</div>';el.innerHTML=h;return;}
-  var by={},loose=[];
-  idx.forEach(function(i){var g=_fgOf(lib[i],gm);if(g)(by[g]=by[g]||[]).push(i);else loose.push(i);});
-  var shownG=groups.filter(function(g){return by[g]||!filt;});
-  if(shownG.length){h+='<div class="list fg-list" style="margin:0 0 14px">';
-    shownG.forEach(function(g){var items=by[g]||[];var tot=_fgCount(g);var k=_fgKey(g);var open=!!_fgOpen[k]||(!!q&&items.length>0);
-      h+='<div class="row fg-row'+(open?' open':'')+'" data-g="'+escA(g)+'" onclick="fgToggle(this.dataset.g)" role="button" aria-expanded="'+open+'"><span class="fg-chev">'+IC.chevR+'</span><div class="row-main"><div class="row-t">'+escH(g)+'</div><div class="row-s">'+(filt?items.length+' de '+tot:tot+(tot===1?' alimento':' alimentos'))+'</div></div>';
-      h+='<button class="icon-btn" data-g="'+escA(g)+'" onclick="event.stopPropagation();openFoodGrp(this.dataset.g)" aria-label="Editar subcategoría '+escA(g)+'">'+IC.edit+'</button></div>';
-      if(open){h+='<div class="fg-in">';items.forEach(function(i){h+=_libRowHtml(i,lib[i]);});
-        if(!items.length)h+='<div class="fg-empty">Vacía. Toca el lápiz para elegir sus alimentos.</div>';
-        h+='<button class="lnk fg-add" data-g="'+escA(g)+'" onclick="fgNewIn(this.dataset.g)">+ Nuevo alimento en '+escH(g)+'</button></div>';}
-    });
-    h+='</div>';}
-  if(loose.length){if(shownG.length)h+='<div class="ph-sec">Sin subcategoría</div>';
-    h+='<div class="list" style="margin:0">';loose.forEach(function(i){h+=_libRowHtml(i,lib[i]);});h+='</div>';}
+  h+='<div class="list" style="margin:0">';idx.forEach(function(i){h+=_libRowHtml(i,lib[i]);});h+='</div>';
   h+='<div class="btn-row" style="margin-top:12px"><button class="btn btn-line btn-sm" style="flex:1" onclick="bulkFoodOff(false)">Activar '+(libCat!=='all'||(_v('lib-search')||'').trim()?'los filtrados':'todos')+'</button><button class="btn btn-line btn-sm" style="flex:1" onclick="bulkFoodOff(true)">Apagar '+(libCat!=='all'||(_v('lib-search')||'').trim()?'los filtrados':'todos')+'</button></div>';
   el.innerHTML=h;
 }
