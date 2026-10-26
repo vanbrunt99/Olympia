@@ -1310,7 +1310,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 43</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 44</div>
 </div>
 
 </div><!-- /content -->
@@ -3749,7 +3749,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-43',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-44',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -6740,7 +6740,7 @@ var IMPORT_PROMPT=[
 '1. La primera línea es exactamente "PLAN OLYMPIA".',
 '2. "Fecha:" en formato AAAA-MM-DD (por ejemplo 2026-10-15). Si no te doy fecha, usa la de mañana.',
 '3. Una línea que empiece con "# " por cada comida. Usa estos nombres cuando apliquen: Desayuno, Pre-entreno, Almuerzo, Snack, Post-entreno, Cena.',
-'4. Una línea que empiece con "- " por cada alimento, con las barras "|" en este orden: nombre | cantidad | P | C | G | Na | kcal.',
+'4. Una línea que empiece con "- " por cada alimento, separando los campos SOLO con la barra "|" (no uses "·", comas ni guiones), en este orden: nombre | cantidad | P | C | G | Na | kcal.',
 '5. La cantidad va en gramos (g), mililitros (ml) o unidades (por ejemplo "2 huevos" o "150 g").',
 '6. P, C y G son los gramos TOTALES de esa porción (no por 100 g). kcal es opcional; si lo pones, déjalo como "320 kcal".',
 '7. Na es el SODIO en miligramos de esa porción (no la sal): escríbelo como "Na 150 mg". Si no lo sabes con confianza escribe "Na ?"; no lo inventes.',
@@ -6818,8 +6818,40 @@ function _impItem(line){
   if(p==null&&c==null&&f==null&&(k==null||!(k>0)))return {name:name||s,qty:qty,bad:true};
   var o={name:name||'Alimento',qty:qty,p:p||0,c:c||0,f:f||0,k:(k!=null&&k>0)?k:0,na:(na!==null&&na>=0)?na:null};if(naSalt)o.naE=1;if(naQ)o.naQ=1;return o;
 }
+/* ── V43.1: ChatGPT a veces separa los campos con «·», «•», «—», tabuladores o comas en vez de «|», y a veces no
+   pone «- » al inicio. Antes de leer, cada línea que trae macros (P, C, G o kcal) se pasa al formato con barras.
+   Solo se tocan líneas que ya tienen pinta de alimento; los nombres con guion (Diet-X, Pre-entreno) no se parten. */
+var _IMP_MAC=/(?:^|[\s|·•∙⋅,;(])(?:p|prot\w*|c|carb\w*|hc|ch|g|gr|grasas?|f|fat|kcal|cal(?:or[ií]as)?)\s*[:=]?\s*-?\d|\d\s*k?cal\b/gi;
+function _impMacN(s){var m=String(s).match(_IMP_MAC);return m?m.length:0;}
+function _impNormLine(t){
+  var s=t.replace(/\*\*|__/g,'');
+  var lead=/^\s*(?:[•·▪◦‣∙●○■□►▸➤✓✔*–—]+|-(?=\s)|\d+[.)](?=\s))\s*/;var hadLead=lead.test(s);var body=s.replace(lead,'');
+  if(/^#/.test(body.trim()))return s;
+  if(body.indexOf('|')<0&&_impMacN(body)>=2){
+    var b=body.replace(/\s*[·•∙⋅‧]\s*/g,' | ').replace(/\s+[–—]\s+/g,' | ').replace(/\t+/g,' | ').replace(/\s+-\s+/g,' | ').replace(/\s*;\s*/g,' | ');
+    if(b.indexOf('|')<0)b=b.replace(/,\s+/g,' | ');
+    if(b.indexOf('|')>=0){b=b.replace(/^\s*\|\s*/,'').trim();
+      /* «Avena Suli: 55 g | …» o «Avena Suli (55 g) | …»: la cantidad pasa a su propio campo */
+      var parts=b.split('|');var f0=parts[0].trim();var q=null;
+      var mq=f0.match(/^(.+?)\s*\((\d+(?:[.,]\d+)?\s*[a-záéíóúñ][^)]*)\)\s*$/i)||f0.match(/^(.+?)\s*:\s*(\d+(?:[.,]\d+)?\s*[a-záéíóúñ].*)$/i);
+      if(mq&&!parts.slice(1).some(function(x){return /^\s*\d+(?:[.,]\d+)?\s*[a-záéíóúñ]/i.test(x)&&!/^\s*\d+(?:[.,]\d+)?\s*k?cal/i.test(x);})){parts[0]=mq[1].trim()+' | '+mq[2].trim();b=parts.join('|');}
+      return '- '+b;}
+  }
+  return hadLead?'- '+body:s;
+}
+/* varios alimentos con «·» en una sola línea: se separan después de cada «kcal» */
+function _impSplitDots(line){if(line.indexOf('|')>=0||!/[·•∙⋅]/.test(line))return line;var n=(line.match(/\d\s*k?cal\b/gi)||[]).length;if(n<2)return line;
+  return line.replace(/(\d\s*k?cal)\b[ \t]+(?=[^\s|·•∙⋅])/gi,'$1\n');}
+function _impPrep(text){
+  var raw=String(text||'').replace(/\u00a0/g,' ').replace(/\r/g,'');
+  /* encabezados pegados a un alimento en la misma línea («# Almuerzo Tilapia · 110 g …») */
+  raw=raw.replace(/\s*#\s*/g,'\n# ').split('\n').map(function(l){var m=l.match(/^#+\s*(desayuno|pre[\s-]*entreno|almuerzo|comida|merienda|colaci[oó]n|post[\s-]*entreno|cena|snack(?:\s+de\s+la\s+(?:ma[nñ]ana|tarde|noche))?)\b[:\s]*(.+)$/i);
+    if(m&&_impMacN(m[2])>=2)return '# '+m[1]+'\n'+m[2];return l;}).join('\n');
+  raw=raw.split('\n').map(_impSplitDots).join('\n');
+  return raw.split('\n').map(_impNormLine).join('\n');
+}
 function parseMealImport(text){
-  var raw=String(text||'').replace(/\u00a0/g,' ').replace(/[\u2022\u00b7]/g,'-').replace(/[\u2013\u2014]/g,'-');
+  var raw=_impPrep(text).replace(/[\u2022\u00b7]/g,'-').replace(/[\u2013\u2014]/g,'-');
   /* fecha en cualquier parte del texto */
   var date='';var dm=raw.match(/fecha\s*[:=]?\s*([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}|[0-9]{1,2}[\/\-][0-9]{1,2}[\/\-][0-9]{2,4})/i);
   if(dm)date=_impDate(dm[1]);
