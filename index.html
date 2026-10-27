@@ -1200,6 +1200,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="card-hd"><div class="card-title">Registro</div><div style="display:flex;gap:6px"><button class="btn-inline btn-inline-red" onclick="openImport()">Importar</button><button class="btn-inline btn-inline-ghost" onclick="openQuickMacros()">Solo macros</button></div></div>
     <div id="foodLog"></div>
   </div>
+  <div style="padding:0 14px 14px"><button class="btn btn-line" onclick="openNutriExport()">Exportar consumo por fechas (TXT)</button></div>
   </div>
   <div class="nut-panel" id="nutP-agua">
   <div class="card">
@@ -1310,7 +1311,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 44</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 45</div>
 </div>
 
 </div><!-- /content -->
@@ -1909,6 +1910,22 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <input type="hidden" id="ps-sess-id"><div class="hint" id="ps-sess-info"></div>
     <div class="fgroup"><div class="inp-lbl">Notas</div><textarea class="inp" id="ps-sess-note" rows="3"></textarea></div>
     <div class="btn-row"><button class="btn btn-red" style="flex:2" onclick="psSessSave()">Guardar</button><button class="btn btn-danger" onclick="psSessDel()">Borrar</button></div>
+  </div></div></div>
+
+<!-- ════════ V45 · exportar consumo por fechas ════════ -->
+<div class="sheet-ov" id="sh-nutri-exp"><div class="sheet"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Exportar consumo</div><button class="sheet-close" onclick="closeSheet('sh-nutri-exp')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="hint">Lo que comiste cada día (registrado o marcado como comido) contra la meta de ese día, con sodio y agua. Lo planificado sin marcar no cuenta.</div>
+    <div class="inp-lbl">Rango</div>
+    <div class="chips" id="nx-opts" style="margin-bottom:14px"></div>
+    <div class="frow" id="nx-custom" style="display:none">
+      <div class="fgroup"><div class="inp-lbl">Desde</div><input type="date" class="inp" id="nx-from" onchange="_nxRender()"></div>
+      <div class="fgroup"><div class="inp-lbl">Hasta</div><input type="date" class="inp" id="nx-to" onchange="_nxRender()"></div>
+    </div>
+    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div><div style="font-size:15.5px;font-weight:600;color:var(--text)">Detalle por comida</div><div class="card-sub">Cada alimento con sus macros</div></div><button class="sw" id="nx-det" role="switch" aria-checked="false" aria-label="Detalle por comida" onclick="nxDet()"><i></i></button></div>
+    <div class="card-sub" id="nx-sum" style="margin-bottom:16px;font-size:14px"></div>
+    <div class="btn-row"><button class="btn btn-red" style="flex:2" onclick="exportNutriTxt()">Exportar TXT</button><button class="btn btn-ghost" onclick="copyNutriTxt()">Copiar</button></div>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-macros"><div class="sheet"><div class="sheet-handle"></div>
@@ -3749,7 +3766,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-44',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-45',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -8453,6 +8470,79 @@ function buildStudioCard(){var el=document.getElementById('studioCard');if(!el)r
   if(c)h+='<div class="ps-card-c"><div class="row-t">'+escH(c.name)+'</div><div class="card-sub">'+_psT(c.dur)+' · '+c.poses.length+' poses · '+(c.audio?'♪ '+escH(c.audio.name||'audio'):'sin audio')+'</div></div><div class="btn-row" style="margin-top:12px"><button class="btn btn-red" data-c="'+escA(c.id)+'" onclick="openStudio(this.dataset.c)">Practicar</button><button class="btn btn-ghost" onclick="openStudio()">Abrir</button></div>';
   else h+='<button class="btn btn-red" onclick="openStudio()">Abrir Posing Studio</button>';
   el.innerHTML=h+'</div>';}
+
+/* ════════ V45 · NUTRICIÓN: exportar lo consumido por fechas (TXT) ════════
+   Como «Exportar progreso» del Gym: rango rápido (7 días, 2 semanas, 1 mes, 3 meses) o fechas propias.
+   Cuenta SOLO lo registrado o marcado como comido (lo planificado sin marcar no cuenta). Por día: kcal, P, C, G,
+   sodio (con sus pendientes), agua y la meta que tuvo ese día; promedios de los días con registro; opcional el
+   detalle por comida. Solo lee: no cambia ningún dato. */
+var NX_OPTS=[[7,'7 días'],[14,'2 semanas'],[30,'1 mes'],[90,'3 meses'],[0,'Elegir fechas']];
+var _nxDays=30,_nxDet=false;
+function _nxRange(){var t=today();if(_nxDays>0)return {from:addDays(t,-(_nxDays-1)),to:t};
+  var f=_v('nx-from'),e=_v('nx-to');if(!_isD(f)||!_isD(e))return null;if(f>e){var x=f;f=e;e=x;}return {from:f,to:e};}
+function _nxDates(r){var out=[];var d=r.from;while(d<=r.to&&out.length<367){out.push(d);d=addDays(d,1);}return out;}
+function _nxFoods(date){return S.ro('foods',[]).filter(function(f){return f&&f.fecha===date&&(_hasVal(f)||_fNa(f)!==null);});}
+function _nxD(s){var d=parseD(s);return DIAS[d.getDay()]+' '+d.getDate()+' '+MESES[d.getMonth()].slice(0,3)+' '+d.getFullYear();}
+function openNutriExport(){_nxDays=30;_nxDet=false;var f=document.getElementById('nx-from'),e=document.getElementById('nx-to');if(f)f.value=addDays(today(),-6);if(e)e.value=today();_nxRender();openSheet('sh-nutri-exp');}
+function nxSet(n){_nxDays=n;_nxRender();}
+function nxDet(){_nxDet=!_nxDet;_nxRender();}
+function _nxRender(){
+  var c=document.getElementById('nx-opts');if(c)c.innerHTML=NX_OPTS.map(function(o){return '<button class="chip'+(_nxDays===o[0]?' on':'')+'" onclick="nxSet('+o[0]+')">'+o[1]+'</button>';}).join('');
+  var cu=document.getElementById('nx-custom');if(cu)cu.style.display=_nxDays===0?'flex':'none';
+  var sw=document.getElementById('nx-det');if(sw){sw.classList.toggle('on',_nxDet);sw.setAttribute('aria-checked',_nxDet?'true':'false');}
+  var el=document.getElementById('nx-sum');if(!el)return;var r=_nxRange();
+  if(!r){el.textContent='Elige las dos fechas.';return;}
+  var ds=_nxDates(r);var n=ds.filter(function(d){return _nxFoods(d).length;}).length;
+  el.innerHTML=(n?'<b>'+n+(n===1?' día con registro':' días con registro')+'</b> de '+ds.length:'Sin registros en '+ds.length+(ds.length===1?' día':' días'))+' · del '+_nxD(r.from)+' al '+_nxD(r.to)+(ds.length>=367?' (máximo un año)':'');
+}
+function _nx1(x){return _numTxt(Math.round((+x||0)*10)/10);}
+function _nxMeta(T,date){var t=today();
+  if(T.src==='peak'&&T.peak)return 'Peak Week '+T.peak.lbl;
+  if(T.src==='hist')return (T.peak&&T.peak.lbl?'Peak Week '+T.peak.lbl:(T.phase||'meta guardada'));
+  return (T.phase||getActivePhase().name)+(date<t?' *':'');}
+function nutriTxt(r,det){
+  var p=getProfile();var ds=_nxDates(r);var L=[];var rows=[];var star=false;
+  var A={k:0,p:0,c:0,f:0,n:0,tk:0,tp:0,tc:0,tf:0},NAa={mg:0,n:0,part:0},W={ml:0,n:0},empty=[];
+  ds.forEach(function(date){
+    var fs=_nxFoods(date);var T=getEffectiveTargets(date);var w=waterFor(date);var meta=_nxMeta(T,date);if(/\*$/.test(meta))star=true;
+    if(w>0){W.ml+=w;W.n++;}
+    if(!fs.length){rows.push({date:date,empty:true,w:w});empty.push(date);return;}
+    var t=dayTotals(date);var na=dayNa(date);
+    A.k+=t.k;A.p+=t.p;A.c+=t.c;A.f+=t.f;A.n++;A.tk+=+T.kcal||0;A.tp+=+T.prot||0;A.tc+=+T.carb||0;A.tf+=+T.fat||0;
+    if(na.st==='full'){NAa.mg+=na.mg;NAa.n++;}else if(na.st==='partial'||na.st==='unknown')NAa.part++;
+    rows.push({date:date,t:t,T:T,na:na,w:w,meta:meta,fs:fs});
+  });
+  L.push('REGISTRO DE NUTRICIÓN — OLYMPIA');
+  L.push((p.name||'')+' · del '+_nxD(r.from)+' al '+_nxD(r.to)+' ('+ds.length+(ds.length===1?' día':' días')+')');
+  L.push('Consumido = lo registrado o marcado como comido. Lo planificado sin marcar no cuenta.');
+  L.push('');
+  if(A.n){var av=function(x){return x/A.n;};
+    L.push('PROMEDIO ('+A.n+(A.n===1?' día con registro':' días con registro')+'): '+kfmt(av(A.k))+' kcal · P '+_nx1(av(A.p))+' g · C '+_nx1(av(A.c))+' g · G '+_nx1(av(A.f))+' g');
+    L.push('Meta promedio de esos días: '+kfmt(av(A.tk))+' kcal · P '+_nx1(av(A.tp))+' · C '+_nx1(av(A.tc))+' · G '+_nx1(av(A.tf)));
+    if(NAa.n||NAa.part)L.push('Sodio: '+(NAa.n?'promedio '+naFmt(NAa.mg/NAa.n)+' mg en '+NAa.n+(NAa.n===1?' día con dato completo':' días con dato completo'):'sin días con dato completo')+(NAa.part?' · '+NAa.part+(NAa.part===1?' día con sodio incompleto o sin dato':' días con sodio incompleto o sin dato'):''));
+  }else L.push('Sin registros de comida en estas fechas.');
+  if(W.n)L.push('Agua: promedio '+_numTxt(Math.round(W.ml/W.n/100)/10)+' L ('+W.n+(W.n===1?' día registrado':' días registrados')+')');
+  if(empty.length)L.push('Días sin registro: '+empty.length+(empty.length<=10?' — '+empty.map(function(d){var x=parseD(d);return DIAS[x.getDay()]+' '+x.getDate()+' '+MESES[x.getMonth()].slice(0,3);}).join(', '):''));
+  L.push('');L.push('POR DÍA');
+  rows.forEach(function(o){
+    if(o.empty){L.push(_nxD(o.date)+' · sin registro'+(o.w>0?' · Agua '+_numTxt(Math.round(o.w/100)/10)+' L':''));return;}
+    var t=o.t,T=o.T;var dk=Math.round(t.k-T.kcal);
+    var s=_nxD(o.date)+' · '+kfmt(t.k)+' kcal (meta '+kfmt(T.kcal)+(Math.abs(dk)<=5?', en meta':dk<0?', faltaron '+kfmt(-dk):', +'+kfmt(dk))+')';
+    s+=' · P '+_nx1(t.p)+'/'+_nx1(T.prot)+' · C '+_nx1(t.c)+'/'+_nx1(T.carb)+' · G '+_nx1(t.f)+'/'+_nx1(T.fat);
+    if(o.na.st==='full')s+=' · Na '+naFmt(o.na.mg)+' mg';else if(o.na.st==='partial')s+=' · Na ≥'+naFmt(o.na.mg)+' mg ('+o.na.unk+' sin dato)';else if(o.na.st==='unknown')s+=' · Na sin dato';
+    if(o.w>0)s+=' · Agua '+_numTxt(Math.round(o.w/100)/10)+' L';
+    s+=' · '+o.meta;L.push(s);
+    if(det){var meals=_mealOrderFor(o.date);var seen={};
+      meals.concat(o.fs.map(function(f){return f.comida||'Almuerzo';})).forEach(function(m){if(seen[m])return;seen[m]=1;var mf=o.fs.filter(function(f){return (f.comida||'Almuerzo')===m;});if(!mf.length)return;
+        var mk=0;mf.forEach(function(f){mk+=foodK(f);});L.push('   '+mealLbl(m)+' ('+kfmt(mk)+' kcal)');
+        mf.forEach(function(f){var v=_fNa(f);L.push('     - '+(f.nombre||'Registro')+': '+kfmt(foodK(f))+' kcal · P '+_nx1(f.p)+' · C '+_nx1(f.c)+' · G '+_nx1(f.f)+(v!==null?' · Na '+naFmt(v)+' mg':''));});});}
+  });
+  if(star){L.push('');L.push('* Ese día la app todavía no guardaba la meta de cada día (empezó el 25 oct 2026): se muestra tu meta actual.');}
+  return L.join('\n');
+}
+function _nxTxt(){var r=_nxRange();if(!r){toast('Elige las dos fechas');return null;}var ds=_nxDates(r);if(!ds.some(function(d){return _nxFoods(d).length;})){toast('No hay comidas registradas en esas fechas');return null;}return {r:r,txt:nutriTxt(r,_nxDet)};}
+function exportNutriTxt(){var o=_nxTxt();if(!o)return;closeSheet('sh-nutri-exp');_shareTxt('Registro de nutrición',o.txt,'olympia-nutricion-'+o.r.from+'_'+o.r.to+'.txt');}
+function copyNutriTxt(){var o=_nxTxt();if(!o)return;_copyTxt(o.txt,'Registro copiado');}
 
 
 bootStorage(initApp);
