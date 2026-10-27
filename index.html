@@ -1114,6 +1114,10 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 #pk-day-body .fold-count{font-size:12.5px;color:var(--muted);margin-left:auto;margin-right:8px;max-width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #pk-day-body .fold-body{padding:4px 0 6px;}
 
+/* V46: selector de archivos oculto sin display:none (más confiable en iOS) */
+label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
+.fi-hide{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;}
+
 </style>
 </head>
 <body>
@@ -1311,7 +1315,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 45</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 46</div>
 </div>
 
 </div><!-- /content -->
@@ -1890,7 +1894,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
     <div class="fgroup"><div class="inp-lbl">Indicación de transición</div><input type="text" class="inp" id="psp-trans" placeholder="Ej. giro a la derecha, manos a la cintura"></div>
     <div class="inp-lbl">Imagen de referencia</div>
     <div class="ps-img ps-img-ed" id="psp-img-cur"></div>
-    <div class="btn-row" style="margin:8px 0 10px"><label class="btn btn-line btn-sm" style="flex:1">Foto propia<input type="file" accept="image/*" style="display:none" onchange="psPoseImgFile(this)"></label><button class="btn btn-line btn-sm" style="flex:1" onclick="_psImgSel=null;_psImgRender()">Sin imagen</button></div>
+    <div class="btn-row" style="margin:8px 0 10px"><label class="btn btn-line btn-sm" style="flex:1">Foto propia<input type="file" class="fi-hide" accept="image/*" onchange="psPoseImgFile(this)"></label><button class="btn btn-line btn-sm" style="flex:1" onclick="_psImgSel=null;_psImgRender()">Sin imagen</button></div>
     <div class="card-sub" style="margin-bottom:6px">O elige una de tu biblioteca de poses:</div>
     <div class="ps-thumbs" id="psp-img-lib"></div>
     <div class="btn-row" style="margin-top:16px"><button class="btn btn-red" style="flex:2" onclick="psPoseSave()">Guardar</button><button class="btn btn-ghost" onclick="psPoseDup()">Duplicar</button><button class="btn btn-danger" onclick="psPoseDel()">Eliminar</button></div>
@@ -1901,7 +1905,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
   <div class="sheet-body">
     <div class="hint">Pega el texto del archivo que exportaste desde Posing Studio, o elige el archivo. El audio y las fotos propias no vienen en el archivo.</div>
     <textarea class="inp" id="ps-imp-text" rows="5" style="margin-bottom:10px"></textarea>
-    <div class="btn-row"><button class="btn btn-red" onclick="psImport()">Importar</button><label class="btn btn-ghost">Elegir archivo<input type="file" accept=".json,application/json,text/plain" style="display:none" onchange="psImportFile(this)"></label></div>
+    <div class="btn-row"><button class="btn btn-red" onclick="psImport()">Importar</button><label class="btn btn-ghost">Elegir archivo<input type="file" class="fi-hide" accept=".json,application/json,text/plain" onchange="psImportFile(this)"></label></div>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-ps-sess"><div class="sheet"><div class="sheet-handle"></div>
@@ -3766,7 +3770,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-45',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-46',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -7998,7 +8002,7 @@ function openPkDay(n){
   h+='<div class="card-sub" style="margin:-2px 0 10px">1 = muy bajo · 5 = muy alto (para hambre y fatiga, 5 = mucha).</div>';
   h+='<div class="fgroup"><div class="inp-lbl">Condición visual</div><input type="text" class="inp" id="pk-visual" value="'+escA(lg.visual||'')+'" placeholder="Cómo te ves hoy, con tus palabras"></div>';
   h+='<div class="fgroup"><div class="inp-lbl">Notas</div><textarea class="inp" id="pk-lnotes" rows="2">'+escH(lg.notes||'')+'</textarea></div>';
-  h+='<div class="inp-lbl">Fotos</div><div class="pk-photos" id="pk-photos"></div><label class="btn btn-line btn-sm" style="width:100%;margin:8px 0 12px">Agregar fotos<input type="file" accept="image/*" multiple style="display:none" onchange="pkAddPhotos(this,\''+date+'\')"></label>';
+  h+='<div class="inp-lbl">Fotos</div><div class="pk-photos" id="pk-photos"></div><label class="btn btn-line btn-sm" style="width:100%;margin:8px 0 12px">Agregar fotos<input type="file" class="fi-hide" accept="image/*" multiple onchange="pkAddPhotos(this,\''+date+'\')"></label>';
   h+='</div></div>';
   /* cumplimiento */
   if(date<=t){h+='<div class="fold open" id="pkf-cum"><button class="fold-hd" onclick="togFold(\'pkf-cum\')" aria-expanded="true"><span class="fold-t">Cumplimiento</span><span class="fold-ic">'+IC.chevD+'</span></button><div class="fold-body">'+_pkCompliance(date)+'</div></div>';}
@@ -8138,7 +8142,10 @@ function _v43Merge(D,cut,kept){
 /* ════════ V43 · ALMACÉN DE ARCHIVOS (audio de posing y fotos) ════════
    Base IndexedDB aparte ("olympia-media"): los archivos grandes NO entran a la base principal ni a localStorage,
    y si algo falla aquí no se tocan comidas, pesos ni entrenos. Se guarda el archivo tal cual (sin recomprimir ni
-   recortar): {id, data:ArrayBuffer, type, name, size, kind, at}. El respaldo JSON NO incluye estos archivos. */
+   recortar): {id, data:ArrayBuffer, type, name, size, kind, at}. El respaldo JSON NO incluye estos archivos.
+   V46: iOS cierra las conexiones de IndexedDB cuando la app pasa a segundo plano (por ejemplo, al abrir Archivos
+   para elegir la canción). Por eso cada operación usa una conexión viva: si la anterior se cerró, se abre otra y
+   se reintenta una vez. Al salir de la app la conexión se suelta para no reutilizar una muerta. */
 var _mdb=null,_mdbP=null,_mURL={};
 function _mediaOpen(){
   if(_mdb)return Promise.resolve(_mdb);if(_mdbP)return _mdbP;
@@ -8151,23 +8158,45 @@ function _mediaOpen(){
   }).then(function(db){_mdbP=null;return db;},function(e){_mdbP=null;throw e;});
   return _mdbP;
 }
-function _readBuf(file){if(file.arrayBuffer)return file.arrayBuffer();return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){rej(r.error);};r.readAsArrayBuffer(file);});}
+function _mediaDrop(){var d=_mdb;_mdb=null;try{if(d)d.close();}catch(e){}}
+try{document.addEventListener('visibilitychange',function(){_mediaDrop();});}catch(e){}
+/* corre una transacción; si la conexión estaba muerta (cerrándose, perdida) abre otra y reintenta una vez */
+function _mediaTx(mode,work){
+  var attempt=function(n){return _mediaOpen().then(function(db){return new Promise(function(res,rej){
+      var tx;try{tx=db.transaction('files',mode);}catch(e){rej(e);return;}
+      var out;try{out=work(tx.objectStore('files'));}catch(e){rej(e);return;}
+      tx.oncomplete=function(){res(out&&typeof out==='object'&&'result' in out&&out.readyState?out.result:out);};
+      var fail=function(){rej(tx.error||new Error('AbortError'));};tx.onerror=fail;tx.onabort=fail;});})
+    .catch(function(e){var nm=(e&&e.name)||'';var msg=String(e&&e.message||'');
+      var dead=/InvalidStateError|UnknownError|AbortError|TransactionInactiveError/.test(nm)||/closing|closed|connection|lost|server/i.test(msg);
+      if(n<1&&dead){_mediaDrop();return attempt(n+1);}throw e;});};
+  return attempt(0);
+}
+function _readBuf(file){
+  var fr=function(){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){rej(r.error||new Error('NotReadableError'));};r.readAsArrayBuffer(file);});};
+  if(file.arrayBuffer)return file.arrayBuffer().catch(fr);return fr();
+}
+function _mediaErr(e){var nm=(e&&e.name)||'';if(nm==='QuotaExceededError')return 'No hay espacio en el iPhone para guardar este archivo';
+  if(nm==='NotReadableError'||/NotReadable/.test(String(e&&e.message)))return 'No se pudo leer el archivo. Si está en iCloud, ábrelo una vez en Archivos para que se descargue y vuelve a elegirlo';
+  return 'No se pudo guardar el archivo ('+(nm||String(e&&e.message||'error').slice(0,40))+'). Intenta de nuevo';}
 function mediaPut(file,kind){
   if(!file)return Promise.reject(new Error('Sin archivo'));
-  return _readBuf(file).then(function(buf){return _mediaOpen().then(function(db){return new Promise(function(res,rej){
+  return _readBuf(file).then(function(buf){
     var id='m'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
     var rec={id:id,data:buf,type:file.type||'',name:file.name||'',size:file.size||buf.byteLength||0,kind:kind||'',at:Date.now()};
-    var tx;try{tx=db.transaction('files','readwrite');tx.objectStore('files').put(rec);}catch(e){rej(e);return;}
-    tx.oncomplete=function(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}res(id);};
-    var fail=function(){var e=tx.error;rej(new Error(e&&e.name==='QuotaExceededError'?'No hay espacio en el iPhone para guardar este archivo':'No se pudo guardar el archivo'));};
-    tx.onerror=fail;tx.onabort=fail;});});});
+    return _mediaTx('readwrite',function(st){st.put(rec);return id;}).then(function(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}return id;});
+  }).catch(function(e){throw new Error(_mediaErr(e));});
 }
-function mediaGet(id){if(!id)return Promise.resolve(null);return _mediaOpen().then(function(db){return new Promise(function(res){var tx;try{tx=db.transaction('files','readonly');var rq=tx.objectStore('files').get(id);rq.onsuccess=function(){res(rq.result||null);};rq.onerror=function(){res(null);};}catch(e){res(null);}});},function(){return null;});}
+function mediaGet(id){if(!id)return Promise.resolve(null);
+  return _mediaTx('readonly',function(st){return st.get(id);}).then(function(r){return r||null;},function(){return null;});}
 function mediaURL(id){if(_mURL[id])return Promise.resolve(_mURL[id]);return mediaGet(id).then(function(r){if(!r)return null;var b=r.data instanceof Blob?r.data:new Blob([r.data],{type:r.type||''});var u=URL.createObjectURL(b);_mURL[id]=u;return u;});}
 function mediaDel(id){if(!id)return Promise.resolve();try{if(_mURL[id]){URL.revokeObjectURL(_mURL[id]);delete _mURL[id];}}catch(e){}
-  return _mediaOpen().then(function(db){return new Promise(function(res){try{var tx=db.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=function(){res();};tx.onerror=function(){res();};}catch(e){res();}});},function(){});}
-function mediaList(){return _mediaOpen().then(function(db){return new Promise(function(res){var out=[];try{var tx=db.transaction('files','readonly');var rq=tx.objectStore('files').openCursor();rq.onsuccess=function(){var c=rq.result;if(c){var v=c.value;out.push({id:v.id,size:v.size,kind:v.kind,name:v.name,at:v.at});c.continue();}else res(out);};rq.onerror=function(){res(out);};}catch(e){res(out);}});},function(){return [];});}
+  return _mediaTx('readwrite',function(st){st.delete(id);}).then(function(){},function(){});}
+function mediaList(){var out=[];return _mediaTx('readonly',function(st){var rq=st.openCursor();rq.onsuccess=function(){var c=rq.result;if(c){var v=c.value;out.push({id:v.id,size:v.size,kind:v.kind,name:v.name,at:v.at});c.continue();}};return out;}).then(function(){return out;},function(){return out;});}
 function _mb(n){return (Math.round(n/1048576*10)/10)+' MB';}
+/* tipos de audio que acepta (iOS a veces no reconoce «audio/*» en Archivos: se agregan las extensiones) */
+var PS_AUDIO_ACCEPT='audio/*,.mp3,.m4a,.aac,.wav,.aif,.aiff,.caf,.mp4';
+function _isAudioFile(f){return !!f&&(/^audio\//i.test(f.type||'')||/\.(mp3|m4a|aac|wav|aiff?|caf|mp4)$/i.test(f.name||''));}
 
 /* ════════ V43 · OLYMPIA POSING STUDIO ════════
    Coreografías (poseChoreos), preferencias de avisos (posePrefs) e historial de práctica (poseSessions).
@@ -8253,7 +8282,7 @@ function _psEditHtml(){var c=psGet(_psCid);if(!c)return '';var D=+c.dur||0;var p
   h+='<div class="frow"><div class="fgroup"><div class="inp-lbl">Categoría</div><select class="inp" id="ps-cat" onchange="psSetF(\'cat\',this.value)">'+PS_CATS.map(function(x){return '<option'+(c.cat===x?' selected':'')+'>'+escH(x)+'</option>';}).join('')+'</select></div>';
   h+='<div class="fgroup" style="flex:.7"><div class="inp-lbl">Duración</div><input class="inp" id="ps-dur" inputmode="decimal" value="'+_psT(D)+'" onchange="psSetF(\'dur\',this.value)"></div></div>';
   h+='<div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:12px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">'+(c.audio?'♪ '+escH(c.audio.name||'Audio'):'Sin audio')+'</div><div class="card-sub">'+(c.audio?(c.audio.dur?'Dura '+_psT(c.audio.dur)+' · ':'')+_mb(c.audio.size||0):'Elige tu MP3 o M4A desde Archivos')+'</div></div>'
-    +'<label class="btn-inline btn-inline-ghost">'+(c.audio?'Cambiar':'Elegir')+'<input type="file" accept="audio/*" style="display:none" onchange="psPickAudio(this)"></label>'+(c.audio?'<button class="icon-btn sm danger" onclick="psDropAudio()" aria-label="Quitar audio">'+IC.x+'</button>':'')+'</div>';
+    +'<label class="btn-inline btn-inline-ghost">'+(c.audio?'Cambiar':'Elegir')+'<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label>'+(c.audio?'<button class="icon-btn sm danger" onclick="psDropAudio()" aria-label="Quitar audio">'+IC.x+'</button>':'')+'</div>';
   /* línea de tiempo */
   h+='<div class="inp-lbl">Línea de tiempo</div><div class="ps-tl ps-tl-ed">';
   ps.forEach(function(p,i){if(!D)return;var l=Math.max(0,Math.min(100,p.start/D*100)),w=Math.max(0.8,Math.min(100-l,(p.end-p.start)/D*100));var bad=iss.some(function(x){return x.t==='bad'&&x.m.indexOf('«'+p.name+'»')>=0;});
@@ -8279,13 +8308,14 @@ function psSetF(k,v){var c=psGet(_psCid);if(!c)return;
   else if(k==='name'){v=String(v||'').trim();if(!v){toast('Escribe el nombre');psRender();return;}c.name=v;}
   else c[k]=String(v||'');
   _psDirty=true;psPut(c);if(k==='dur')psRender();}
-function psPickAudio(input){var f=input.files&&input.files[0];input.value='';if(!f)return;var c=psGet(_psCid);if(!c)return;
+function psPickAudio(input){var f=input.files&&input.files[0];input.value='';if(!f)return;var c=psGet(_psCid);if(!c){toast('Abre primero la coreografía');return;}
+  if(!_isAudioFile(f)){toast('Ese archivo no es de audio: elige un MP3, M4A o WAV');return;}
   if(f.size>80*1024*1024){toast('El audio pesa más de 80 MB: usa uno más ligero');return;}
   toast('Guardando audio…');
   mediaPut(f,'audio').then(function(id){var old=c.audio&&c.audio.id;var c2=psGet(_psCid)||c;c2.audio={id:id,name:f.name||'Audio',size:f.size||0};_psDirty=true;psPut(c2);
     _psAudioDur(id).then(function(d){var c3=psGet(_psCid);if(c3&&c3.audio&&c3.audio.id===id&&d){c3.audio.dur=Math.round(d*10)/10;psPut(c3);}if(_psView==='edit')psRender();});
     if(old&&!_psAudioUsed(old,c2.id))mediaDel(old);toast('Audio listo');if(_psView==='edit')psRender();if(_psView==='setup')psRender();},
-    function(e){toast(e&&e.message?e.message:'No se pudo guardar el audio');});}
+    function(e){toast(e&&e.message?e.message:'No se pudo guardar el audio. Intenta de nuevo');});}
 function _psAudioUsed(id,except){return psList().some(function(c){return c.id!==except&&c.audio&&c.audio.id===id;});}
 function _psAudioDur(id){return mediaURL(id).then(function(u){return new Promise(function(res){if(!u){res(0);return;}var a=new Audio();var done=false;var fin=function(v){if(done)return;done=true;res(v);};a.preload='metadata';a.onloadedmetadata=function(){fin(isFinite(a.duration)?a.duration:0);};a.onerror=function(){fin(0);};setTimeout(function(){fin(0);},6000);a.src=u;});});}
 function psDropAudio(){var c=psGet(_psCid);if(!c||!c.audio)return;confirmDlg('¿Quitar el audio?','La coreografía queda sin música (puedes practicar con el contador). Tu archivo original en Archivos no se toca.','Quitar',function(){var id=c.audio.id;c.audio=null;_psDirty=true;psPut(c);if(!_psAudioUsed(id,c.id))mediaDel(id);psRender();});}
@@ -8350,11 +8380,11 @@ function _psSetupHtml(){var c=psGet(_psCid);if(!c)return '';var ps=psSorted(c);v
   h+='<div class="inp-lbl">Velocidad</div><div class="seg" style="margin:0 0 14px">'+[0.5,0.75,1].map(function(v){return '<button class="seg-i'+(o.speed===v?' on':'')+'" onclick="_psOpt.speed='+v+';psRender()">'+v+'×</button>';}).join('')+'</div>';
   if(o.mode!=='pose'){
     if(c.audio)h+='<div class="adj-line" style="margin:0 0 6px"><div><div style="font-size:15.5px;color:var(--text)">Con música</div><div class="card-sub" id="ps-aud-st">♪ '+escH(c.audio.name||'Audio')+'</div></div><button class="sw'+(o.audio?' on':'')+'" role="switch" aria-checked="'+o.audio+'" aria-label="Con música" onclick="_psOpt.audio=!_psOpt.audio;psRender()"><i></i></button></div>'+(o.audio&&o.speed!==1?'<div class="card-sub" style="margin:0 0 12px">La música va a '+o.speed+'× y las poses siguen la canción. Si se oye mal, apaga la música y practica con el contador a la misma proporción.</div>':'');
-    else h+='<div class="note" style="margin:0 0 12px">Sin audio: practicas con el contador. <label class="lnk">Elegir audio<input type="file" accept="audio/*" style="display:none" onchange="psPickAudio(this)"></label></div>';}
+    else h+='<div class="note" style="margin:0 0 12px">Sin audio: practicas con el contador. <label class="lnk">Elegir audio<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label></div>';}
   var pr=psPrefs();h+='<div class="card-sub" style="margin:4px 0 14px">Avisos: '+(pr.warn?pr.warn+' s antes':'sin aviso anticipado')+' · '+[pr.beep?'sonido':'',pr.count?'cuenta':'',pr.voice?'voz':'',pr.flash?'destello':''].filter(Boolean).join(', ')+'. Cámbialos en el inicio de Posing Studio.</div>';
   h+='<button class="btn btn-red ps-go" onclick="psStart()">Empezar</button><button class="btn btn-ghost" style="margin:10px 0 28px" onclick="psEdit(_psCid)">Editar coreografía</button>';
   return h;}
-function _psSetupAfter(){var c=psGet(_psCid);if(!c||!c.audio)return;_psOpt._noAudio=false;mediaURL(c.audio.id).then(function(u){if(u)return;var el=document.getElementById('ps-aud-st');if(el){el.innerHTML='<span style="color:var(--gold)">No encuentro el audio en este iPhone.</span> <label class="lnk">Volver a elegirlo<input type="file" accept="audio/*" style="display:none" onchange="psPickAudio(this)"></label>';}_psOpt._noAudio=true;});}
+function _psSetupAfter(){var c=psGet(_psCid);if(!c||!c.audio)return;_psOpt._noAudio=false;mediaURL(c.audio.id).then(function(u){if(u)return;var el=document.getElementById('ps-aud-st');if(el){el.innerHTML='<span style="color:var(--gold)">No encuentro el audio en este iPhone.</span> <label class="lnk">Volver a elegirlo<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label>';}_psOpt._noAudio=true;});}
 
 /* ── reproductor ── */
 var PS=null;
