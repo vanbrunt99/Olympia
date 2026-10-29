@@ -1117,6 +1117,18 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 /* V46: selector de archivos oculto sin display:none (más confiable en iOS) */
 label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
 .fi-hide{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;}
+/* V48 · fotos de las poses */
+.ps-pth{width:40px;height:52px;border-radius:9px;overflow:hidden;flex-shrink:0;padding:0;border:1px solid var(--line2);background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--muted);font:500 22px/1 var(--ft);cursor:pointer;}
+.ps-pth img{width:100%;height:100%;object-fit:cover;display:block;}
+.ps-pth.none{border-style:dashed;}
+.ps-ph-hd{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;}
+.ps-ph-grid{grid-template-columns:repeat(4,1fr);gap:10px;}
+.ps-thw{position:relative;min-width:0;}
+.ps-thw .ps-th{width:100%;display:block;}
+.ps-thx{position:absolute;top:-7px;right:-7px;width:26px;height:26px;border-radius:13px;background:#E5484D;color:#fff;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;}
+.ps-thx svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;}
+.ps-thw.off .ps-th{opacity:.45;cursor:default;}
+.ps-thr{display:block;width:100%;margin-top:4px;font:600 12px var(--ft);color:var(--acc);background:none;border:0;padding:4px 0;cursor:pointer;}
 
 </style>
 </head>
@@ -1315,7 +1327,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 47</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 48</div>
 </div>
 
 </div><!-- /content -->
@@ -1894,11 +1906,14 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="fgroup"><div class="inp-lbl">Indicación de transición</div><input type="text" class="inp" id="psp-trans" placeholder="Ej. giro a la derecha, manos a la cintura"></div>
     <div class="inp-lbl">Imagen de referencia</div>
     <div class="ps-img ps-img-ed" id="psp-img-cur"></div>
-    <div class="btn-row" style="margin:8px 0 10px"><label class="btn btn-line btn-sm" style="flex:1">Foto propia<input type="file" class="fi-hide" accept="image/*" onchange="psPoseImgFile(this)"></label><button class="btn btn-line btn-sm" style="flex:1" onclick="_psImgSel=null;_psImgRender()">Sin imagen</button></div>
-    <div class="card-sub" style="margin-bottom:6px">O elige una de tu biblioteca de poses:</div>
-    <div class="ps-thumbs" id="psp-img-lib"></div>
+    <div class="btn-row" style="margin:8px 0 6px"><button class="btn btn-line btn-sm" style="flex:1" id="psp-img-ch" onclick="psPhotoOpen(_psPid)">Cambiar foto</button><button class="btn btn-line btn-sm" style="flex:1" id="psp-img-del" onclick="psPoseImgDel()">Quitar foto</button></div>
+    <div class="card-sub" style="margin:0 2px 4px">Sube una tuya o elige de Mis fotos o de la biblioteca. La foto se guarda al momento.</div>
     <div class="btn-row" style="margin-top:16px"><button class="btn btn-red" style="flex:2" onclick="psPoseSave()">Guardar</button><button class="btn btn-ghost" onclick="psPoseDup()">Duplicar</button><button class="btn btn-danger" onclick="psPoseDel()">Eliminar</button></div>
   </div></div></div>
+
+<div class="sheet-ov" id="sh-ps-photo"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title" id="psph-title">Fotos de las poses</div><button class="sheet-close" onclick="closeSheet('sh-ps-photo')" aria-label="Cerrar"></button></div>
+  <div class="sheet-body" id="psph-body"></div></div></div>
 
 <div class="sheet-ov" id="sh-ps-imp"><div class="sheet"><div class="sheet-handle"></div>
   <div class="sheet-hd"><div class="sheet-title">Importar coreografía</div><button class="sheet-close" onclick="closeSheet('sh-ps-imp')" aria-label="Cerrar"></button></div>
@@ -3770,7 +3785,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-47',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-48',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -8138,13 +8153,16 @@ function _v43Merge(D,cut,kept){
    recortar): {id, data:ArrayBuffer, type, name, size, kind, at}. El respaldo JSON NO incluye estos archivos.
    V46: iOS cierra las conexiones de IndexedDB cuando la app pasa a segundo plano (por ejemplo, al abrir Archivos
    para elegir la canción). Por eso cada operación usa una conexión viva: si la anterior se cerró, se abre otra y
-   se reintenta una vez. Al salir de la app la conexión se suelta para no reutilizar una muerta. */
+   se reintenta una vez. Al salir de la app la conexión se suelta para no reutilizar una muerta.
+   V48: versión 2 de la base, sin tocar los archivos: «meta» guarda solo nombre, tipo y tamaño (listar ya no carga
+   canciones ni fotos completas en memoria) y «thumbs» las miniaturas de las fotos (JPEG de 360 px). Los archivos
+   que ya existían reciben su «meta» la primera vez que se listan, uno por uno. */
 var _mdb=null,_mdbP=null,_mURL={};
 function _mediaOpen(){
   if(_mdb)return Promise.resolve(_mdb);if(_mdbP)return _mdbP;
   _mdbP=new Promise(function(res,rej){var idb=null;try{idb=window.indexedDB;}catch(e){}if(!idb){rej(new Error('Este navegador no permite guardar archivos'));return;}
-    var rq;try{rq=idb.open('olympia-media',1);}catch(e){rej(e);return;}
-    rq.onupgradeneeded=function(){var db=rq.result;if(!db.objectStoreNames.contains('files'))db.createObjectStore('files',{keyPath:'id'});};
+    var rq;try{rq=idb.open('olympia-media',2);}catch(e){rej(e);return;}
+    rq.onupgradeneeded=function(){var db=rq.result;['files','meta','thumbs'].forEach(function(n){if(!db.objectStoreNames.contains(n))db.createObjectStore(n,{keyPath:'id'});});};
     rq.onsuccess=function(){var db=rq.result;try{db.onversionchange=function(){try{db.close();}catch(e){}if(_mdb===db)_mdb=null;};db.onclose=function(){if(_mdb===db)_mdb=null;};}catch(e){}_mdb=db;res(db);};
     rq.onerror=function(){rej(rq.error||new Error('No se pudo abrir el almacén de archivos'));};
     rq.onblocked=function(){rej(new Error('Cierra las otras ventanas de OLYMPIA e intenta de nuevo'));};
@@ -8153,11 +8171,12 @@ function _mediaOpen(){
 }
 function _mediaDrop(){var d=_mdb;_mdb=null;try{if(d)d.close();}catch(e){}}
 try{document.addEventListener('visibilitychange',function(){_mediaDrop();});}catch(e){}
-/* corre una transacción; si la conexión estaba muerta (cerrándose, perdida) abre otra y reintenta una vez */
-function _mediaTx(mode,work){
+/* corre una transacción; si la conexión estaba muerta (cerrándose, perdida) abre otra y reintenta una vez.
+   Sin «names», work recibe el almacén 'files'; con «names» (lista), recibe la transacción. */
+function _mediaTx(mode,work,names){
   var attempt=function(n){return _mediaOpen().then(function(db){return new Promise(function(res,rej){
-      var tx;try{tx=db.transaction('files',mode);}catch(e){rej(e);return;}
-      var out;try{out=work(tx.objectStore('files'));}catch(e){rej(e);return;}
+      var tx;try{tx=db.transaction(names||'files',mode);}catch(e){rej(e);return;}
+      var out;try{out=work(names?tx:tx.objectStore('files'));}catch(e){rej(e);return;}
       tx.oncomplete=function(){res(out&&typeof out==='object'&&'result' in out&&out.readyState?out.result:out);};
       var fail=function(){rej(tx.error||new Error('AbortError'));};tx.onerror=fail;tx.onabort=fail;});})
     .catch(function(e){var nm=(e&&e.name)||'';var msg=String(e&&e.message||'');
@@ -8172,24 +8191,51 @@ function _readBuf(file){
 function _mediaErr(e){var nm=(e&&e.name)||'';if(nm==='QuotaExceededError')return 'No hay espacio en el iPhone para guardar este archivo';
   if(nm==='NotReadableError'||/NotReadable/.test(String(e&&e.message)))return 'No se pudo leer el archivo. Si está en iCloud, ábrelo una vez en Archivos para que se descargue y vuelve a elegirlo';
   return 'No se pudo guardar el archivo ('+(nm||String(e&&e.message||'error').slice(0,40))+'). Intenta de nuevo';}
+function _mMeta(r){return {id:r.id,size:r.size||0,kind:r.kind||'',name:r.name||'',type:r.type||'',at:r.at||0};}
 function mediaPut(file,kind){
   if(!file)return Promise.reject(new Error('Sin archivo'));
   return _readBuf(file).then(function(buf){
     var id='m'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
     var rec={id:id,data:buf,type:file.type||'',name:file.name||'',size:file.size||buf.byteLength||0,kind:kind||'',at:Date.now()};
-    return _mediaTx('readwrite',function(st){st.put(rec);return id;}).then(function(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}return id;});
+    return _mediaTx('readwrite',function(tx){tx.objectStore('files').put(rec);tx.objectStore('meta').put(_mMeta(rec));return id;},['files','meta']).then(function(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}return id;});
   }).catch(function(e){throw new Error(_mediaErr(e));});
 }
 function mediaGet(id){if(!id)return Promise.resolve(null);
   return _mediaTx('readonly',function(st){return st.get(id);}).then(function(r){return r||null;},function(){return null;});}
-function mediaURL(id){if(_mURL[id])return Promise.resolve(_mURL[id]);return mediaGet(id).then(function(r){if(!r)return null;var b=r.data instanceof Blob?r.data:new Blob([r.data],{type:r.type||''});var u=URL.createObjectURL(b);_mURL[id]=u;return u;});}
-function mediaDel(id){if(!id)return Promise.resolve();try{if(_mURL[id]){URL.revokeObjectURL(_mURL[id]);delete _mURL[id];}}catch(e){}
-  return _mediaTx('readwrite',function(st){st.delete(id);}).then(function(){},function(){});}
-function mediaList(){var out=[];return _mediaTx('readonly',function(st){var rq=st.openCursor();rq.onsuccess=function(){var c=rq.result;if(c){var v=c.value;out.push({id:v.id,size:v.size,kind:v.kind,name:v.name,at:v.at});c.continue();}};return out;}).then(function(){return out;},function(){return out;});}
+function mediaURL(id){if(_mURL[id])return Promise.resolve(_mURL[id]);return mediaGet(id).then(function(r){if(!r)return null;if(_mURL[id])return _mURL[id];var b=r.data instanceof Blob?r.data:new Blob([r.data],{type:r.type||''});var u=URL.createObjectURL(b);_mURL[id]=u;return u;});}
+/* V48 · el archivo como Blob (para el audio de práctica: cada reproducción usa su propio enlace) */
+var _mBlob={};
+function mediaBlob(id){if(!id)return Promise.resolve(null);if(_mBlob[id])return Promise.resolve(_mBlob[id]);return mediaGet(id).then(function(r){if(!r)return null;var b=r.data instanceof Blob?r.data:new Blob([r.data],{type:r.type||''});_mBlob[id]=b;return b;});}
+function mediaDel(id){if(!id)return Promise.resolve();delete _mBlob[id];try{if(_mURL[id]){URL.revokeObjectURL(_mURL[id]);delete _mURL[id];}if(_mThumb[id]){URL.revokeObjectURL(_mThumb[id]);delete _mThumb[id];}}catch(e){}
+  return _mediaTx('readwrite',function(tx){tx.objectStore('files').delete(id);tx.objectStore('meta').delete(id);tx.objectStore('thumbs').delete(id);},['files','meta','thumbs']).then(function(){},function(){});}
+/* lista: solo datos chicos (meta). Los archivos antiguos sin meta se leen una sola vez, de uno en uno. */
+function mediaList(){
+  return _mediaTx('readonly',function(tx){var o={};var a=tx.objectStore('meta').getAll();var k=tx.objectStore('files').getAllKeys();a.onsuccess=function(){o.meta=a.result||[];};k.onsuccess=function(){o.keys=k.result||[];};return o;},['meta','files'])
+    .then(function(o){var have={};o.meta.forEach(function(m){have[m.id]=1;});var miss=o.keys.filter(function(id){return !have[id];});
+      var out=o.meta.filter(function(m){return o.keys.indexOf(m.id)>=0;}).map(function(m){return {id:m.id,size:m.size,kind:m.kind,name:m.name,at:m.at};});
+      if(!miss.length)return out;
+      var chain=Promise.resolve();miss.forEach(function(id){chain=chain.then(function(){return mediaGet(id).then(function(r){if(!r)return;var m=_mMeta(r);out.push({id:m.id,size:m.size,kind:m.kind,name:m.name,at:m.at});
+        return _mediaTx('readwrite',function(tx){var g=tx.objectStore('files').count(id);g.onsuccess=function(){if(g.result>0)tx.objectStore('meta').put(m);};},['files','meta']).catch(function(){});});});});
+      return chain.then(function(){return out;});})
+    .catch(function(){return [];});}
 function _mb(n){return (Math.round(n/1048576*10)/10)+' MB';}
 /* tipos de audio que acepta (iOS a veces no reconoce «audio/*» en Archivos: se agregan las extensiones) */
 var PS_AUDIO_ACCEPT='audio/*,.mp3,.m4a,.aac,.wav,.aif,.aiff,.caf,.mp4';
 function _isAudioFile(f){return !!f&&(/^audio\//i.test(f.type||'')||/\.(mp3|m4a|aac|wav|aiff?|caf|mp4)$/i.test(f.name||''));}
+/* V48 · miniaturas de fotos (para listas y cuadrículas): se generan una vez y se guardan en «thumbs»; la foto
+   original no se toca. Si no se puede generar, se usa la foto original. Una sola generación a la vez por foto, y
+   solo se guarda si la foto todavía existe (así una foto borrada no regresa). */
+var _mThumb={},_mThumbP={};
+function _mkThumb(url,max){return new Promise(function(res){try{var im=new Image();im.onload=function(){try{var w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;if(!w||!h){res(null);return;}var s=Math.min(1,(max||360)/Math.max(w,h));var cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(w*s));cv.height=Math.max(1,Math.round(h*s));cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);if(cv.toBlob)cv.toBlob(function(b){res(b||null);},'image/jpeg',0.82);else res(null);}catch(e){res(null);}};im.onerror=function(){res(null);};im.src=url;}catch(e){res(null);}});}
+function mediaThumb(id){if(!id)return Promise.resolve(null);if(_mThumb[id])return Promise.resolve(_mThumb[id]);if(_mThumbP[id])return _mThumbP[id];
+  var p=_mediaTx('readonly',function(tx){return tx.objectStore('thumbs').get(id);},['thumbs']).then(function(t){
+    if(t&&t.data){var u=URL.createObjectURL(new Blob([t.data],{type:'image/jpeg'}));_mThumb[id]=u;return u;}
+    return mediaURL(id).then(function(full){if(!full)return null;return _mkThumb(full,360).then(function(b){if(!b)return full;var u=URL.createObjectURL(b);_mThumb[id]=u;
+      return _readBuf(b).then(function(buf){return _mediaTx('readwrite',function(tx){var k=tx.objectStore('files').count(id);
+          k.onsuccess=function(){if(k.result>0)tx.objectStore('thumbs').put({id:id,data:buf,at:Date.now()});};},['files','thumbs']);})
+        .then(function(){return u;},function(){return u;});});});
+  },function(){return null;}).then(function(u){delete _mThumbP[id];return u;},function(){delete _mThumbP[id];return null;});
+  _mThumbP[id]=p;return p;}
 
 /* ════════ V43 · OLYMPIA POSING STUDIO ════════
    Coreografías (poseChoreos), preferencias de avisos (posePrefs) e historial de práctica (poseSessions).
@@ -8226,8 +8272,8 @@ function psIssues(c){var out=[];var ps=psSorted(c);var D=+c.dur||0;
   if(c.audio&&c.audio.dur&&D&&Math.abs(c.audio.dur-D)>1)out.push({t:'gap',m:'Tu audio dura '+_psT(c.audio.dur)+' y la coreografía '+_psT(D)});
   return out;}
 function _psLibImg(img){if(!img||!img.set||!img.pid)return null;try{var im=POSE_IMG[img.set]&&POSE_IMG[img.set][img.pid];return im?im[2]:null;}catch(e){return null;}}
-function _psImgInto(el,img){if(!el)return;el.innerHTML='';if(!img){el.classList.add('empty');return;}var src=_psLibImg(img);
-  var put=function(u){if(!u){el.classList.add('empty');return;}el.classList.remove('empty');el.innerHTML='<img alt="" onclick="poseZoom(this)" src="'+u+'">';};
+function _psImgInto(el,img){if(!el)return;var tok=_psImgKey(img);el._psTok=tok;el.innerHTML='';if(!img){el.classList.add('empty');return;}var src=_psLibImg(img);
+  var put=function(u){if(el._psTok!==tok)return;if(!u){el.classList.add('empty');return;}el.classList.remove('empty');el.innerHTML='<img alt="" onclick="poseZoom(this)" src="'+u+'">';};
   if(src){put(src);return;}if(img.media)mediaURL(img.media).then(put,function(){put(null);});else put(null);}
 
 /* ── pantalla ── */
@@ -8239,7 +8285,7 @@ function psBack(){if(_psView==='play'){psStop(true);psSetup(_psCid);return;}if(_
 function _psLeaveEdit(){if(_psView==='edit'&&_psDirty){var c=psGet(_psCid);if(c){c.ver=(+c.ver||1)+1;psPut(c);}}_psDirty=false;}
 function psRender(){var b=document.getElementById('ps-body');var t=document.getElementById('ps-title');if(!b)return;b.scrollTop=0;
   if(_psView==='home'){t.textContent='Posing Studio';b.innerHTML=_psHomeHtml();_psHomeAfter();}
-  else if(_psView==='edit'){t.textContent='Editar coreografía';b.innerHTML=_psEditHtml();}
+  else if(_psView==='edit'){t.textContent='Editar coreografía';b.innerHTML=_psEditHtml();_psThumbsFill(b);}
   else if(_psView==='setup'){t.textContent='Practicar';b.innerHTML=_psSetupHtml();_psSetupAfter();}
   else if(_psView==='play'){t.textContent=(psGet(_psCid)||{}).name||'Práctica';b.innerHTML=_psPlayHtml();_psPlayAfter();}}
 function _psHomeHtml(){var a=psList();var pr=psPrefs();var h='';
@@ -8249,7 +8295,8 @@ function _psHomeHtml(){var a=psList();var pr=psPrefs();var h='';
     h+='<div class="card ps-ch"><div class="ps-ch-n">'+escH(c.name)+'</div><div class="card-sub">'+escH(c.cat||'')+' · '+_psT(c.dur)+' · '+n+(n===1?' pose':' poses')+' · v'+(c.ver||1)+'</div>'
       +'<div class="card-sub" style="margin-top:2px">'+(c.audio?'♪ '+escH(c.audio.name||'Audio'):'Sin audio')+(iss?' · <span style="color:var(--red-hi)">'+iss+(iss===1?' problema de tiempos':' problemas de tiempos')+'</span>':'')+'</div>'
       +'<div class="btn-row" style="margin-top:12px"><button class="btn btn-red" data-c="'+escA(c.id)+'" onclick="psSetup(this.dataset.c)">Practicar</button><button class="btn btn-ghost" data-c="'+escA(c.id)+'" onclick="psEdit(this.dataset.c)">Editar</button></div></div>';});
-  h+='<div class="btn-row" style="margin:0 0 18px"><button class="btn btn-line" onclick="psNew()">+ Nueva</button><button class="btn btn-line" onclick="openSheet(\'sh-ps-imp\')">Importar</button></div>';
+  h+='<div class="btn-row" style="margin:0 0 10px"><button class="btn btn-line" onclick="psNew()">+ Nueva</button><button class="btn btn-line" onclick="openSheet(\'sh-ps-imp\')">Importar</button></div>';
+  h+='<button class="btn btn-ghost" style="margin:0 0 18px" onclick="psPhotoOpen()">Fotos de las poses</button>';
   /* avisos */
   h+='<div class="ps-sec-t">Avisos de transición</div><div class="card" style="padding:14px 16px">';
   h+='<div class="inp-lbl">Aviso anticipado</div><div class="seg" style="margin:0 0 12px">'+[[0,'Sin aviso'],[1,'1 s'],[2,'2 s'],[3,'3 s']].map(function(x){return '<button class="seg-i'+(pr.warn===x[0]?' on':'')+'" onclick="psSetPref(\'warn\','+x[0]+');psRender()">'+x[1]+'</button>';}).join('')+'</div>';
@@ -8283,9 +8330,10 @@ function _psEditHtml(){var c=psGet(_psCid);if(!c)return '';var D=+c.dur||0;var p
   h+='</div><div class="ps-tl-sc"><span>0:00</span><span>'+_psT(D/2)+'</span><span>'+_psT(D)+'</span></div>';
   if(iss.length)h+='<div class="ps-iss">'+iss.map(function(x){return '<div class="'+(x.t==='bad'?'bad':'gap')+'">'+escH(x.m)+'</div>';}).join('')+'</div>';
   else if(ps.length)h+='<div class="card-sub" style="margin:4px 0 10px;color:var(--green)">Tiempos sin huecos ni superposiciones.</div>';
+  if(c.audio&&c.audio.dur&&D&&Math.abs(c.audio.dur-D)>1)h+='<button class="btn btn-line btn-sm" style="margin:0 0 10px" onclick="psUseAudioDur()">Usar la duración de la canción ('+_psT(c.audio.dur)+')</button>';
   /* lista */
   h+='<div class="list" style="margin:8px 0 10px">';
-  ps.forEach(function(p,i){h+='<div class="row ps-prow"><span class="ps-pi" style="--h:'+((i*47)%360)+'">'+(i+1)+'</span><div class="row-main" data-p="'+escA(p.id)+'" onclick="psPoseEdit(this.dataset.p)"><div class="row-t">'+escH(p.name)+'</div><div class="row-s">'+_psT(p.start)+'–'+_psT(p.end)+' · '+_numTxt(_psDur(p))+' s'+(p.side?' · '+escH(_psSideName(p.side)):'')+(p.img?' · con imagen':'')+'</div></div>'
+  ps.forEach(function(p,i){h+='<div class="row ps-prow"><span class="ps-pi" style="--h:'+((i*47)%360)+'">'+(i+1)+'</span>'+_psPthHtml(p)+'<div class="row-main" data-p="'+escA(p.id)+'" onclick="psPoseEdit(this.dataset.p)"><div class="row-t">'+escH(p.name)+'</div><div class="row-s">'+_psT(p.start)+'–'+_psT(p.end)+' · '+_numTxt(_psDur(p))+' s'+(p.side?' · '+escH(_psSideName(p.side)):'')+'</div></div>'
     +'<button class="icon-btn sm" '+(i===0?'disabled style="opacity:.25"':'')+' data-p="'+escA(p.id)+'" onclick="psMove(this.dataset.p,-1)" aria-label="Subir">'+IC.up+'</button><button class="icon-btn sm" '+(i===ps.length-1?'disabled style="opacity:.25"':'')+' data-p="'+escA(p.id)+'" onclick="psMove(this.dataset.p,1)" aria-label="Bajar">'+IC.down+'</button></div>';});
   if(!ps.length)h+='<div class="empty" style="padding:18px"><b>Sin poses</b>Agrega la primera.</div>';
   h+='</div><div class="btn-row" style="margin-bottom:10px"><button class="btn btn-line" onclick="psAddPose()">+ Agregar pose</button>'+(ps.length>1?'<button class="btn btn-line" onclick="psChain()">Encadenar tiempos</button>':'')+'</div>';
@@ -8319,9 +8367,9 @@ function psMove(pid,dir){var c=psGet(_psCid);if(!c)return;var ps=psSorted(c);var
   var a=dir<0?ps[j]:ps[i],b=dir<0?ps[i]:ps[j];var s0=a.start;var da=a.end-a.start,db=b.end-b.start;b.start=s0;b.end=Math.round((s0+db)*10)/10;a.start=b.end;a.end=Math.round((a.start+da)*10)/10;
   _psDirty=true;psPut(c);psRender();}
 function psChain(){confirmDlg('¿Encadenar tiempos?','Cada pose empieza donde termina la anterior y conserva su duración. Quita huecos y superposiciones.','Encadenar',function(){var c=psGet(_psCid);if(!c)return;var ps=psSorted(c);var t=ps.length?Math.max(0,ps[0].start):0;ps.forEach(function(p){var d=Math.max(0.1,p.end-p.start);p.start=Math.round(t*10)/10;p.end=Math.round((t+d)*10)/10;t=p.end;});_psDirty=true;psPut(c);psRender();});}
-function psDupChoreo(){var c=psGet(_psCid);if(!c)return;var n=JSON.parse(JSON.stringify(c));n.id=_psId('c');n.name=c.name+' (copia)';n.ver=1;n.created=Date.now();n.poses.forEach(function(p){p.id=_psId('p');if(p.img&&p.img.media)p.img=null;});psPut(n);toast('Copia creada (sin las fotos propias)');psEdit(n.id);}
-function psDelChoreo(){var c=psGet(_psCid);if(!c)return;confirmDlg('¿Eliminar «'+c.name+'»?','Se borra la coreografía, su audio y las fotos que le agregaste. Tu historial de práctica se conserva.','Eliminar',function(){
-  var a=psList().filter(function(x){return x.id!==c.id;});psSaveList(a);if(c.audio&&!_psAudioUsed(c.audio.id,c.id))mediaDel(c.audio.id);(c.poses||[]).forEach(function(p){if(p.img&&p.img.media)mediaDel(p.img.media);});
+function psDupChoreo(){var c=psGet(_psCid);if(!c)return;var n=JSON.parse(JSON.stringify(c));n.id=_psId('c');n.name=c.name+' (copia)';n.ver=1;n.created=Date.now();n.poses.forEach(function(p){p.id=_psId('p');});psPut(n);toast('Copia creada');psEdit(n.id);}
+function psDelChoreo(){var c=psGet(_psCid);if(!c)return;confirmDlg('¿Eliminar «'+c.name+'»?','Se borra la coreografía y su audio. Tus fotos se quedan en Mis fotos y tu historial de práctica se conserva.','Eliminar',function(){
+  var a=psList().filter(function(x){return x.id!==c.id;});psSaveList(a);if(c.audio&&!_psAudioUsed(c.audio.id,c.id))mediaDel(c.audio.id);
   var pr=psPrefs();if(pr.last===c.id){pr.last='';S.set('posePrefs',pr);}_psDirty=false;_psView='home';psRender();toast('Coreografía eliminada');});}
 function psExport(){var c=psGet(_psCid);if(!c)return;var x=JSON.parse(JSON.stringify(c));delete x.audio;var fotos=0;x.poses.forEach(function(p){if(p.img&&p.img.media){p.img=null;fotos++;}});
   var txt=JSON.stringify({olympia:'coreografia',v:1,choreo:x},null,1);_shareTxt('Coreografía '+c.name,txt,'coreografia-'+c.name.replace(/[^\wáéíóúñ]+/gi,'-').toLowerCase()+'.json');if(fotos)setTimeout(function(){toast('El archivo no lleva el audio ni tus fotos');},1200);}
@@ -8342,21 +8390,16 @@ function psPoseEdit(pid){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.for
   psPoseDur();_psImgRender();openSheet('sh-ps-pose');}
 function psPoseDur(){var s=_psParseT(_v('psp-s')),e=_psParseT(_v('psp-e'));var el=document.getElementById('psp-dur');if(!el)return;el.textContent=(s===null||e===null)?'Escribe los tiempos como 0:13 o 13':(e>s?'Dura '+_numTxt(Math.round((e-s)*10)/10)+' s':'El final debe ser después del inicio');el.style.color=(s!==null&&e!==null&&e>s)?'var(--muted)':'var(--red-hi)';}
 function _psImgRender(){var cur=document.getElementById('psp-img-cur');_psImgInto(cur,_psImgSel);
-  var lib=document.getElementById('psp-img-lib');if(!lib)return;var h='';
-  [['cp','Classic'],['bb','Fisicoculturismo'],['mp','Men\'s Physique']].forEach(function(s){var ids=(POSE_SETS[s[0]]||[]);ids.forEach(function(pid){var src=_psLibImg({set:s[0],pid:pid});if(!src)return;var on=_psImgSel&&_psImgSel.set===s[0]&&_psImgSel.pid===pid;
-    h+='<button class="ps-th'+(on?' on':'')+'" data-s="'+s[0]+'" data-p="'+pid+'" onclick="_psImgSel={set:this.dataset.s,pid:this.dataset.p};_psImgRender()" aria-label="'+escA((POSE_LIB[pid]||{}).name||pid)+' · '+s[1]+'"><img src="'+src+'" alt=""></button>';});});
-  lib.innerHTML=h;}
-function psPoseImgFile(input){var f=input.files&&input.files[0];input.value='';if(!f)return;if(f.size>25*1024*1024){toast('La foto pesa más de 25 MB');return;}
-  mediaPut(f,'pose').then(function(id){_psImgSel={media:id};_psImgRender();toast('Foto lista: guarda la pose');},function(e){toast(e&&e.message?e.message:'No se pudo guardar la foto');});}
+  var ch=document.getElementById('psp-img-ch');if(ch)ch.textContent=_psImgSel?'Cambiar foto':'Agregar foto';
+  var del=document.getElementById('psp-img-del');if(del)del.style.display=_psImgSel?'':'none';}
 function psPoseSave(){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPid)p=x;});if(!p)return;
   var nm=String(_v('psp-n')||'').trim();if(!nm){toast('Escribe el nombre de la pose');return;}
   var s=_psParseT(_v('psp-s')),e=_psParseT(_v('psp-e'));if(s===null||e===null){toast('Escribe los tiempos como 0:13 o 13');return;}if(!(e>s)){toast('El final debe ser después del inicio');return;}
-  var w=_v('psp-warn');var oldImg=p.img;
+  var w=_v('psp-warn');
   p.name=nm;p.start=Math.round(s*10)/10;p.end=Math.round(e*10)/10;p.side=_v('pse-side')||'';p.notes=String(_v('psp-notes')||'').trim();p.trans=String(_v('psp-trans')||'').trim();p.warn=w===''?null:+w;p.img=_psImgSel||null;
-  if(oldImg&&oldImg.media&&!(p.img&&p.img.media===oldImg.media))mediaDel(oldImg.media);
   _psDirty=true;psPut(c);closeSheet('sh-ps-pose');psRender();}
-function psPoseDup(){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPid)p=x;});if(!p)return;var d=p.end-p.start;var n=JSON.parse(JSON.stringify(p));n.id=_psId('p');n.start=p.end;n.end=Math.round((p.end+d)*10)/10;if(n.img&&n.img.media)n.img=null;c.poses.push(n);_psDirty=true;psPut(c);closeSheet('sh-ps-pose');psRender();toast('Pose duplicada después de la original: revisa los tiempos');}
-function psPoseDel(){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPid)p=x;});if(!p)return;confirmDlg('¿Eliminar «'+p.name+'»?','Se quita de la coreografía. Las demás poses conservan sus tiempos.','Eliminar',function(){c.poses=c.poses.filter(function(x){return x.id!==p.id;});if(p.img&&p.img.media)mediaDel(p.img.media);_psDirty=true;psPut(c);closeSheet('sh-ps-pose');psRender();});}
+function psPoseDup(){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPid)p=x;});if(!p)return;var d=p.end-p.start;var n=JSON.parse(JSON.stringify(p));n.id=_psId('p');n.start=p.end;n.end=Math.round((p.end+d)*10)/10;c.poses.push(n);_psDirty=true;psPut(c);closeSheet('sh-ps-pose');psRender();toast('Pose duplicada después de la original: revisa los tiempos');}
+function psPoseDel(){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPid)p=x;});if(!p)return;confirmDlg('¿Eliminar «'+p.name+'»?','Se quita de la coreografía. Las demás poses conservan sus tiempos.','Eliminar',function(){c.poses=c.poses.filter(function(x){return x.id!==p.id;});_psDirty=true;psPut(c);closeSheet('sh-ps-pose');psRender();});}
 
 /* ── práctica: preparación ── */
 var _psOpt={mode:'full',a:0,b:-1,pose:0,poseSecs:10,reps:1,rest:15,speed:1,audio:true};
@@ -8374,48 +8417,106 @@ function _psSetupHtml(){var c=psGet(_psCid);if(!c)return '';var ps=psSorted(c);v
   if(o.mode!=='pose'){
     if(c.audio)h+='<div class="adj-line" style="margin:0 0 6px"><div><div style="font-size:15.5px;color:var(--text)">Con música</div><div class="card-sub" id="ps-aud-st">♪ '+escH(c.audio.name||'Audio')+'</div></div><button class="sw'+(o.audio?' on':'')+'" role="switch" aria-checked="'+o.audio+'" aria-label="Con música" onclick="_psOpt.audio=!_psOpt.audio;psRender()"><i></i></button></div>'+(o.audio&&o.speed!==1?'<div class="card-sub" style="margin:0 0 12px">La música va a '+o.speed+'× y las poses siguen la canción. Si se oye mal, apaga la música y practica con el contador a la misma proporción.</div>':'');
     else h+='<div class="note" style="margin:0 0 12px">Sin audio: practicas con el contador. <label class="lnk">Elegir audio<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label></div>';}
+  if(o.mode!=='pose'&&c.audio&&o.audio&&c.audio.dur&&c.audio.dur<Math.max(+c.dur||0,ps.length?ps[ps.length-1].end:0)-1)h+='<div class="card-sub" style="margin:0 0 12px;color:var(--gold)">La canción dura '+_psT(c.audio.dur)+': cuando termine, termina la práctica (la coreografía llega a '+_psT(Math.max(+c.dur||0,ps[ps.length-1].end))+').</div>';
+  if(o.mode==='full'&&c.audio&&o.audio&&c.audio.dur&&c.audio.dur>(+c.dur||0)+1)h+='<div class="card-sub" style="margin:0 0 12px;color:var(--gold)">La práctica termina en '+_psT(c.dur)+' y la canción dura '+_psT(c.audio.dur)+'. Si quieres toda la canción, cámbialo en Editar.</div>';
   var pr=psPrefs();h+='<div class="card-sub" style="margin:4px 0 14px">Avisos: '+(pr.warn?pr.warn+' s antes':'sin aviso anticipado')+' · '+[pr.beep?'sonido':'',pr.count?'cuenta':'',pr.voice?'voz':'',pr.flash?'destello':''].filter(Boolean).join(', ')+'. Cámbialos en el inicio de Posing Studio.</div>';
-  h+='<button class="btn btn-red ps-go" onclick="psStart()">Empezar</button><button class="btn btn-ghost" style="margin:10px 0 28px" onclick="psEdit(_psCid)">Editar coreografía</button>';
+  var wait=o.mode!=='pose'&&c.audio&&o.audio&&!_mBlob[c.audio.id];
+  h+='<button class="btn btn-red ps-go" id="ps-go" onclick="psStart()"'+(wait?' disabled':'')+'>'+(wait?'Cargando la canción…':'Empezar')+'</button><button class="btn btn-ghost" style="margin:10px 0 28px" onclick="psEdit(_psCid)">Editar coreografía</button>';
   return h;}
-function _psSetupAfter(){var c=psGet(_psCid);if(!c||!c.audio)return;_psOpt._noAudio=false;mediaURL(c.audio.id).then(function(u){if(u)return;var el=document.getElementById('ps-aud-st');if(el){el.innerHTML='<span style="color:var(--gold)">No encuentro el audio en este iPhone.</span> <label class="lnk">Volver a elegirlo<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label>';}_psOpt._noAudio=true;});}
+function _psGoReady(){var b=document.getElementById('ps-go');if(b&&b.disabled){b.disabled=false;b.textContent='Empezar';}}
+function _psSetupAfter(){var c=psGet(_psCid);if(!c||!c.audio){_psGoReady();return;}_psOpt._noAudio=false;setTimeout(_psGoReady,8000);mediaBlob(c.audio.id).then(function(u){_psGoReady();if(u)return;var el=document.getElementById('ps-aud-st');if(el){el.innerHTML='<span style="color:var(--gold)">No encuentro el audio en este iPhone.</span> <label class="lnk">Volver a elegirlo<input type="file" class="fi-hide ps-aud" accept="'+PS_AUDIO_ACCEPT+'" onchange="psPickAudio(this)"></label>';}_psOpt._noAudio=true;});}
 
-/* ── reproductor ── */
-var PS=null;
-function _psBuildRun(){var c=psGet(_psCid);var ps=psSorted(c);var o=_psOpt;var R={c:c,speed:o.speed,reps:o.reps,rest:o.rest,rep:1,mode:o.mode,state:'ready',base:0,t0:null,audio:null,warned:{},lastIdx:-2,played:0,pt:null,restEnd:0,loop:null,wl:null,doneReps:0};
+/* ── reproductor ──
+   V48 · En el iPhone la música sonaba pero el tiempo y las poses no avanzaban. El reproductor ya no depende de una
+   sola señal del audio:
+   1) el estado de la app sigue al audio REAL (audio.paused/ended) y los eventos de iOS que llegan tarde o repetidos
+      ya no lo dejan en «pausa» mientras la canción suena;
+   2) reloj híbrido: mientras la posición de la canción avanza, ella manda (pausar, adelantar o cambiar la velocidad
+      no desincroniza); si iOS la deja congelada, sigue un reloj propio (performance.now) desde el último punto
+      conocido y vuelve a la canción en cuanto esta avanza;
+   3) el ciclo de pantalla corre con requestAnimationFrame, con un intervalo de respaldo y con los avisos de tiempo
+      del audio; cada vuelta está protegida (un error no lo detiene);
+   4) un solo audio de práctica vivo: al salir, reiniciar o volver a empezar se apaga el anterior. */
+var PS=null,_psAud=null;
+function _psBuildRun(){var c=psGet(_psCid);var ps=psSorted(c);var o=_psOpt;var R={c:c,speed:o.speed,reps:o.reps,rest:o.rest,rep:1,mode:o.mode,state:'ready',base:0,t0:null,audio:null,warned:{},lastIdx:-2,played:0,pt:null,restEnd:0,loop:null,wl:null,doneReps:0,raf:null,iv:null,ka:0,kt:0,lct:-1,lctAt:0,aok:false,playAt:0,_unlock:false};
   if(o.mode==='pose'){var p=ps[o.pose]||ps[0];R.poses=[{id:p.id,name:p.name,start:0,end:o.poseSecs,side:p.side,notes:p.notes,trans:p.trans,img:p.img,warn:0}];R.a=0;R.b=o.poseSecs;R.seg=p.name;}
   else if(o.mode==='seg'){var A=ps[Math.min(o.a,o.b)],B=ps[Math.max(o.a,o.b)];R.poses=ps;R.a=A.start;R.b=B.end;R.seg=A.name+' → '+B.name;}
   else{R.poses=ps;R.a=0;R.b=Math.max(+c.dur||0,ps.length?ps[ps.length-1].end:0);}
   R.useAudio=o.mode!=='pose'&&!!c.audio&&o.audio&&!o._noAudio;return R;}
-function psStart(){var c=psGet(_psCid);if(!c||!c.poses.length)return;try{_primeAudio();}catch(e){}
+function psStart(){var c=psGet(_psCid);if(!c||!c.poses.length)return;if(PS)psStop(true);try{_primeAudio();}catch(e){}
   try{if(psPrefs().voice&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
   PS=_psBuildRun();_psView='play';psRender();
-  if(PS.useAudio){var u0=_mURL[c.audio.id];if(u0){_psMkAudio(u0);_psRun();return;}
-    mediaURL(c.audio.id).then(function(u){if(!PS)return;if(!u){PS.useAudio=false;toast('No encuentro el audio: practicas con el contador');_psRun();return;}_psMkAudio(u);_psRun();});}
+  if(PS.useAudio){var b0=_mBlob[c.audio.id];if(b0){_psMkAudio(b0);_psRun();return;}
+    var me=PS;mediaBlob(c.audio.id).then(function(b){if(!PS||PS!==me)return;if(!b){PS.useAudio=false;_psMetaLbl();toast('No encuentro el audio: practicas con el contador');_psRun();return;}_psMkAudio(b);_psRun();},function(){if(!PS||PS!==me)return;PS.useAudio=false;_psMetaLbl();_psRun();});}
   else _psRun();}
-function _psMkAudio(u){var a=new Audio();a.preload='auto';try{a.preservesPitch=true;a.webkitPreservesPitch=true;a.mozPreservesPitch=true;}catch(e){}a.src=u;PS.audio=a;
-    /* iOS solo deja sonar audio que arrancó dentro de un toque: se arranca en silencio y se detiene al instante */
-    try{a.muted=true;var pp=a.play();if(pp&&pp.then)pp.then(function(){if(PS&&PS.audio===a&&PS.state!=='play'){PS._self=true;a.pause();PS._self=false;try{a.currentTime=PS.base;}catch(e){}}a.muted=false;},function(){a.muted=false;});else a.muted=false;}catch(e){a.muted=false;}
-    a.addEventListener('ended',function(){if(PS&&PS.audio===a)_psRepEnd();});
-    /* pausa o reanudación que no hizo la app (bloqueo, llamada, Centro de control, audífonos): se sigue a la canción */
-    a.addEventListener('pause',function(){if(PS&&PS.audio===a&&PS.state==='play'&&!PS._self){PS.base=a.currentTime;PS.state='pause';_psAcc();_psWake(false);_psUI(true);}});
-    a.addEventListener('play',function(){if(PS&&PS.audio===a&&PS.state==='pause'&&!PS._self&&!a.muted){PS.base=a.currentTime;PS.state='play';PS.pt=performance.now();_psWake(true);_psLoop();_psUI(true);}});
-    a.addEventListener('error',function(){if(PS&&PS.audio===a){toast('No se pudo reproducir el audio: sigue con el contador');PS.base=_psTime();PS.audio=null;PS.useAudio=false;if(PS.state==='play'){PS.t0=performance.now();}}});
+/* cada reproducción usa su propio enlace al archivo (se suelta al apagar el audio) */
+function _psKillAud(a){if(!a)return;a.__dead=true;try{a.pause();}catch(e){}try{a.muted=true;}catch(e){}var u=a.__url;a.__url=null;if(u)setTimeout(function(){try{URL.revokeObjectURL(u);}catch(e){}},5000);}
+function _psMkAudio(blob){_psKillAud(_psAud);var a=new Audio();_psAud=a;a.preload='auto';try{a.preservesPitch=true;a.webkitPreservesPitch=true;a.mozPreservesPitch=true;}catch(e){}
+    a.__blob=blob;a.__url=URL.createObjectURL(blob);a.src=a.__url;PS.audio=a;
+    var mine=function(){return !!PS&&PS.audio===a&&!a.__dead;};
+    /* iOS solo deja sonar audio que arrancó dentro de un toque: se arranca en silencio y se detiene (si no es la
+       práctica actual, se queda detenido: nunca suena un audio suelto) */
+    PS._unlock=true;
+    try{a.muted=true;var pp=a.play();
+      var fin=function(){if(!mine()){try{a.pause();}catch(e){}a.muted=false;return;}PS._unlock=false;if(PS.state!=='play'){try{a.pause();}catch(e){}try{a.currentTime=PS.base;}catch(e){}}a.muted=false;_psSync('unlock');};
+      if(pp&&pp.then)pp.then(fin,function(){if(mine())PS._unlock=false;a.muted=false;});else{PS._unlock=false;a.muted=false;}}catch(e){PS._unlock=false;a.muted=false;}
+    ['pause','play','playing','seeked'].forEach(function(ev){a.addEventListener(ev,function(){if(mine())_psSync(ev);});});
+    a.addEventListener('timeupdate',function(){if(mine()){_psSync('timeupdate');if(PS&&PS.state==='play')_psTick();}});
+    a.addEventListener('ended',function(){if(mine()&&(PS.state==='play'||PS.state==='pause'))_psRepEnd();});
+    a.addEventListener('error',function(){if(!mine())return;
+      /* primer error: se vuelve a cargar en el MISMO elemento (conserva el permiso de iOS) con un enlace nuevo */
+      if(!a.__retry&&a.__blob){a.__retry=1;var n=performance.now();var pos=PS.state==='play'?_psTime():PS.base;var old=a.__url;
+        /* mientras se recarga, el tiempo sigue con el reloj propio desde donde iba */
+        PS._reloading=true;if(PS.state==='play'){PS.ka=pos;PS.kt=n;}else PS.base=pos;
+        setTimeout(function(){if(!mine())return;try{a.__url=URL.createObjectURL(a.__blob);a.src=a.__url;a.load();}catch(e){}if(old)setTimeout(function(){try{URL.revokeObjectURL(old);}catch(e){}},5000);},700);
+        var go=function(){if(!mine())return;var m=performance.now();var want=PS.state==='play'?PS.ka+(m-PS.kt)/1000*PS.speed:PS.base;PS._reloading=false;
+          try{a.currentTime=want;}catch(e){}PS.ka=want;PS.kt=m;PS.lct=+a.currentTime;PS.lctAt=m;PS.aok=false;PS.lastT=null;
+          if(PS.state==='play'){var pr=null;try{a.playbackRate=PS.speed;pr=a.play();}catch(e){}if(pr&&pr.catch)pr.catch(function(){});}};
+        a.addEventListener('loadedmetadata',go,{once:true});return;}
+      var t=_psTime();PS.audio=null;PS.useAudio=false;_psKillAud(a);_psAud=null;PS.base=t;if(PS.state==='play')PS.t0=performance.now();_psMetaLbl();_psUI(true);toast('No se pudo reproducir el audio: sigue con el contador');});
 }
+function _psMetaLbl(){var el=document.getElementById('psp-mode');if(!el||!PS)return;var mode={full:'Completa',seg:'Segmento',pose:'Pose individual'}[PS.mode];el.textContent=mode+(PS.seg?' · '+PS.seg:'')+' · '+(PS.useAudio?'con música':'contador');}
+/* el estado de la app sigue al audio real */
+function _psSync(ev){if(!PS||!PS.useAudio||!PS.audio)return;var a=PS.audio;var st=PS.state;
+  if(st==='play'){if(PS._reloading)return;var n0=performance.now();
+    /* pausa externa: con su evento, o si el audio lleva detenido más de medio segundo (iOS a veces no avisa) */
+    if(a.paused&&!a.seeking&&ev!=='pause'&&ev!=='ended'){if(!PS.pz)PS.pz=n0;}else PS.pz=0;
+    var silent=a.paused&&PS.pz&&n0-PS.pz>500&&n0-PS.playAt>1500;
+    if(((ev==='pause'||ev==='ended')&&a.paused)||silent){PS.pz=0;if(a.ended||ev==='ended'){_psRepEnd();return;}
+      PS.base=PS.aok?(+a.currentTime||0):_psTime();PS.state='pause';PS.t0=null;_psAcc();_psWake(false);_psUI(true);}}
+  else if(st==='pause'){if(!a.paused&&!a.muted&&!a.ended&&(ev==='play'||ev==='playing'||Math.abs((+a.currentTime||0)-PS.base)>0.3)){
+      var n=performance.now();PS.base=+a.currentTime||PS.base;PS.state='play';PS.pt=n;PS.playAt=n;PS.ka=PS.base;PS.kt=n;PS.lct=+a.currentTime;PS.lctAt=n;PS.aok=true;PS.lastT=null;PS.pz=0;_psWake(true);_psKick();_psUI(true);}}
+  else if(!a.paused&&!PS._unlock){try{a.pause();}catch(e){}}}
 function _psRun(){PS.base=PS.a;_psCountIn(function(){_psPlay();});}
-/* cuenta de entrada 3-2-1 (aviso de inicio) */
 function _psCountIn(cb){if(!PS)return;var pr=psPrefs();if(!pr.count){if(pr.beep)_beep();cb();return;}PS.state='count';var n=3;var tick=function(){if(!PS||PS.state!=='count')return;_psCd(n>0?String(n):'');if(n>0){if(pr.beep)_beep();n--;PS._ci=setTimeout(tick,1000);}else{_psCd('');cb();}};_psUI(true);tick();}
 function _psCd(t){var el=document.getElementById('psp-cd');if(el){el.textContent=t;el.classList.toggle('on',!!t);}}
-function _psTime(){if(!PS)return 0;if(PS.useAudio&&PS.audio)return PS.audio.currentTime;return PS.base+(PS.t0!==null?(performance.now()-PS.t0)/1000*PS.speed:0);}
+/* reloj: con música, la canción manda mientras avanza; si se congela, reloj propio desde el último punto conocido */
+function _psTime(){if(!PS)return 0;if(PS.state!=='play')return PS.base;if(PS.useAudio&&PS.audio)return _psAudClock();return PS.base+(PS.t0!==null?(performance.now()-PS.t0)/1000*PS.speed:0);}
+function _psAudClock(){var a=PS.audio,n=performance.now();if(PS._reloading)return PS.ka+(n-PS.kt)/1000*PS.speed;var ct=+a.currentTime;if(!isFinite(ct))ct=PS.lct;var t;
+  if(ct!==PS.lct){PS.lct=ct;PS.lctAt=n;PS.aok=true;PS.ka=ct;PS.kt=n;}
+  if(PS.aok&&n-PS.lctAt<900)t=ct;
+  else if(!PS.aok&&(a.paused||a.seeking||a.readyState<3)){PS.kt=n;t=PS.ka;} /* la canción todavía no arranca: espera sin avanzar */
+  else t=PS.ka+(n-PS.kt)/1000*PS.speed;
+  /* nunca hacia atrás por un desfase chico; si la canción quedó claramente atrás, manda ella y los avisos se rehacen */
+  if(PS.lastT!=null&&t<PS.lastT){if(PS.lastT-t<1.2)t=PS.lastT;else _psRewarn(t);}
+  PS.lastT=t;return t;}
+function _psRewarn(t){PS.poses.forEach(function(p,i){if(p.start>t+0.01){delete PS.warned[i];delete PS.warned['w'+i];}});PS.lastIdx=-2;PS._lastCd=null;}
 function _psAcc(){if(PS&&PS.pt!==null){PS.played+=(performance.now()-PS.pt)/1000;PS.pt=null;}}
-function _psPlay(){if(!PS)return;PS.state='play';PS.pt=performance.now();_psWake(true);
-  if(PS.useAudio&&PS.audio){var a=PS.audio;a.playbackRate=PS.speed;try{if(Math.abs(a.currentTime-PS.base)>0.05)a.currentTime=PS.base;}catch(e){}
-    var pr=a.play();if(pr&&pr.catch)pr.catch(function(err){if(!PS)return;toast('iOS no dejó reproducir el audio: toca ▶ de nuevo');PS.state='pause';_psAcc();_psUI(true);});}
-  else PS.t0=performance.now();
-  _psLoop();_psUI(true);}
-function psPause(){if(!PS||PS.state!=='play')return;PS.base=_psTime();PS._self=true;if(PS.audio)PS.audio.pause();PS._self=false;PS.t0=null;PS.state='pause';_psAcc();_psWake(false);_psUI(true);}
+function _psPlay(){if(!PS)return;var n=performance.now();PS.state='play';PS.pt=n;PS.playAt=n;_psWake(true);
+  if(PS.useAudio&&PS.audio){var a=PS.audio;PS._unlock=false;a.muted=false;try{a.playbackRate=PS.speed;}catch(e){}try{if(Math.abs(a.currentTime-PS.base)>0.05)a.currentTime=PS.base;}catch(e){}
+    PS.ka=PS.base;PS.kt=n;PS.lct=+a.currentTime;PS.lctAt=n;PS.aok=false;PS.lastT=null;PS.pz=0;
+    /* si todavía no tiene datos, la posición se aplica en cuanto los tenga (iOS puede ignorar el salto antes) */
+    if(a.readyState<1&&PS.base>0.05){var want=PS.base;a.addEventListener('loadedmetadata',function(){if(PS&&PS.audio===a&&Math.abs((+a.currentTime||0)-want)>0.3&&!PS.aok){try{a.currentTime=want;}catch(e){}}},{once:true});}
+    var pr=null;try{pr=a.play();}catch(e){}
+    if(pr&&pr.catch)pr.catch(function(){if(!PS||PS.audio!==a||PS.state!=='play'||!a.paused)return;PS.base=+a.currentTime||PS.base;PS.state='pause';PS.t0=null;_psAcc();_psWake(false);_psUI(true);toast('iOS no dejó reproducir el audio: toca ▶ de nuevo');});}
+  else PS.t0=n;
+  _psKick();_psUI(true);}
+function psPause(){if(!PS||PS.state!=='play')return;var ct=PS.audio?+PS.audio.currentTime:NaN;PS.base=(PS.useAudio&&PS.audio&&PS.aok&&isFinite(ct))?ct:_psTime();PS.t0=null;PS.state='pause';if(PS.audio){try{PS.audio.pause();}catch(e){}}_psAcc();_psWake(false);_psUI(true);}
 function psToggle(){if(!PS)return;if(PS.state==='play')psPause();else if(PS.state==='pause'||PS.state==='ready')_psPlay();else if(PS.state==='done'){psRestart();}}
-function psSeek(x){if(!PS)return;x=Math.max(PS.a,Math.min(PS.b-0.05,x));PS.base=x;if(PS.audio){try{PS.audio.currentTime=x;}catch(e){}}if(PS.state==='play'&&!PS.audio)PS.t0=performance.now();
-  PS.warned={};PS.poses.forEach(function(p,i){if(p.start<=x+0.01)PS.warned[i]=1;});PS.lastIdx=-2;_psUI(true);}
+function psSeek(x){if(!PS)return;x=Math.max(PS.a,Math.min(PS.b-0.05,x));PS.base=x;var n=performance.now();
+  PS.lastT=null;if(PS.audio){try{PS.audio.currentTime=x;}catch(e){}if(PS.state==='play'){PS.ka=x;PS.kt=n;PS.lct=+PS.audio.currentTime;PS.lctAt=n;PS.aok=false;}}
+  else if(PS.state==='play')PS.t0=n;
+  PS.warned={};PS.poses.forEach(function(p,i){if(p.start<=x+0.01)PS.warned[i]=1;});PS.lastIdx=-2;PS._lastCd=null;_psCd('');_psUI(true);}
 function psSeekTap(ev){if(!PS)return;var el=document.getElementById('psp-tl');if(!el)return;var r=el.getBoundingClientRect();var f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));psSeek(PS.a+f*(PS.b-PS.a));}
 function psGoto(){var v=_psParseT(_v('psp-goto'));if(v===null){toast('Escribe el tiempo como 0:30');return;}if(v<PS.a||v>PS.b){toast('Fuera de lo que estás practicando ('+_psT(PS.a)+'–'+_psT(PS.b)+')');return;}psSeek(v);var e=document.getElementById('psp-goto');if(e){e.value='';e.blur();}}
 function _psIdx(t){var ps=PS.poses;for(var i=0;i<ps.length;i++)if(t>=ps[i].start-0.001&&t<ps[i].end-0.001)return i;return -1;}
@@ -8424,17 +8525,30 @@ function psPrev(){if(!PS)return;var t=_psTime();var i=_psIdx(t);var ps=PS.poses;
   var k=-1;for(var j=ps.length-1;j>=0;j--)if(ps[j].start<t-0.5&&ps[j].start>=PS.a-0.01&&(i<0||j<i)){k=j;break;}psSeek(k>=0?ps[k].start:PS.a);}
 function psNext(){if(!PS)return;var t=_psTime();var ps=PS.poses;for(var j=0;j<ps.length;j++)if(ps[j].start>t+0.05&&ps[j].start<PS.b){psSeek(ps[j].start);return;}}
 function psRepeatPose(){if(!PS)return;var t=_psTime();var i=_psIdx(t);if(i>=0)psSeek(Math.max(PS.a,PS.poses[i].start));}
-function psRestart(){if(!PS)return;clearTimeout(PS._ci);clearTimeout(PS._rt);if(PS.loop){cancelAnimationFrame(PS.loop);PS.loop=null;}
+function psRestart(){if(!PS)return;clearTimeout(PS._ci);clearTimeout(PS._rt);if(PS.raf){try{cancelAnimationFrame(PS.raf);}catch(e){}PS.raf=null;}
   /* lo practicado hasta aquí se guarda (si fueron 10 s o más) y la nueva vuelta es otra sesión */
   if(PS.state!=='done'){if(PS.state==='play')PS.base=_psTime();_psLog();}
-  if(PS.audio){PS._self=true;PS.audio.pause();PS._self=false;}
-  PS.state='ready';PS.t0=null;PS.pt=null;PS.played=0;PS.logged=false;PS.sid=null;PS.rep=1;PS.doneReps=0;psSeek(PS.a);_psCountIn(function(){_psPlay();});}
-function psSetSpeed(v){if(!PS)return;var t=_psTime();PS.speed=v;_psOpt.speed=v;if(PS.audio)PS.audio.playbackRate=v;else{PS.base=t;if(PS.state==='play')PS.t0=performance.now();}var sp=document.getElementById('psp-speed');if(sp)Array.prototype.forEach.call(sp.children,function(b){b.classList.toggle('on',+b.dataset.v===v);});_psUI(true);}
-function _psRepEnd(){if(!PS||PS.state==='rest'||PS.state==='done'||PS.state==='count'||PS.state==='ready')return;PS.base=PS.b;if(PS.audio){PS._self=true;PS.audio.pause();PS._self=false;}PS.t0=null;_psAcc();PS.doneReps=PS.rep;var pr=psPrefs();if(pr.beep){_beep();setTimeout(_beep,250);}if(pr.flash)_psFlash('end');
-  if(PS.rep<PS.reps){PS.rep++;PS.state='rest';PS.restEnd=performance.now()+PS.rest*1000;_psUI(true);var tick=function(){if(!PS||PS.state!=='rest')return;var left=Math.ceil((PS.restEnd-performance.now())/1000);if(left<=0){psSeek(PS.a);_psCountIn(function(){_psPlay();});return;}_psUI(true);PS._rt=setTimeout(tick,250);};tick();}
-  else{PS.state='done';_psWake(false);_psLog();_psUI(true);}}
-function _psLoop(){if(PS&&PS.loop)return;var step=function(){if(!PS){return;}if(PS.state!=='play'){PS.loop=null;return;}var t=_psTime();
-    if(t>=PS.b-0.02){PS.loop=null;_psRepEnd();return;}_psAlerts(t);_psUI(false);PS.loop=requestAnimationFrame(step);};PS.loop=requestAnimationFrame(step);}
+  PS.state='ready';if(PS.audio){try{PS.audio.pause();}catch(e){}}
+  PS.t0=null;PS.pt=null;PS.played=0;PS.logged=false;PS.sid=null;PS.rep=1;PS.doneReps=0;psSeek(PS.a);_psCountIn(function(){_psPlay();});}
+function psSetSpeed(v){if(!PS)return;var t=_psTime();PS.speed=v;_psOpt.speed=v;
+  if(PS.audio){try{PS.audio.playbackRate=v;}catch(e){}if(PS.state==='play'){PS.ka=t;PS.kt=performance.now();}}
+  else{PS.base=t;if(PS.state==='play')PS.t0=performance.now();}
+  var sp=document.getElementById('psp-speed');if(sp)Array.prototype.forEach.call(sp.children,function(b){b.classList.toggle('on',+b.dataset.v===v);});_psUI(true);}
+function _psRepEnd(){if(!PS||PS.state==='rest'||PS.state==='done'||PS.state==='count'||PS.state==='ready')return;PS.base=PS.b;PS.t0=null;_psAcc();PS.doneReps=PS.rep;
+  var more=PS.rep<PS.reps;PS.state=more?'rest':'done';if(PS.audio){try{PS.audio.pause();}catch(e){}}
+  var pr=psPrefs();if(pr.beep){_beep();setTimeout(_beep,250);}if(pr.flash)_psFlash('end');
+  if(more){PS.rep++;PS.restEnd=performance.now()+PS.rest*1000;_psUI(true);var tick=function(){if(!PS||PS.state!=='rest')return;var left=Math.ceil((PS.restEnd-performance.now())/1000);if(left<=0){psSeek(PS.a);_psCountIn(function(){_psPlay();});return;}_psUI(true);PS._rt=setTimeout(tick,250);};tick();}
+  else{_psWake(false);_psLog();_psUI(true);}}
+/* ciclo: requestAnimationFrame + intervalo de respaldo (+ timeupdate del audio). Cada vuelta es independiente. */
+function _psKick(){if(!PS)return;if(!PS.iv)PS.iv=setInterval(_psTick,200);if(!PS.raf&&PS.state==='play'){try{PS.raf=requestAnimationFrame(_psFrame);}catch(e){}}}
+function _psFrame(){if(!PS)return;PS.raf=null;_psTick();if(PS&&PS.state==='play'&&!PS.raf){try{PS.raf=requestAnimationFrame(_psFrame);}catch(e){}}}
+function _psLoop(){_psKick();}
+var _psBusy=false;
+function _psTick(){if(!PS||_psBusy)return;_psBusy=true;
+  try{_psSync('tick');if(PS&&PS.state==='play'){var t=_psTime();
+      if(PS.tickT!=null&&t-PS.tickT>1.5)PS.poses.forEach(function(p,i){if(p.start<t-0.3){PS.warned[i]=1;PS.warned['w'+i]=1;}});
+      PS.tickT=t;if(t>=PS.b-0.02)_psRepEnd();else{_psAlerts(t);_psUI(false);}}else if(PS)PS.tickT=null;}catch(e){}
+  _psBusy=false;}
 function _psAlerts(t){var pr=psPrefs();var ps=PS.poses;
   for(var i=0;i<ps.length;i++){var p=ps[i];if(p.start<=PS.a+0.01||p.start>=PS.b)continue;var w=(p.warn===null||p.warn===undefined)?pr.warn:+p.warn;
     var dt=(p.start-t)/PS.speed; /* segundos reales que faltan */
@@ -8443,7 +8557,9 @@ function _psAlerts(t){var pr=psPrefs();var ps=PS.poses;
     if(!PS.warned[i]&&t>=p.start-0.01){PS.warned[i]=1;PS._lastCd=null;_psCd('');if(pr.beep&&!(w>0&&pr.count))_beep();if(!w&&pr.voice)_psSay(p.name);if(pr.flash)_psFlash('go');if(pr.vibe&&navigator.vibrate)try{navigator.vibrate(120);}catch(e){}}}}
 function _psSay(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='es-MX';u.rate=1.05;speechSynthesis.speak(u);}catch(e){}}
 function _psFlash(k){var el=document.getElementById('ps-flash');if(!el)return;el.className='ps-flash on '+k;clearTimeout(el._t);el._t=setTimeout(function(){el.className='ps-flash';},380);}
-function _psWake(on){try{if(on){if(navigator.wakeLock&&!PS.wl)navigator.wakeLock.request('screen').then(function(l){if(PS)PS.wl=l;else l.release();},function(){});}else if(PS&&PS.wl){PS.wl.release();PS.wl=null;}}catch(e){}}
+function _psWake(on){try{if(!PS)return;if(PS.wl&&PS.wl.released)PS.wl=null;
+  if(on){if(navigator.wakeLock&&!PS.wl&&!PS.wlP){PS.wlP=1;var me=PS;navigator.wakeLock.request('screen').then(function(l){me.wlP=0;if(PS===me&&PS.state==='play'&&!PS.wl)PS.wl=l;else l.release();},function(){me.wlP=0;});}}
+  else if(PS.wl){var l=PS.wl;PS.wl=null;l.release();}}catch(e){}}
 function _psPlayHtml(){var c=PS.c;var segs='';var span=Math.max(0.1,PS.b-PS.a);
   PS.poses.forEach(function(p,i){if(p.end<=PS.a||p.start>=PS.b)return;var s=Math.max(p.start,PS.a),e=Math.min(p.end,PS.b);segs+='<i style="left:'+((s-PS.a)/span*100)+'%;width:'+((e-s)/span*100)+'%;--h:'+((i*47)%360)+'"></i>';});
   var mode={full:'Completa',seg:'Segmento',pose:'Pose individual'}[PS.mode];
@@ -8462,11 +8578,11 @@ function _psPlayHtml(){var c=PS.c;var segs='';var span=Math.max(0.1,PS.b-PS.a);
    +'<div class="ps-cd" id="psp-cd"></div></div>';}
 function _psIc(k){return k==='prev'?'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>':'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>';}
 function _psPlayAfter(){_psUI(true);}
-function _psUI(force){if(!PS)return;var t=_psTime();var ps=PS.poses;var i=_psIdx(t);var g=function(id){return document.getElementById(id);};
+function _psUI(force){if(!PS||!document.getElementById('psp-name'))return;var t=_psTime();var ps=PS.poses;var i=_psIdx(t);var g=function(id){return document.getElementById(id);};
   var pp=g('psp-pp');if(pp){var st=PS.state;pp.innerHTML=st==='play'?'<svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>':'<svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>';pp.classList.toggle('on',st==='play');}
   var rp=g('psp-rep');if(rp)rp.textContent=PS.reps>1?'Rep '+Math.min(PS.rep,PS.reps)+' de '+PS.reps:'';
   if(PS.state==='rest'){var left=Math.max(0,Math.ceil((PS.restEnd-performance.now())/1000));g('psp-name').textContent='Descanso';g('psp-side').textContent='Sigue la repetición '+PS.rep+' de '+PS.reps;g('psp-left').textContent=_psT(left);g('psp-leftl').textContent='de descanso';var fp='';for(var k=0;k<ps.length;k++)if(ps[k].end>PS.a){fp=ps[k].name;break;}g('psp-next').textContent='Empieza con: '+fp;PS.lastIdx=-3;}
-  else if(i!==PS.lastIdx||force){PS.lastIdx=i;var p=i>=0?ps[i]:null;g('psp-name').textContent=p?p.name:(t<PS.a+0.01&&PS.state!=='done'?'Listo':'Transición');g('psp-side').textContent=p?[_psSideName(p.side),p.notes].filter(Boolean).join(' · '):'';
+  else if(i!==PS.lastIdx||force){PS.lastIdx=i;var p=i>=0?ps[i]:null;g('psp-name').textContent=p?p.name:(t<PS.a+0.01&&PS.state!=='done'?'Listo':'Transición');g('psp-side').textContent=p?[p.side?_psSideName(p.side):'',p.notes].filter(Boolean).join(' · '):'';
     _psImgInto(g('psp-img'),p?p.img:null);g('psp-leftl').textContent=p?'en esta pose':'';}
   if(PS.state!=='rest'){var p2=i>=0?ps[i]:null;var lf=p2?Math.max(0,(Math.min(p2.end,PS.b)-t)/PS.speed):0;var el=g('psp-left');var lt=p2?_psT(Math.ceil(lf)):'';if(el&&el.textContent!==lt)el.textContent=lt;
     var nx=null;for(var k=0;k<ps.length;k++)if(ps[k].start>t+0.01&&ps[k].start<PS.b){nx=ps[k];break;}
@@ -8479,13 +8595,17 @@ function _psLog(){if(!PS||PS.logged)return;_psAcc();if(PS.played<10&&!PS.doneRep
   var ss=S.get('poseSessions',[]);ss=Array.isArray(ss)?ss:[];var o={id:_psId('s'),date:today(),at:Date.now(),cid:PS.c.id,cname:PS.c.name,mode:PS.mode,secs:Math.round(PS.played),reps:PS.doneReps||0,audio:!!PS.useAudio,speed:PS.speed};if(PS.seg)o.seg=PS.seg;
   ss.push(o);if(ss.length>1000)ss=ss.slice(-1000);S.set('poseSessions',ss);PS.sid=o.id;}
 function psSaveNote(){var n=String(_v('psp-note')||'').trim();if(!PS||!PS.sid){toast('No hay sesión que anotar');return;}var ss=S.get('poseSessions',[]);ss.forEach(function(s){if(s.id===PS.sid){if(n)s.notes=n;else delete s.notes;}});S.set('poseSessions',ss);toast('Nota guardada');}
-function psStop(log){if(!PS)return;clearTimeout(PS._ci);clearTimeout(PS._rt);if(PS.loop)cancelAnimationFrame(PS.loop);if(PS.state==='play')PS.base=_psTime();_psAcc();if(log&&PS.state!=='done')_psLog();
-  if(PS.audio){PS._self=true;try{PS.audio.pause();PS.audio.removeAttribute('src');PS.audio.load();}catch(e){}}_psWake(false);try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}PS=null;}
+function psStop(log){if(!PS)return;clearTimeout(PS._ci);clearTimeout(PS._rt);if(PS.raf){try{cancelAnimationFrame(PS.raf);}catch(e){}}if(PS.iv)clearInterval(PS.iv);
+  if(PS.state==='play')PS.base=_psTime();_psAcc();if(log&&PS.state!=='done')_psLog();
+  var a=PS.audio;PS.audio=null;_psKillAud(a);if(_psAud&&_psAud!==a)_psKillAud(_psAud);_psAud=null;
+  _psWake(false);try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}PS=null;}
 function psSessEdit(id){var ss=S.get('poseSessions',[]);var s=null;ss.forEach(function(x){if(x.id===id)s=x;});if(!s)return;document.getElementById('ps-sess-id').value=id;document.getElementById('ps-sess-info').textContent=(s.cname||'')+' · '+_hlD(s.date)+' · '+_psSessTxt(s);document.getElementById('ps-sess-note').value=s.notes||'';openSheet('sh-ps-sess');}
 function psSessSave(){var id=_v('ps-sess-id');var n=String(_v('ps-sess-note')||'').trim();var ss=S.get('poseSessions',[]);ss.forEach(function(s){if(s.id===id){if(n)s.notes=n;else delete s.notes;}});S.set('poseSessions',ss);closeSheet('sh-ps-sess');if(_psView==='home')psRender();toast('Guardado');}
 function psSessDel(){var id=_v('ps-sess-id');confirmDlg('¿Borrar esta sesión?','Se quita de tu historial de posing.','Borrar',function(){S.set('poseSessions',S.get('poseSessions',[]).filter(function(s){return s.id!==id;}));closeSheet('sh-ps-sess');if(_psView==='home')psRender();});}
+/* si iOS cierra la app a media práctica (la deslizas o la descarga), se guarda lo practicado */
+window.addEventListener('pagehide',function(){try{if(PS&&PS.state!=='done'&&!PS.logged){if(PS.state==='play')PS.base=_psTime();_psAcc();_psLog();PS.pt=PS.state==='play'?performance.now():null;}}catch(e){}});
 /* al volver de segundo plano: con música manda la canción; sin música el contador se pausa al salir */
-document.addEventListener('visibilitychange',function(){if(!PS)return;if(document.visibilityState==='hidden'){if(!PS.useAudio&&PS.state==='play'){psPause();PS._autoPaused=true;}}else{_psUI(true);if(PS.state==='play')_psLoop();if(PS._autoPaused){PS._autoPaused=false;toast('Pausé el contador al salir de la app');}}});
+document.addEventListener('visibilitychange',function(){if(!PS)return;if(document.visibilityState==='hidden'){if(!PS.useAudio&&PS.state==='play'){psPause();PS._autoPaused=true;}}else{_psSync('visible');_psUI(true);_psKick();if(PS.state==='play')_psWake(true);if(PS._autoPaused){PS._autoPaused=false;toast('Pausé el contador al salir de la app');}}});
 
 /* tarjeta en Competir → Poses */
 function buildStudioCard(){var el=document.getElementById('studioCard');if(!el)return;var a=psList();var pr=psPrefs();var c=psGet(pr.last)||a[0]||null;
@@ -8493,6 +8613,75 @@ function buildStudioCard(){var el=document.getElementById('studioCard');if(!el)r
   if(c)h+='<div class="ps-card-c"><div class="row-t">'+escH(c.name)+'</div><div class="card-sub">'+_psT(c.dur)+' · '+c.poses.length+' poses · '+(c.audio?'♪ '+escH(c.audio.name||'audio'):'sin audio')+'</div></div><div class="btn-row" style="margin-top:12px"><button class="btn btn-red" data-c="'+escA(c.id)+'" onclick="openStudio(this.dataset.c)">Practicar</button><button class="btn btn-ghost" onclick="openStudio()">Abrir</button></div>';
   else h+='<button class="btn btn-red" onclick="openStudio()">Abrir Posing Studio</button>';
   el.innerHTML=h+'</div>';}
+
+/* ════════ V48 · FOTOS DE LAS POSES ════════
+   Cada pose: agregar, cambiar o quitar su foto desde la lista (miniatura) o desde la hoja de la pose; se guarda al
+   momento. «Mis fotos» = las fotos que subes (almacén de archivos, tipo 'pose', con miniatura): se quedan para
+   reusarlas aunque cambies la foto de una pose y solo se borran cuando tú las borras (entonces se quitan de las poses
+   que la usaban). «Biblioteca» = las fotos de tus láminas (POSE_IMG): las que no te gustan se ocultan
+   (posePrefs.libOff, va en el respaldo) y se pueden restaurar. Ocultar solo afecta a Posing Studio. */
+var PS_LIBSETS=[['cp','Classic Physique'],['bb','Fisicoculturismo'],['mp','Men\'s Physique']];
+var _psPh={pid:null,manage:false,showOff:false};
+function _psLibOff(){var o=psPrefs().libOff;return (o&&typeof o==='object'&&!Array.isArray(o))?o:{};}
+function _psImgKey(img){return !img?'':img.media?('m:'+img.media):(img.set&&img.pid?img.set+':'+img.pid:'');}
+function _psKeyImg(k){if(!k)return null;if(k.indexOf('m:')===0)return {media:k.slice(2)};var x=k.split(':');return {set:x[0],pid:x[1]};}
+function _psImgUses(k){var n=0;psList().forEach(function(c){(c.poses||[]).forEach(function(p){if(_psImgKey(p.img)===k)n++;});});return n;}
+function _psImgClear(k){var a=psList();var n=0;a.forEach(function(c){var ch=false;(c.poses||[]).forEach(function(p){if(_psImgKey(p.img)===k){p.img=null;ch=true;n++;}});if(ch)c.updated=Date.now();});if(n)psSaveList(a);
+  if(_psImgKey(_psImgSel)===k){_psImgSel=null;_psImgRender();}return n;}
+/* miniatura en la lista del editor */
+function _psPthHtml(p){var src=p.img?_psLibImg(p.img):null;var inner=src?'<img src="'+src+'" alt="">':(p.img&&p.img.media?'<img alt="" data-m="'+escA(p.img.media)+'">':'<span>+</span>');
+  return '<button class="ps-pth'+(p.img?'':' none')+'" data-p="'+escA(p.id)+'" onclick="psPhotoOpen(this.dataset.p)" aria-label="'+(p.img?'Cambiar la foto de ':'Agregar foto a ')+escA(p.name)+'">'+inner+'</button>';}
+function _psThumbsFill(root){if(!root)return;Array.prototype.forEach.call(root.querySelectorAll('img[data-m]'),function(im){var id=im.getAttribute('data-m');mediaThumb(id).then(function(u){if(u)im.src=u;else{var b=im.parentNode;if(b){b.classList.add('none');b.innerHTML='<span>+</span>';}}});});}
+function _psReEdit(){if(_psView!=='edit')return;var b=document.getElementById('ps-body');var y=b?b.scrollTop:0;psRender();if(b)b.scrollTop=y;}
+function psUseAudioDur(){var c=psGet(_psCid);if(!c||!c.audio||!c.audio.dur)return;c.dur=Math.round(c.audio.dur*10)/10;_psDirty=true;psPut(c);_psReEdit();toast('Duración: '+_psT(c.dur));}
+/* hoja de fotos: con pose (agregar, cambiar o quitar su foto) o sin pose (administrar) */
+function psPhotoOpen(pid){_psPh={pid:pid||null,manage:!pid,showOff:false};_psPhRender();openSheet('sh-ps-photo');}
+function _psPhPose(){if(!_psPh.pid)return null;var c=psGet(_psCid);if(!c)return null;for(var i=0;i<c.poses.length;i++)if(c.poses[i].id===_psPh.pid)return c.poses[i];return null;}
+function _psPhRender(){var b=document.getElementById('psph-body');if(!b)return;var p=_psPhPose();var off=_psLibOff();var cur=p?_psImgKey(p.img):'';var M=_psPh.manage;
+  var t=document.getElementById('psph-title');if(t)t.textContent=p?'Foto · '+p.name:'Fotos de las poses';
+  var up=function(lbl,cls){return '<label class="btn '+cls+' btn-sm" style="flex:1">'+lbl+'<input type="file" class="fi-hide ps-ph-in" accept="image/*" onchange="psPhotoUp(this)"></label>';};
+  var h='';
+  if(p){h+='<div class="ps-img ps-img-ed" id="psph-cur"></div><div class="btn-row" style="margin:8px 0 6px">'+up(p.img?'Subir otra foto':'Subir foto','btn-red')+(p.img?'<button class="btn btn-danger btn-sm" style="flex:1" onclick="psPhotoSet(null)">Quitar foto</button>':'')+'</div>';
+    h+='<div class="card-sub" style="margin:0 2px 14px">O toca una de abajo. Se guarda al momento.</div>';}
+  else h+='<div class="hint" style="margin-bottom:12px">Sube tus fotos, borra las que no quieras y oculta las de la biblioteca que no te gusten. Para ponerle foto a una pose, toca su miniatura en Editar coreografía.</div><div class="btn-row" style="margin:0 0 14px">'+up('Subir foto','btn-red')+'</div>';
+  h+='<div class="ps-ph-hd"><div class="inp-lbl" style="margin:0">Mis fotos <span id="psph-mine-n" style="font-weight:400"></span></div><button class="lnk" id="psph-mng" onclick="_psPh.manage=!_psPh.manage;_psPhRender()">'+(M?'Listo':'Administrar')+'</button></div>';
+  h+='<div class="ps-thumbs ps-ph-grid" id="psph-mine"><div class="card-sub" style="grid-column:1/-1">Cargando…</div></div>';
+  PS_LIBSETS.forEach(function(st){var ids=(POSE_SETS[st[0]]||[]).filter(function(pid){return !!_psLibImg({set:st[0],pid:pid})&&!off[st[0]+':'+pid];});if(!ids.length)return;
+    h+='<div class="inp-lbl" style="margin:18px 0 6px">Biblioteca · '+st[1]+'</div><div class="ps-thumbs ps-ph-grid">';
+    ids.forEach(function(pid){var k=st[0]+':'+pid;var nm=(POSE_LIB[pid]||{}).name||pid;
+      h+='<div class="ps-thw"><button class="ps-th'+(cur===k?' on':'')+'" data-k="'+k+'" onclick="psPhotoPick(this.dataset.k,this)" aria-label="'+escA(nm)+'"><img src="'+_psLibImg({set:st[0],pid:pid})+'" alt=""></button>'+(M?'<button class="ps-thx" data-k="'+k+'" onclick="psLibHide(this.dataset.k)" aria-label="Ocultar '+escA(nm)+'">'+IC.x+'</button>':'')+'</div>';});
+    h+='</div>';});
+  var offK=Object.keys(off).filter(function(k){var x=k.split(':');return !!_psLibImg({set:x[0],pid:x[1]});});
+  if(offK.length){h+='<button class="lnk" id="psph-offbtn" style="margin:18px 0 6px;display:block" onclick="_psPh.showOff=!_psPh.showOff;_psPhRender()">'+(_psPh.showOff?'Cerrar fotos ocultas':'Fotos ocultas ('+offK.length+')')+'</button>';
+    if(_psPh.showOff){h+='<div class="ps-thumbs ps-ph-grid" id="psph-off">';offK.forEach(function(k){var x=k.split(':');h+='<div class="ps-thw off"><div class="ps-th"><img src="'+_psLibImg({set:x[0],pid:x[1]})+'" alt=""></div><button class="ps-thr" data-k="'+k+'" onclick="psLibShow(this.dataset.k)">Restaurar</button></div>';});h+='</div>';}}
+  h+='<div style="height:28px"></div>';
+  b.innerHTML=h;if(p)_psImgInto(document.getElementById('psph-cur'),p.img);_psPhMine(cur,M);}
+var _psPhSeq=0;
+function _psPhMine(cur,M){var seq=++_psPhSeq;mediaList().then(function(L){var el=document.getElementById('psph-mine');if(!el||seq!==_psPhSeq)return;
+  var mine=L.filter(function(x){return x.kind==='pose';}).sort(function(a,b){return (b.at||0)-(a.at||0);});
+  var n=document.getElementById('psph-mine-n');if(n)n.textContent=mine.length?'· '+mine.length+' · '+_mb(mine.reduce(function(t,x){return t+(x.size||0);},0)):'';
+  if(!mine.length){el.innerHTML='<div class="card-sub" style="grid-column:1/-1">Todavía no has subido fotos.</div>';return;}
+  el.innerHTML=mine.map(function(x){var k='m:'+x.id;return '<div class="ps-thw"><button class="ps-th'+(cur===k?' on':'')+'" data-k="'+escA(k)+'" onclick="psPhotoPick(this.dataset.k,this)" aria-label="Foto '+escA(x.name||'')+'"><img alt="" data-m="'+escA(x.id)+'"></button>'+(M?'<button class="ps-thx" data-m="'+escA(x.id)+'" onclick="psMineDel(this.dataset.m)" aria-label="Borrar foto">'+IC.x+'</button>':'')+'</div>';}).join('');
+  _psThumbsFill(el);});}
+function psPhotoPick(k,btn){var p=_psPhPose();if(!p){var im=btn&&btn.querySelector('img');var img=_psKeyImg(k);
+    if(img&&img.media)mediaURL(img.media).then(function(u){if(!u)return;var x=new Image();x.src=u;poseZoom(x);});else if(im)poseZoom(im);return;}
+  psPhotoSet(_psKeyImg(k));}
+function psPhotoSet(img){var c=psGet(_psCid);if(!c)return;var p=null;c.poses.forEach(function(x){if(x.id===_psPh.pid)p=x;});if(!p)return;
+  p.img=img?JSON.parse(JSON.stringify(img)):null;_psDirty=true;psPut(c);
+  if(_psPid===p.id){_psImgSel=p.img?JSON.parse(JSON.stringify(p.img)):null;_psImgRender();}
+  _psReEdit();closeSheet('sh-ps-photo');toast(img?'Foto puesta':'Foto quitada');}
+function psPoseImgDel(){if(!_psPid)return;_psPh={pid:_psPid,manage:false,showOff:false};psPhotoSet(null);}
+function _psIsImg(f){return !!f&&(/^image\//i.test(f.type||'')||/\.(jpe?g|png|heic|heif|webp|gif)$/i.test(f.name||''));}
+function psPhotoUp(input){var f=input.files&&input.files[0];input.value='';if(!f)return;
+  if(!_psIsImg(f)){toast('Ese archivo no es una foto');return;}if(f.size>25*1024*1024){toast('La foto pesa más de 25 MB');return;}
+  toast('Guardando foto…');var pid=_psPh.pid;
+  mediaPut(f,'pose').then(function(id){mediaThumb(id);if(pid&&_psPh.pid===pid&&_psPhPose())psPhotoSet({media:id});else{_psPhRender();toast('Foto guardada en Mis fotos');}},
+    function(e){toast(e&&e.message?e.message:'No se pudo guardar la foto');});}
+function psMineDel(id){var k='m:'+id;var n=_psImgUses(k);
+  confirmDlg('¿Borrar esta foto?','Se borra de este iPhone'+(n?' y se quita de '+n+(n===1?' pose':' poses'):'')+'.','Borrar',function(){_psImgClear(k);mediaDel(id);_psPhRender();_psReEdit();toast('Foto borrada');});}
+function psLibHide(k){var n=_psImgUses(k);var go=function(){var pr=psPrefs();var o=_psLibOff();o[k]=1;pr.libOff=o;S.set('posePrefs',pr);if(n)_psImgClear(k);_psPhRender();_psReEdit();toast(n?'Foto oculta y quitada de '+n+(n===1?' pose':' poses'):'Foto oculta · puedes restaurarla abajo');};
+  if(n)confirmDlg('¿Ocultar esta foto?','Deja de salir en la biblioteca y se quita de '+n+(n===1?' pose que la usa':' poses que la usan')+'. Después puedes volver a mostrarla en la biblioteca (las poses no la recuperan solas).','Ocultar',go);else go();}
+function psLibShow(k){var pr=psPrefs();var o=_psLibOff();delete o[k];pr.libOff=o;S.set('posePrefs',pr);_psPhRender();toast('Foto restaurada');}
 
 /* ════════ V45 · NUTRICIÓN: exportar lo consumido por fechas (TXT) ════════
    Como «Exportar progreso» del Gym: rango rápido (7 días, 2 semanas, 1 mes, 3 meses) o fechas propias.
