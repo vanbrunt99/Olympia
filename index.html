@@ -1315,7 +1315,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 46</div>
+  <div style="text-align:center;font-size:12px;color:var(--dim);padding:6px 0 10px">OLYMPIA 47</div>
 </div>
 
 </div><!-- /content -->
@@ -3770,7 +3770,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-46',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-47',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -4763,7 +4763,6 @@ function weightsTxt(){
   var prev=null;ord.forEach(function(k){var a=wk[k];var avg=a.reduce(function(x,y){return x+y;},0)/a.length;L.push('Semana del '+fmtDate(k)+': '+n1(avg)+' kg ('+a.length+' pesaje'+(a.length===1?'':'s')+')'+(prev!==null?' · '+sgn(avg-prev)+' kg':''));prev=avg;});
   L.push('');L.push('REGISTROS');L.push('Fecha | Día | Peso | Cambio | Nota');
   ws.forEach(function(w,i){var d=parseD(w.fecha);L.push(fmtDate(w.fecha)+' | '+DIAS[d.getDay()]+' | '+n1(+w.peso)+' kg | '+(i?sgn(+w.peso-ws[i-1].peso):'—')+(w.notas?' | '+w.notas:''));});
-  L.push('');L.push('Analiza mi tendencia de peso para mi preparación: ritmo actual, si voy bien para llegar a la meta y qué ajustarías.');
   return L.join('\n');
 }
 function exportWeightsTxt(){var t=weightsTxt();if(!t){toast('Todavía no tienes pesajes');return;}_shareTxt('Pesajes',t,'pesajes-'+today()+'.txt');}
@@ -5591,7 +5590,6 @@ function suppTxt(){
       items.push(s.n+(am?' ('+am+')':''));});
     if(items.length){anyDay=true;var dd=parseD(day);L.push(fmtDate(day)+' '+DIAS[dd.getDay()]+': '+items.join(' · '));}}
   if(!anyDay)L.push('Sin tomas registradas.');
-  L.push('');L.push('Analiza mi constancia y mis totales semanales de suplementación.');
   return L.join('\n');
 }
 
@@ -5671,7 +5669,6 @@ function bpTxt(){
   ord.forEach(function(k){var v=_bpAvg(wk[k]);L.push('Semana del '+fmtDate(k)+': '+_bpFmt(v)+' ('+v.n+' registro'+(v.n===1?'':'s')+')');});
   L.push('');L.push('REGISTROS');L.push('Fecha | Día | Hora | Presión | Pulso | Clasificación | Nota');
   a.forEach(function(r){var d=parseD(r.fecha);L.push(fmtDate(r.fecha)+' | '+DIAS[d.getDay()]+' | '+(r.hora||'—')+' | '+r.sis+'/'+r.dia+' mmHg | '+(r.pulso?r.pulso+' lpm':'—')+' | '+bpCat(r.sis,r.dia).t+(r.nota?' | '+r.nota:''));});
-  L.push('');L.push('Analiza mis registros de presión arterial durante mi preparación y dime si ves algo que deba revisar con mi médico.');
   return L.join('\n');
 }
 function exportBPTxt(){var t=bpTxt();if(!t){toast('Todavía no tienes registros de presión');return;}_shareTxt('Presión arterial',t,'presion-arterial-'+today()+'.txt');}
@@ -7238,7 +7235,6 @@ function gymProgressTxt(days){
     free.forEach(function(s){var f=s.free||{};var m=+(f.min!=null?f.min:s.dur)||0;tm+=m;if(f.cardio!==false)tc+=m;
       L.push('- '+_gxD(s.fecha)+' · '+(f.act||s.tipo||'Libre')+' · '+_numTxt(m)+' min'+(f.dist?' · '+f.dist:'')+(f.cardio===false?' · no cuenta como cardio':'')+(f.note?' · Notas: '+String(f.note).replace(/\s*\n\s*/g,' / '):''));});
     L.push('Total: '+free.length+(free.length===1?' entrenamiento':' entrenamientos')+' · '+_numTxt(tm)+' min'+(tc!==tm?' ('+_numTxt(tc)+' min cuentan como cardio)':''));}
-  L.push('');L.push('Revisa por ejercicio si voy subiendo, estancado o bajando de rendimiento, tomando en cuenta los dropsets.');
   return L.join('\n');
 }
 function exportGymTxt(){var r=_gxRange();if(!_gxSess(r).length){toast('No hay sesiones en ese rango');return;}var txt=gymProgressTxt(_gxDays);closeSheet('sh-gym-exp');_shareTxt('Progreso gym',txt,'progreso-gym-'+today()+'.txt');}
@@ -7448,7 +7444,6 @@ function healthTxt(days){
   L.push('');L.push('POR DÍA');L.push('Fecha | Día | Pasos | Distancia km | Calorías activas kcal | FC en reposo ppm');
   ds.forEach(function(d){if(!_hlDayHas(H,d))return;var x=H.d[d];
     L.push(fmtDate(d)+' | '+DIAS[parseD(d).getDay()]+' | '+(x.steps!=null?_hlInt(x.steps):'—')+' | '+(x.dist!=null?_hlKm(x.dist):'—')+' | '+(x.act!=null?_hlInt(x.act):'—')+' | '+(x.rhr!=null?_numTxt(Math.round(x.rhr*10)/10):'—'));});
-  L.push('');L.push('Analiza mi actividad diaria y la tendencia de mi FC en reposo durante la preparación. Las calorías activas son una estimación de Apple Salud, no mi gasto total: no ajustes mis calorías, macros ni cardio solo con estos datos.');
   return L.join('\n');
 }
 function exportHealthTxt(){var H=hlGet();if(!_hlRange(_hlDays).some(function(d){return _hlDayHas(H,d);})){toast('No hay datos en ese rango');return;}
@@ -7836,7 +7831,6 @@ function planTxt(plan){
   try{var pk=pkResolve(date);if(pk){var d=pk.day||{};var a=[];if(d.notes)a.push('Observaciones: '+d.notes);if(d.dist)a.push('Distribución: '+d.dist);if(d.wTimes)a.push('Agua, horarios: '+d.wTimes);if(d.wNotes)a.push('Agua, notas: '+d.wNotes);var tr=_pkTrainTxt(d.train);if(tr)a.push('Entrenamiento: '+tr+(d.train.notes?' — '+d.train.notes:''));if(d.supp&&d.supp.notes)a.push('Suplementos (notas): '+d.supp.notes);
     var lg=_pkLogGet(date);var sc=PK_SCALES.filter(function(s){return lg[s[0]];}).map(function(s){return s[1]+' '+lg[s[0]]+'/5';});if(sc.length)a.push('Seguimiento: '+sc.join(' · '));if(lg.visual)a.push('Condición visual: '+lg.visual);if(lg.notes)a.push('Notas: '+lg.notes);
     if(a.length){L.push('');L.push('PEAK WEEK '+pk.lbl+':');a.forEach(function(x){L.push('- '+x);});}}}catch(e){}
-  L.push('');L.push('Revisa este plan para mis metas. Si cambias algo, dime qué alimento, cuántos gramos y cómo quedan los macros y el sodio. No cuentes lo [preparado] como comido.');
   return L.join('\n');
 }
 /* PLAN OLYMPIA: el mismo formato que importa la app (con Na; "Na ?" = sin dato) */
@@ -7861,7 +7855,6 @@ function libraryTxt(){
     items.forEach(function(f){var n=naOf(f);L.push('- '+f.name+' — '+_baseTxt(f)+': '+_macTxt(+f.p||0,+f.c||0,+f.f||0,_kcalOf(f))+' · '+(n===null?'Na ?':'Na '+_numTxt(n)+' mg'+(f.sodSt==='est'?' (estimado)':''))+(f.unitG>0&&f.unitN?' (1 '+f.unitN+' = '+_numTxt(f.unitG)+' '+_mu(f)+')':''));});
   });
   L.push('');L.push('Na = sodio en mg de esa porción; "Na ?" = todavía sin dato (no es 0).');
-  L.push('Si me sugieres cambios a mi dieta, usa solo estos alimentos.');
   return L.join('\n');
 }
 
