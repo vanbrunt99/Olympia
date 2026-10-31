@@ -1080,8 +1080,22 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 .ps-cur-s{font-size:14px;color:var(--text2);margin-top:4px;min-height:18px;}
 .ps-play .ps-img{height:30vh;max-height:300px;margin:4px 0 8px;}
 .ps-count{text-align:center;}
-.ps-big{font-family:var(--fd);font-size:68px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
-.ps-next{text-align:center;font-size:15px;color:var(--acc-hi);margin:8px 0 12px;min-height:20px;}
+.ps-big{font-family:var(--fd);font-size:68px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;transition:color .2s;}
+.ps-count #psp-leftl{transition:color .2s;}
+/* V51 · últimos segundos antes de la siguiente pose: el contador se pone dorado (sin número encima de la foto) */
+.ps-count.soon .ps-big,.ps-count.soon #psp-leftl{color:var(--gold);}
+.ps-big.tk{animation:psTk .32s ease-out;}
+@keyframes psTk{from{transform:scale(1.06);}to{transform:scale(1);}}
+/* tarjeta «Siguiente» */
+.ps-next{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 14px;margin:10px 0 12px;min-height:54px;transition:border-color .2s,background-color .2s;}
+.ps-nx-m{flex:1;min-width:0;}
+.ps-nx-k{font:700 11px/1.3 var(--ft);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:color .2s;}
+.ps-nx-n{font:600 16.5px/1.25 var(--ft);color:var(--text);margin-top:1px;}
+.ps-nx-tr{flex-basis:100%;font-size:13px;line-height:1.35;color:var(--text2);}
+.ps-next.soon{border-color:rgba(200,169,107,.5);background-color:var(--golds);}
+.ps-next.soon .ps-nx-k{color:var(--gold);}
+.ps-next.last .ps-nx-n{color:var(--muted);font-weight:500;}
+.ps-next.empty{visibility:hidden;}
 .ps-tl-play{height:28px;cursor:pointer;}
 .ps-tl-play i{position:absolute;top:0;bottom:0;border-right:1px solid var(--bg);background:hsl(var(--h),26%,40%);}
 .ps-tl-play b{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1px;background:#fff;border-radius:2px;box-shadow:0 0 0 2px rgba(0,0,0,.35);}
@@ -1097,8 +1111,15 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 .ps-ctrl3 .seg{flex:1;margin:0;}
 .ps-goto{display:flex;gap:6px;flex:1;}
 .ps-goto .inp{min-height:44px;padding:0 10px;font-size:15px;}
-.ps-cd{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.9);font-family:var(--fd);font-size:150px;font-weight:700;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;z-index:5;}
-.ps-cd.on{opacity:.92;transform:translate(-50%,-50%) scale(1);}
+/* V51 · cuenta antes de empezar: cubre la pantalla debajo de la barra (atrás y cerrar siguen a la vista) */
+.ps-cd{position:absolute;left:0;right:0;bottom:0;top:calc(var(--safe-t) + 59px);z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px 6vh;background:rgba(8,10,14,.96);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,visibility 0s linear .18s;}
+.ps-cd.on{opacity:1;visibility:visible;transition:opacity .18s;}
+.ps-cd-k{font:700 13px var(--ft);letter-spacing:.26em;text-transform:uppercase;color:var(--gold);}
+.ps-cd-n{font-family:var(--fd);font-size:180px;font-weight:700;line-height:1;letter-spacing:-.04em;color:#fff;font-variant-numeric:tabular-nums;margin:12px 0 22px;animation:psCdIn .42s cubic-bezier(.2,.8,.2,1);}
+@keyframes psCdIn{from{transform:scale(1.18);}to{transform:scale(1);}}
+.ps-cd-pk{font-size:13px;color:var(--muted);}
+.ps-cd-p{font-family:var(--fd);font-size:22px;font-weight:650;letter-spacing:-.01em;color:var(--text);margin-top:4px;max-width:100%;}
+.ps-cd-r{font-size:13.5px;color:var(--text2);margin-top:12px;}
 .ps-flash{position:absolute;inset:0;pointer-events:none;border:0 solid transparent;z-index:6;transition:border-width .1s;}
 .ps-flash.on{border-width:10px;}
 .ps-flash.on.warn{border-color:rgba(200,169,107,.85);}
@@ -1106,7 +1127,7 @@ select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 .ps-flash.on.end{border-color:rgba(91,184,138,.9);}
 .ps-card .btn-row .btn{flex:1;}
 .ps-card-c{background:var(--card2);border-radius:14px;padding:12px 14px;}
-@media (prefers-reduced-motion:reduce){.ps-cd,.ps-flash{transition:none;}}
+@media (prefers-reduced-motion:reduce){.ps-cd,.ps-flash,.ps-big,.ps-next{transition:none;}.ps-cd-n,.ps-big.tk{animation:none;}}
 
 #pk-day-body .fold{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:2px 14px;margin:0 0 10px;}
 #pk-day-body .fold>.fold-hd{width:100%;min-height:48px;padding:0;}
@@ -1361,7 +1382,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 50</div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 51</div>
 </div>
 
 </div><!-- /content -->
@@ -3793,7 +3814,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-50',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-51',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -8340,7 +8361,8 @@ function _psHomeHtml(){var a=psList();var pr=psPrefs();var h='';
   h+='<div class="inp-lbl">Aviso anticipado</div><div class="seg" style="margin:0 0 12px">'+[[0,'Sin aviso'],[1,'1 s'],[2,'2 s'],[3,'3 s']].map(function(x){return '<button class="seg-i'+(pr.warn===x[0]?' on':'')+'" onclick="psSetPref(\'warn\','+x[0]+');psRender()">'+x[1]+'</button>';}).join('')+'</div>';
   var vib=!!(navigator.vibrate);
   [['beep','Sonido'],['count','Cuenta regresiva'],['voice','Voz (dice la siguiente pose)'],['flash','Aviso visual (destello)'],['vibe','Vibración']].forEach(function(x){var dis=x[0]==='vibe'&&!vib;
-    h+='<div class="adj-line" style="margin:0 0 8px"><div><div style="font-size:15.5px;color:var(--text)">'+x[1]+'</div>'+(dis?'<div class="card-sub">iOS no deja vibrar desde una app web: usa el destello</div>':'')+'</div><button class="sw'+(pr[x[0]]&&!dis?' on':'')+'"'+(dis?' disabled':'')+' role="switch" aria-checked="'+(!!pr[x[0]]&&!dis)+'" aria-label="'+x[1]+'" onclick="psSetPref(\''+x[0]+'\','+(!pr[x[0]])+');psRender()"><i></i></button></div>';});
+    var sub=dis?'iOS no deja vibrar desde una app web: usa el destello':x[0]==='count'?'3, 2, 1 en grande antes de empezar. Entre poses, el contador se pone dorado.':'';
+    h+='<div class="adj-line" style="margin:0 0 8px"><div><div style="font-size:15.5px;color:var(--text)">'+x[1]+'</div>'+(sub?'<div class="card-sub">'+sub+'</div>':'')+'</div><button class="sw'+(pr[x[0]]&&!dis?' on':'')+'"'+(dis?' disabled':'')+' role="switch" aria-checked="'+(!!pr[x[0]]&&!dis)+'" aria-label="'+x[1]+'" onclick="psSetPref(\''+x[0]+'\','+(!pr[x[0]])+');psRender()"><i></i></button></div>';});
   h+='</div>';
   /* historial */
   var ss=S.get('poseSessions',[]);ss=Array.isArray(ss)?ss:[];
@@ -8527,7 +8549,16 @@ function _psSync(ev){if(!PS||!PS.useAudio||!PS.audio)return;var a=PS.audio;var s
   else if(!a.paused&&!PS._unlock){try{a.pause();}catch(e){}}}
 function _psRun(){PS.base=PS.a;_psCountIn(function(){_psPlay();});}
 function _psCountIn(cb){if(!PS)return;var pr=psPrefs();if(!pr.count){if(pr.beep)_beep();cb();return;}PS.state='count';var n=3;var tick=function(){if(!PS||PS.state!=='count')return;_psCd(n>0?String(n):'');if(n>0){if(pr.beep)_beep();n--;PS._ci=setTimeout(tick,1000);}else{_psCd('');cb();}};_psUI(true);tick();}
-function _psCd(t){var el=document.getElementById('psp-cd');if(el){el.textContent=t;el.classList.toggle('on',!!t);}}
+/* V51 · la cuenta en grande es solo la de ANTES de empezar (al iniciar, reiniciar y después de cada descanso):
+   cubre la pantalla debajo de la barra, dice con qué pose empiezas y en qué repetición vas. Entre poses ya no sale
+   ningún número encima de la foto: avisa el contador de abajo, que se pone dorado (ver _psUI). */
+function _psCd(t){var el=document.getElementById('psp-cd');if(!el)return;
+  if(!t){if(el.innerHTML)el.innerHTML='';el.classList.remove('on');return;}
+  var sub='';if(PS&&PS.poses){var i=_psIdx(PS.base);var p=i>=0?PS.poses[i]:null;
+    if(!p)for(var k=0;k<PS.poses.length;k++)if(PS.poses[k].start>=PS.base-0.01){p=PS.poses[k];break;}
+    if(p)sub+='<div class="ps-cd-pk">Empiezas con</div><div class="ps-cd-p">'+escH(p.name)+'</div>';
+    if(PS.reps>1)sub+='<div class="ps-cd-r">Repetición '+Math.min(PS.rep,PS.reps)+' de '+PS.reps+'</div>';}
+  el.innerHTML='<div class="ps-cd-k">Prepárate</div><div class="ps-cd-n">'+escH(t)+'</div>'+sub;el.classList.add('on');}
 /* reloj: con música, la canción manda mientras avanza; si se congela, reloj propio desde el último punto conocido */
 function _psTime(){if(!PS)return 0;if(PS.state!=='play')return PS.base;if(PS.useAudio&&PS.audio)return _psAudClock();return PS.base+(PS.t0!==null?(performance.now()-PS.t0)/1000*PS.speed:0);}
 function _psAudClock(){var a=PS.audio,n=performance.now();if(PS._reloading)return PS.ka+(n-PS.kt)/1000*PS.speed;var ct=+a.currentTime;if(!isFinite(ct))ct=PS.lct;var t;
@@ -8591,7 +8622,7 @@ function _psAlerts(t){var pr=psPrefs();var ps=PS.poses;
   for(var i=0;i<ps.length;i++){var p=ps[i];if(p.start<=PS.a+0.01||p.start>=PS.b)continue;var w=(p.warn===null||p.warn===undefined)?pr.warn:+p.warn;
     var dt=(p.start-t)/PS.speed; /* segundos reales que faltan */
     if(!PS.warned['w'+i]&&w>0&&dt<=w&&dt>0){PS.warned['w'+i]=1;if(pr.voice)_psSay('Siguiente: '+p.name);if(pr.flash)_psFlash('warn');}
-    if(w>0&&pr.count&&dt>0&&dt<=w){var n=Math.ceil(dt);if(PS._lastCd!==n){PS._lastCd=n;_psCd(String(n));if(pr.beep)_beep();}}
+    if(w>0&&pr.count&&dt>0&&dt<=w){var n=Math.ceil(dt);if(PS._lastCd!==n){PS._lastCd=n;if(pr.beep)_beep();}}
     if(!PS.warned[i]&&t>=p.start-0.01){PS.warned[i]=1;PS._lastCd=null;_psCd('');if(pr.beep&&!(w>0&&pr.count))_beep();if(!w&&pr.voice)_psSay(p.name);if(pr.flash)_psFlash('go');if(pr.vibe&&navigator.vibrate)try{navigator.vibrate(120);}catch(e){}}}}
 function _psSay(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='es-MX';u.rate=1.05;speechSynthesis.speak(u);}catch(e){}}
 function _psFlash(k){var el=document.getElementById('ps-flash');if(!el)return;el.className='ps-flash on '+k;clearTimeout(el._t);el._t=setTimeout(function(){el.className='ps-flash';},380);}
@@ -8617,15 +8648,31 @@ function _psPlayHtml(){var c=PS.c;var segs='';var span=Math.max(0.1,PS.b-PS.a);
    +'<div class="ps-cd" id="psp-cd"></div></div>';}
 function _psIc(k){return k==='prev'?'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>':'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>';}
 function _psPlayAfter(){_psUI(true);}
+function _psSoon(on){var el=document.getElementById('psp-left');var w=el&&el.parentNode;if(w&&w.classList.contains('soon')!==on)w.classList.toggle('soon',on);}
+/* tarjeta «Siguiente» (sin tiempo: el único contador es el grande) · st: 0 normal · 1 última pose · 2 ya viene (dorada) · −1 vacía */
+function _psNextSet(k,n,tr,st){var el=document.getElementById('psp-next');if(!el)return;
+  var h=st<0?'':'<div class="ps-nx-m">'+(k?'<div class="ps-nx-k">'+escH(k)+'</div>':'')+'<div class="ps-nx-n">'+escH(n)+'</div></div>'+(tr?'<div class="ps-nx-tr">'+escH(tr)+'</div>':'');
+  if(el._h!==h){el._h=h;el.innerHTML=h;}
+  var c='ps-next'+(st===2?' soon':st===1?' last':st<0?' empty':'');if(el.className!==c)el.className=c;}
 function _psUI(force){if(!PS||!document.getElementById('psp-name'))return;var t=_psTime();var ps=PS.poses;var i=_psIdx(t);var g=function(id){return document.getElementById(id);};
   var pp=g('psp-pp');if(pp){var st=PS.state;pp.innerHTML=st==='play'?'<svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>':'<svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>';pp.classList.toggle('on',st==='play');}
   var rp=g('psp-rep');if(rp)rp.textContent=PS.reps>1?'Rep '+Math.min(PS.rep,PS.reps)+' de '+PS.reps:'';
-  if(PS.state==='rest'){var left=Math.max(0,Math.ceil((PS.restEnd-performance.now())/1000));g('psp-name').textContent='Descanso';g('psp-side').textContent='Sigue la repetición '+PS.rep+' de '+PS.reps;g('psp-left').textContent=_psT(left);g('psp-leftl').textContent='de descanso';var fp='';for(var k=0;k<ps.length;k++)if(ps[k].end>PS.a){fp=ps[k].name;break;}g('psp-next').textContent='Empieza con: '+fp;PS.lastIdx=-3;}
+  if(PS.state==='rest'){var left=Math.max(0,Math.ceil((PS.restEnd-performance.now())/1000));g('psp-name').textContent='Descanso';g('psp-side').textContent='Sigue la repetición '+PS.rep+' de '+PS.reps;g('psp-left').textContent=_psT(left);g('psp-leftl').textContent='de descanso';var fp='';for(var k=0;k<ps.length;k++)if(ps[k].end>PS.a){fp=ps[k].name;break;}_psNextSet('Empiezas con',fp,'',0);_psSoon(false);PS.lastIdx=-3;}
   else if(i!==PS.lastIdx||force){PS.lastIdx=i;var p=i>=0?ps[i]:null;g('psp-name').textContent=PS.state==='done'?'Terminaste':p?p.name:(t<PS.a+0.01?'Listo':'Transición');g('psp-side').textContent=p?[p.side?_psSideName(p.side):'',p.notes].filter(Boolean).join(' · '):'';
-    _psImgInto(g('psp-img'),p?p.img:null);g('psp-leftl').textContent=p?'en esta pose':'';}
-  if(PS.state!=='rest'){var p2=i>=0?ps[i]:null;var lf=p2?Math.max(0,(Math.min(p2.end,PS.b)-t)/PS.speed):0;var el=g('psp-left');var lt=p2?_psT(Math.ceil(lf)):'';if(el&&el.textContent!==lt)el.textContent=lt;
+    _psImgInto(g('psp-img'),p?p.img:null);}
+  if(PS.state!=='rest'){var p2=i>=0?ps[i]:null;
     var nx=null;for(var k=0;k<ps.length;k++)if(ps[k].start>t+0.01&&ps[k].start<PS.b){nx=ps[k];break;}
-    var nt=g('psp-next');if(nt){var tx=nx?'Siguiente: '+nx.name+' · en '+_psT(Math.ceil((nx.start-t)/PS.speed))+(nx.trans?' · '+nx.trans:''):(PS.state==='done'?'':'Última pose');if(p2&&p2.trans&&!nx)tx+=' · '+p2.trans;if(nt.textContent!==tx)nt.textContent=tx;}}
+    /* los últimos segundos antes de la siguiente pose (mismo «aviso anticipado» que el sonido): el contador se pone
+       dorado y cuenta hacia ella; en un hueco entre poses también cuenta hacia la siguiente */
+    var pr=psPrefs();var dn=nx?(nx.start-t)/PS.speed:0;var w=nx?((nx.warn===null||nx.warn===undefined)?pr.warn:+nx.warn):0;
+    var soon=!!nx&&PS.state==='play'&&!!pr.count&&w>0&&dn>0&&dn<=w;
+    var lt='',ll='';if(nx&&(soon||!p2)&&PS.state!=='done'){lt=_psT(Math.ceil(dn));ll='para la siguiente pose';}
+    else if(p2){lt=_psT(Math.ceil(Math.max(0,(Math.min(p2.end,PS.b)-t)/PS.speed)));ll='en esta pose';}
+    var el=g('psp-left');if(el&&el.textContent!==lt){el.textContent=lt;if(soon){el.classList.remove('tk');void el.offsetWidth;el.classList.add('tk');}}
+    var l2=g('psp-leftl');if(l2&&l2.textContent!==ll)l2.textContent=ll;_psSoon(soon);
+    if(nx)_psNextSet('Siguiente',nx.name,nx.trans||'',soon?2:0);
+    else if(PS.state==='done')_psNextSet('','','',-1);
+    else _psNextSet('','Última pose',p2&&p2.trans?p2.trans:'',1);}
   var span=Math.max(0.1,PS.b-PS.a);var hd=g('psp-head');if(hd)hd.style.left=Math.max(0,Math.min(100,(t-PS.a)/span*100))+'%';
   var e1=g('psp-el');if(e1)e1.textContent=_psT(Math.floor(Math.max(0,t-PS.a)));var e2=g('psp-rem');if(e2)e2.textContent='−'+_psT(Math.ceil(Math.max(0,PS.b-t)/PS.speed))+' total';
   var dn=g('psp-done');if(dn){if(PS.state==='done'&&!dn.dataset.on){dn.dataset.on='1';dn.innerHTML='<div class="card" style="margin:14px 0 0;padding:14px 16px"><div class="card-title" style="font-size:17px">Terminaste</div><div class="card-sub">'+PS.doneReps+(PS.doneReps===1?' repetición':' repeticiones')+' · '+_psT(Math.round(PS.played))+' de práctica · guardado en tu historial</div><div class="fgroup" style="margin-top:10px"><input class="inp" id="psp-note" placeholder="Nota de la sesión (opcional)"></div><div class="btn-row"><button class="btn btn-ghost" onclick="psSaveNote()">Guardar nota</button><button class="btn btn-red" onclick="psRestart();var d=document.getElementById(\'psp-done\');d.dataset.on=\'\';d.innerHTML=\'\'">Otra vez</button></div></div>';}else if(PS.state!=='done'&&dn.dataset.on){dn.dataset.on='';dn.innerHTML='';}}}
