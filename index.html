@@ -1183,6 +1183,34 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
 .card,.sheet-body{overflow-wrap:break-word;}
 /* V50 · en «Fuera de etapa o de fechas» el motivo se lee completo */
 .rtn-org.off{white-space:normal;}
+/* ── V52 · importar varios días ── */
+.imp-nrow{margin:0 0 12px;background:var(--card);border-radius:14px;padding:8px 10px 8px 14px;}
+.imp-nrow-t{font-size:15.5px;font-weight:600;color:var(--text);}
+.imp-nrow .card-sub{font-size:12.5px;}
+.imp-nrow .num-row{gap:6px;flex-shrink:0;}
+.imp-nrow .num-btn{width:40px;height:40px;}
+.imp-nrow .num-btn:disabled{opacity:.35;cursor:default;}
+.imp-n-inp{width:44px;min-width:44px;height:40px;border:none;border-radius:10px;background:transparent;padding:0;margin:0;color:var(--text);-webkit-appearance:none;appearance:none;}
+.imp-n-inp:focus{outline:none;background:var(--card2);}
+.imp-n-inp:disabled{opacity:1;color:var(--text);-webkit-text-fill-color:var(--text);}
+#imp-mode .seg-i{font-size:14px;min-height:36px;padding:0 6px;}
+.imp-dl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 14px;margin:0 0 12px;}
+.imp-dl-r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);}
+.imp-dl-r:last-child{border-bottom:none;}
+.imp-dl-d{color:var(--text);font-weight:600;font-size:14.5px;white-space:nowrap;}
+.imp-dl-v{color:var(--text2);font-size:13px;text-align:right;}
+.imp-dl-v b,.imp-day-w b{color:var(--gold);font-weight:600;}
+.imp-day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px;margin:0 0 8px;}
+.imp-day>.fold-hd{padding:11px 0;align-items:center;}
+.imp-day .fold-t{display:flex;flex-direction:column;gap:2px;}
+.imp-day-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.imp-day-d{font-weight:600;font-size:15.5px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.imp-day-l{font-weight:500;font-size:12.5px;color:var(--muted);}
+.imp-day-k{font-weight:700;font-size:15px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.imp-day-m{font-size:12.5px;color:var(--text2);font-variant-numeric:tabular-nums;}
+.imp-day-w{font-size:12.5px;color:var(--muted);}
+.imp-day-w:empty{display:none;}
+.imp-day>.fold-body{padding:0 0 6px;}
 
 </style>
 </head>
@@ -1382,7 +1410,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 51</div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 52</div>
 </div>
 
 </div><!-- /content -->
@@ -1814,17 +1842,19 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
   </div></div></div>
 
 <div class="sheet-ov" id="sh-import"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
-  <div class="sheet-hd"><div class="sheet-title">Importar plan del día</div><button class="sheet-close" onclick="closeSheet('sh-import')" aria-label="Cerrar"></button></div>
+  <div class="sheet-hd"><div class="sheet-title" id="imp-title">Importar plan del día</div><button class="sheet-close" onclick="closeSheet('sh-import')" aria-label="Cerrar"></button></div>
   <div class="sheet-body">
     <div class="hint">Pega el plan que te dio ChatGPT y la app arma tu Plan del día con esas comidas, donde marcas cada alimento o «Comí todo». Funciona aunque el texto venga todo en una sola línea.</div>
-    <div class="fgroup"><div class="inp-lbl">Día</div><input type="date" class="inp" id="imp-date" onchange="impDateChanged()"></div>
+    <div class="fgroup"><div class="inp-lbl" id="imp-date-l">Día</div><input type="date" class="inp" id="imp-date" onchange="impDateChanged()"></div>
+    <div class="adj-line imp-nrow"><div style="min-width:0"><div class="imp-nrow-t">Días</div><div class="card-sub" id="imp-range">Solo ese día</div></div><div class="num-row"><button type="button" class="num-btn" id="imp-n-m" onclick="impSetN(-1)" aria-label="Menos días" disabled>−</button><input type="text" class="num-val imp-n-inp" id="imp-n" value="1" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Número de días" onfocus="var e=this;setTimeout(function(){try{e.setSelectionRange(0,9);}catch(x){}},0)" oninput="impNInput(this)" onblur="impNBlur(this)"><button type="button" class="num-btn" id="imp-n-p" onclick="impSetN(1)" aria-label="Más días">+</button></div></div>
+    <div class="seg" id="imp-mode" style="display:none;margin:0 0 12px"><button type="button" class="seg-i on" data-m="rep" onclick="impSetMode('rep')">Repetir el mismo menú</button><button type="button" class="seg-i" data-m="dist" onclick="impSetMode('dist')">Un menú por día</button></div>
     <button class="btn btn-line btn-sm" style="width:100%;margin:0 0 12px" onclick="toggleImportPrompt()">Ver el prompt para ChatGPT</button>
     <div id="imp-prompt-box" style="display:none;margin:0 0 14px">
       <textarea class="inp" id="imp-prompt-txt" rows="7" readonly onclick="this.select()"></textarea>
       <button class="btn btn-ghost" style="margin-top:8px" onclick="copyImportPrompt()">Copiar el prompt</button>
     </div>
     <div class="fgroup"><div class="inp-lbl">Pega aquí el plan</div><textarea class="inp" id="imp-text" rows="7" placeholder="PLAN OLYMPIA&#10;Fecha: 2026-10-15&#10;# Desayuno&#10;- Avena | 80 g | P 10 | C 54 | G 6 | 300 kcal" oninput="previewImport()"></textarea></div>
-    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Reemplazar lo del día</div><div class="card-sub" style="font-size:12.5px">Borra también lo que registraste a mano ese día. El plan importado anterior siempre se reemplaza.</div></div><button class="sw" id="imp-wipe" role="switch" aria-checked="false" onclick="impToggleWipe()"><i></i></button></div>
+    <div class="adj-line" style="margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)" id="imp-wipe-l">Reemplazar lo del día</div><div class="card-sub" style="font-size:12.5px" id="imp-wipe-s">Borra también lo que registraste a mano ese día. El plan importado anterior siempre se reemplaza.</div></div><button class="sw" id="imp-wipe" role="switch" aria-checked="false" onclick="impToggleWipe()"><i></i></button></div>
     <div id="imp-preview" style="margin-bottom:14px"></div>
     <button class="btn btn-red" id="imp-go" onclick="doImport()" disabled>Importar al plan del día</button>
   </div></div></div>
@@ -3814,7 +3844,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-51',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-52',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -6812,11 +6842,81 @@ var IMPORT_PROMPT=[
 ''
 ].join('\n');
 
+/* ════════ V52 · VARIOS DÍAS ════════
+   «Días» en la hoja de importar. Con 1 todo es el import de siempre (mismo prompt, misma lectura).
+   Con 2 o más: «Repetir el mismo menú» copia el menú del texto en días seguidos desde el día elegido, o
+   «Un menú por día» cambia el prompt para que ChatGPT mande un PLAN OLYMPIA por fecha.
+   Si el texto trae varios menús (PLAN OLYMPIA / Fecha / Día 1 / jueves 6 de noviembre…) se detecta solo y cada
+   menú va a su día. Cada día se importa con las reglas de un día (reemplaza el plan importado de ese día, conserva
+   lo manual salvo «Reemplazar», pide confirmar si quita algo ya comido). Nunca toca días fuera de esos. */
+var IMP_MAXD=31;var _impN=1,_impMode='rep',_impOpen={};
+function _impPromptMulti(n,start){var ds=[];for(var i=0;i<n;i++)ds.push(addDays(start,i));
+  var lst=ds.length===1?ds[0]:ds.slice(0,-1).join(', ')+' y '+ds[ds.length-1];
+  return [
+'Quiero que me entregues mi plan de comidas para '+n+' días, con un menú distinto para cada día, en un formato de texto plano que mi app pueda importar. Las fechas son: '+lst+'. Respeta EXACTAMENTE este formato, sin tablas, sin negritas, sin emojis y sin texto adicional, y repite el bloque completo una vez por cada día:',
+'',
+'PLAN OLYMPIA',
+'Fecha: AAAA-MM-DD',
+'# Nombre de la comida',
+'- Alimento | cantidad | P proteína | C carbohidratos | G grasa | Na sodio mg | kcal kcal',
+'',
+'Reglas:',
+'1. Cada día empieza con la línea "PLAN OLYMPIA" y debajo "Fecha:" con la fecha de ese día en formato AAAA-MM-DD, en el orden de la lista. Deja una línea en blanco entre un día y el siguiente.',
+'2. Una línea que empiece con "# " por cada comida. Usa estos nombres cuando apliquen: Desayuno, Pre-entreno, Almuerzo, Snack, Post-entreno, Cena.',
+'3. Una línea que empiece con "- " por cada alimento, separando los campos SOLO con la barra "|" (no uses "·", comas ni guiones), en este orden: nombre | cantidad | P | C | G | Na | kcal.',
+'4. La cantidad va en gramos (g), mililitros (ml) o unidades (por ejemplo "2 huevos" o "150 g").',
+'5. P, C y G son los gramos TOTALES de esa porción (no por 100 g). kcal es opcional; si lo pones, déjalo como "320 kcal".',
+'6. Na es el SODIO en miligramos de esa porción (no la sal): escríbelo como "Na 150 mg". Si no lo sabes con confianza escribe "Na ?"; no lo inventes.',
+'7. Usa punto decimal, nunca coma. No agregues totales, comentarios ni ninguna línea fuera de este formato.',
+'8. Entrega los '+n+' días completos en una sola respuesta, sin resumirlos ni cortarlos.',
+'',
+'Ejemplo del inicio de un día:',
+'PLAN OLYMPIA',
+'Fecha: '+ds[0],
+'# Desayuno',
+'- Avena en hojuelas | 80 g | P 10 | C 54 | G 6 | Na 5 mg | 300 kcal',
+'- Claras de huevo | 200 g | P 22 | C 2 | G 0 | Na 330 mg | 100 kcal',
+''].join('\n');}
+/* el prompt de un día es el de siempre; solo «Un menú por día» con 2+ días usa el de varios días */
+function _impPromptFor(){return (_impN>1&&_impMode==='dist')?_impPromptMulti(_impN,_impStart()):IMPORT_PROMPT;}
+function _impStart(){return _impDate(_v('imp-date'))||foodLogDate||today();}
+function _impWipeOn(){var w=document.getElementById('imp-wipe');return !!(w&&w.classList.contains('on'));}
+function _impDd(d){var x=parseD(d);return DIAS[x.getDay()]+' '+x.getDate()+' '+MESES[x.getMonth()].slice(0,3)+(x.getFullYear()!==parseD(today()).getFullYear()?' '+x.getFullYear():'');}
+/* primer día de un menú del texto: el mismo cálculo que usa importar (día de arriba, fecha del texto si no pasó, o el día abierto) */
+function _impDay1(r){return _impDate(_v('imp-date'))||(r&&r.date&&r.date>=today()?r.date:'')||foodLogDate||today();}
+function _impRangeTxt(ds){if(!ds.length)return '';if(ds.length===1)return 'el '+_impDd(ds[0]);
+  var seq=ds.every(function(d,i){return !i||d===addDays(ds[i-1],1);});
+  if(seq){var a=parseD(ds[0]),b=parseD(ds[ds.length-1]);var same=a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear();
+    return 'del '+DIAS[a.getDay()]+' '+a.getDate()+(same?'':' '+MESES[a.getMonth()].slice(0,3))+' al '+_impDd(ds[ds.length-1]);}
+  return ds.map(_impDd).join(' · ');}
+function impSetN(d){_impN=Math.max(1,Math.min(IMP_MAXD,(_impN||1)+d));var i=document.getElementById('imp-n');if(i)i.value=String(_impN);previewImport();}
+function impNInput(el){var v=parseInt(String(el.value||'').replace(/\D/g,''),10);if(v>0){var n=Math.min(IMP_MAXD,v);if(v>IMP_MAXD)el.value=String(IMP_MAXD);if(n!==_impN){_impN=n;previewImport();}}}
+function impNBlur(el){el.value=String(_impN);}
+function impSetMode(m){_impMode=m==='dist'?'dist':'rep';previewImport();}
+/* título, etiquetas, contador y botón según lo que se va a importar · o={n,k,multi,sub} */
+function _impUI(o){var g=function(id){return document.getElementById(id);};var n=o.n,k=o.k,multi=!!o.multi;
+  var inp=g('imp-n');if(inp){if(document.activeElement!==inp||multi)inp.value=String(n);inp.disabled=multi;}
+  var bm=g('imp-n-m'),bp=g('imp-n-p');if(bm)bm.disabled=multi||n<=1;if(bp)bp.disabled=multi||n>=IMP_MAXD;
+  var L=g('imp-date-l');if(L)L.textContent=n>1?'Desde':'Día';
+  var sg=g('imp-mode');if(sg){sg.style.display=(!multi&&_impN>1)?'':'none';var bs=sg.querySelectorAll('.seg-i');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].getAttribute('data-m')===_impMode);}
+  var rg=g('imp-range');if(rg)rg.textContent=o.sub||'';
+  var t=g('imp-title');if(t)t.textContent=n>1?'Importar plan de '+n+' días':'Importar plan del día';
+  var go=g('imp-go');if(go)go.textContent=k>1?'Importar '+k+' días':'Importar al plan del día';
+  var wl=g('imp-wipe-l');if(wl)wl.textContent=k>1?'Reemplazar lo de esos días':'Reemplazar lo del día';
+  var ws=g('imp-wipe-s');if(ws)ws.textContent=k>1?'Borra también lo que registraste a mano esos días. El plan importado anterior siempre se reemplaza.':'Borra también lo que registraste a mano ese día. El plan importado anterior siempre se reemplaza.';
+  var pb=g('imp-prompt-box'),ta=g('imp-prompt-txt');if(pb&&ta&&pb.style.display==='block'){var pt=_impPromptFor();if(ta.value!==pt)ta.value=pt;}
+}
+/* sin texto o con un solo menú: lo que dicen el contador y el modo */
+function _impUI1(k,s0){var s=s0||_impStart();var ds=[];for(var i=0;i<_impN;i++)ds.push(addDays(s,i));
+  var sub=_impN<2?'Solo ese día':(_impMode==='dist'?'Un menú distinto por día, ':'El mismo menú, ')+_impRangeTxt(ds);
+  _impUI({n:_impN,k:k,multi:false,sub:sub});}
+
 var _impDateTouched=false;
 function impDateChanged(){_impDateTouched=true;previewImport();}
-function openImport(){_impDateTouched=false;
+function openImport(){_impDateTouched=false;_impN=1;_impMode='rep';_impOpen={};
   var e=document.getElementById('imp-date');if(e)e.value=foodLogDate;
   var t=document.getElementById('imp-text');if(t)t.value='';
+  var n=document.getElementById('imp-n');if(n)n.value='1';
   var w=document.getElementById('imp-wipe');if(w){w.classList.remove('on');w.setAttribute('aria-checked','false');}
   var pb=document.getElementById('imp-prompt-box');if(pb)pb.style.display='none';
   previewImport();openSheet('sh-import');
@@ -6824,9 +6924,9 @@ function openImport(){_impDateTouched=false;
 function toggleImportPrompt(){
   var pb=document.getElementById('imp-prompt-box');if(!pb)return;
   var show=pb.style.display==='none'||!pb.style.display;pb.style.display=show?'block':'none';
-  var ta=document.getElementById('imp-prompt-txt');if(ta&&show)ta.value=IMPORT_PROMPT;
+  var ta=document.getElementById('imp-prompt-txt');if(ta&&show)ta.value=_impPromptFor();
 }
-function copyImportPrompt(){_copyTxt(IMPORT_PROMPT,'Prompt copiado · pégalo en ChatGPT');}
+function copyImportPrompt(){_copyTxt(_impPromptFor(),'Prompt copiado · pégalo en ChatGPT');}
 function _copyTxt(txt,msg){
   var ok=function(){toast(msg||'Copiado');};
   try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,function(){_copyFb(txt,ok);});return;}}catch(e){}
@@ -6950,6 +7050,75 @@ function parseMealImport(text){
     used[nm.toLowerCase()]=1;m.name=nm;delete m.raw;});
   return {date:date,meals:meals,bad:bad,totals:tot};
 }
+/* ── V52: un texto con varios menús. Un menú nuevo empieza en una marca de día (PLAN OLYMPIA, Fecha:, Día 2,
+   «Jueves 6 de noviembre», «## Lunes – pierna») que llega DESPUÉS de algún alimento; las marcas de arriba son del
+   mismo menú. Solo cuenta como menú un bloque con marca de día Y encabezado de comida (Desayuno, Almuerzo, Cena…):
+   así una introducción, un resumen o una nota después del plan nunca se vuelven otro día. «Menú 2» u «Opción 2» no
+   son marcas (casi siempre son alternativas del mismo día). Si queda un solo menú, se lee como siempre con
+   parseMealImport(texto completo). */
+var _IMP_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var _IMP_MESRX='(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|ene|feb|mar|abr|may|jun|jul|ago|sep|set|oct|nov|dic)';
+var _IMP_DOWS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+function _impDow(s){var m=_impStrip(s).match(/\b(domingo|lunes|martes|miercoles|jueves|viernes|sabado)\b/);return m?_IMP_DOWS.indexOf(m[1]):-1;}
+function _impDateEs(s){var m=_impStrip(s).match(new RegExp('(\\d{1,2})\\s*(?:de\\s+)?'+_IMP_MESRX+'\\b\\.?(?:\\s*(?:de|del)?\\s*(\\d{4}))?'));if(!m)return '';
+  var k=m[2].slice(0,3);var mi=_IMP_MES.indexOf(k==='set'?'sep':k);var y=m[3]?+m[3]:parseD(today()).getFullYear();
+  var f=function(y){var r=y+'-'+('0'+(mi+1)).slice(-2)+'-'+('0'+m[1]).slice(-2);return dStr(parseD(r))===r?r:'';};
+  var r=f(y);if(r&&!m[3]&&r<addDays(today(),-120))r=f(y+1);return r;}
+function _impMarkDate(s){return _impDate(s)||_impDateEs(s);}
+function _impDayMark(t){
+  var raw=String(t||'');var hdr=/^\s*(#|\*\*|__)/.test(raw);
+  var s=raw.replace(/\*\*|__/g,'').replace(/^[\s#>*=•·\-–—]+/,'').trim();if(!s||s.indexOf('|')>=0)return null;
+  var low=_impStrip(s);
+  if(/^plan\s+olympia\b/.test(low)){var rest=s.replace(/^plan\s+olympia\b[\s:·\-–—]*/i,'');var dm=rest?_impDayMark(rest):null;return {k:'plan',lbl:dm&&dm.k==='dia'?dm.lbl:'',date:_impMarkDate(rest)};}
+  if(/^fecha\s*[:=]/.test(low))return {k:'fecha',lbl:'',date:_impMarkDate(s)};
+  if(_impMacN(s)>=2||s.length>60)return null;
+  if(/^dia\s*\d{1,2}\b/.test(low))return {k:'dia',lbl:s.replace(/[\s:.\-–—]+$/,''),date:_impMarkDate(s)};
+  if(/^(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b/.test(low)){
+    /* «jueves», «jueves 6 de noviembre», «jueves 06/11/2026»; con más palabras solo si es encabezado («## Lunes – pierna») */
+    var r=low.replace(/^(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b/,'').replace(/\b(de|del)\b/g,'').replace(new RegExp('\\b'+_IMP_MESRX+'\\b','g'),'').replace(/[\d\s,.:;()\[\]\/\-–—]+/g,'');
+    if(!r||(hdr&&s.length<=40))return {k:'dia',lbl:s.replace(/[\s:.\-–—]+$/,''),date:_impMarkDate(s)};}
+  return null;}
+/* encabezado de comida para separar días: «# Desayuno», «Almuerzo:», «## Cena (post)»; no una frase larga */
+function _impIsMealHd(t){if(t.indexOf('|')>=0||_impMacN(t)>=2)return false;var s=t.replace(/\*\*|__/g,'').replace(/^[\s#>*\-]+/,'').replace(/[\s:]+$/,'').trim();
+  return !!s&&s.length<=40&&(_impMealCanon(s)!=null||/^comida\s*\d{1,2}\b/.test(_impStrip(s)));}
+function _impSplitDays(text){
+  var raw=String(text||'').replace(/\u00a0/g,' ').replace(/\r/g,'');
+  /* texto en una sola línea: cada «PLAN OLYMPIA», «Fecha:» y «#» empiezan renglón (parseMealImport hace lo mismo) */
+  raw=raw.replace(/[ \t]*\b(plan\s+olympia)\b/gi,'\n$1').replace(/[ \t]+(fecha\s*[:=])/gi,'\n$1').replace(/\s*#\s*/g,'\n# ');
+  var bl=[];var nb=function(){return {lines:[],n:0,mk:false,hd:false,lbl:'',date:''};};var cur=nb();
+  raw.split('\n').forEach(function(l){var mk=_impDayMark(l);
+    if(mk){if(cur.n>0){bl.push(cur);cur=nb();}cur.mk=true;if(mk.lbl&&!cur.lbl)cur.lbl=mk.lbl;if(mk.date&&!cur.date)cur.date=mk.date;cur.lines.push(l);return;}
+    var t=l.trim();var lead=t.replace(/\s+-\s+.*$/,'');if(_impIsMealHd(lead))cur.hd=true;
+    if(t.indexOf('|')>=0||_impMacN(t)>=2)cur.n++;
+    cur.lines.push(l);});
+  bl.push(cur);
+  return bl.filter(function(b){return b.n>0&&b.mk&&b.hd;}).map(function(b){return {lbl:b.lbl,date:b.date,text:b.lines.join('\n')};});}
+/* varios menús → [{r,lbl,tdate}] (cada uno leído con el parser de siempre); null si hay uno solo.
+   Dos bloques con la misma fecha son el mismo día (ChatGPT se cortó y siguió, o se pegó dos veces): se juntan. */
+function _impMulti(raw){var bl=_impSplitDays(raw);if(bl.length<2)return null;var g=[],at={};
+  bl.forEach(function(b){var r=parseMealImport(b.text);var d=r.date||b.date||'';
+    if(d&&at[d]!==undefined){var o=g[at[d]];o.text+='\n'+b.text;o.r=parseMealImport(o.text);return;}
+    if(d)at[d]=g.length;g.push({r:r,lbl:b.lbl,tdate:d,text:b.text});});
+  if(g.length<2)return null;var out=[];
+  g.forEach(function(o){var r=o.r;
+    /* una línea «Día 2: 2,003 kcal · P 195…» es un resumen, no un alimento */
+    r.meals.forEach(function(m){m.items=m.items.filter(function(it){if(_impDayMark(it.name)){r.totals++;return false;}return true;});});
+    r.meals=r.meals.filter(function(m){return m.items.length;});
+    if(_impTotals(r).n)out.push({r:r,lbl:o.lbl,tdate:o.tdate});});
+  return out.length>1?out:null;}
+/* a qué día va cada menú: a la fecha del texto si cada uno trae la suya (de hoy en adelante) y no cambiaste el día
+   de arriba; si los menús son «Lunes», «Martes»… sin fecha, al siguiente día de la semana que toca desde el de
+   arriba; si no, a días seguidos desde el día de arriba. Ordenados por fecha. */
+function _impAssign(M){var t=today();var td=M.map(function(d){return d.tdate||'';});
+  var all=td.every(function(x){return !!x;});var past=td.some(function(x){return x&&x<t;});
+  var useText=all&&!past&&!_impDateTouched;var days;var s=_impStart();
+  var wd=M.map(function(d){return _impDow(d.lbl);});var byDow=!td.some(Boolean)&&wd.every(function(x){return x>=0;});
+  if(useText){days=M.map(function(d){return {r:d.r,lbl:d.lbl,date:d.tdate};}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+    var de=document.getElementById('imp-date');if(de&&de.value!==days[0].date)de.value=days[0].date;}
+  else if(byDow){var c=s;days=M.map(function(d,i){var k=0;while(parseD(c).getDay()!==wd[i]&&k<7){c=addDays(c,1);k++;}var o={r:d.r,lbl:d.lbl,date:c};c=addDays(c,1);return o;});}
+  else days=M.map(function(d,i){return {r:d.r,lbl:d.lbl,date:addDays(s,i)};});
+  var moved=!useText&&td.some(function(x,i){return x&&x!==days[i].date;});
+  return {days:days,useText:useText,moved:moved,past:past,byDow:byDow};}
 /* cantidad "160 g" / "200 ml" / "3 huevos" → amt + tipo para armar el ítem del plan */
 function _impSingular(w){w=String(w||'');if(/ces$/i.test(w))return w.replace(/ces$/i,'z');if(/es$/i.test(w)&&w.length>4)return w.slice(0,-2);if(/s$/i.test(w)&&w.length>3)return w.slice(0,-1);return w;}
 function _impQty(s){s=String(s||'').trim().replace(/½/g,' 1/2').replace(/¼/g,' 1/4').replace(/¾/g,' 3/4').replace(/^\s+/,'');
@@ -6981,10 +7150,13 @@ function _impEffect(date,wipe){var old=getPlan(date);var kill={};var oldN=0;
 function _impTotals(r){var t={p:0,c:0,f:0,k:0,n:0};r.meals.forEach(function(m){m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;t.p+=p;t.c+=c;t.f+=f;t.k+=(it.k>0?it.k:_kcal(p,c,f));t.n++;});});t.p=r1(t.p);t.c=r1(t.c);t.f=r1(t.f);t.k=r1(t.k);return t;}
 function previewImport(){
   var el=document.getElementById('imp-preview');var go=document.getElementById('imp-go');if(!el)return;
-  var raw=_v('imp-text')||'';if(!raw.trim()){el.innerHTML='<div class="hint" style="margin:0">Pega arriba el plan que te dio ChatGPT y te muestro cómo quedará el plan del día antes de importarlo.</div>';if(go)go.disabled=true;return;}
+  var raw=_v('imp-text')||'';
+  var M=raw.trim()?_impMulti(raw):null;if(M){_impPrevMulti(M,el,go);return;}
+  var many=_impN>1,rep=many&&_impMode==='rep';
+  if(!raw.trim()){el.innerHTML='<div class="hint" style="margin:0">'+(many?'Pega arriba el plan que te dio ChatGPT y te muestro cómo quedarán esos días antes de importarlos.':'Pega arriba el plan que te dio ChatGPT y te muestro cómo quedará el plan del día antes de importarlo.')+'</div>';if(go)go.disabled=true;_impUI1(_impN);return;}
   var r=parseMealImport(raw);var tot=_impTotals(r);
   var _past=r.date&&r.date<today();if(r.date&&!_impDateTouched&&!_past){var de=document.getElementById('imp-date');if(de)de.value=r.date;}
-  if(!tot.n){el.innerHTML='<div class="note note-gold" style="margin:0">No reconocí ninguna comida. Revisa que cada alimento tenga el formato con barras: <b>nombre | cantidad | P .. | C .. | G ..</b>. Toca «Ver el prompt para ChatGPT».</div>';if(go)go.disabled=true;return;}
+  if(!tot.n){el.innerHTML='<div class="note note-gold" style="margin:0">No reconocí ninguna comida. Revisa que cada alimento tenga el formato con barras: <b>nombre | cantidad | P .. | C .. | G ..</b>. Toca «Ver el prompt para ChatGPT».</div>';if(go)go.disabled=true;_impUI1(rep?_impN:1);return;}
   var _d=_impDate(_v('imp-date'))||r.date||foodLogDate;var NA=_impNaResolve(r);var T=null;try{T=macroTarget(_d);}catch(e){}
   var h='<div class="imp-sum"><div><div class="imp-n">'+tot.n+'</div><div class="card-sub">alimentos</div></div>';
   h+='<div><div class="imp-n">'+_numTxt(tot.k)+'</div><div class="card-sub">kcal'+(T&&T.kcal?' / '+Math.round(T.kcal):'')+'</div></div>';
@@ -6993,11 +7165,9 @@ function previewImport(){
   if(NA.lib)h+='<div class="card-sub" style="margin:-4px 0 8px">'+NA.lib+(NA.lib===1?' alimento tomó':' alimentos tomaron')+' el sodio de tu biblioteca (mismo nombre y misma unidad).</div>';
   if(NA.conf.length)h+='<div class="note note-gold" style="margin:0 0 10px"><b>Sodio distinto al de tu biblioteca</b> (se importa el del texto; tu biblioteca no cambia): '+NA.conf.map(function(c){return escH(c.name)+' '+naFmt(c.imp)+' vs '+naFmt(c.lib)+' mg';}).join(' · ')+'</div>';
   var _ef=_impEffect(_d,(document.getElementById('imp-wipe')||{classList:{contains:function(){return false;}}}).classList.contains('on'));
-  if(_ef.old)h+='<div class="note" style="margin:0 0 10px">Ya hay un plan el '+fmtDate(_d)+': se reemplaza'+(_ef.oldN?' ('+_ef.oldN+(_ef.oldN===1?' alimento importado)':' alimentos importados)'):'')+'.'+(_ef.eaten?' <b>'+_ef.eaten+(_ef.eaten===1?' ya marcado como comido se quita':' ya marcados como comidos se quitan')+' del registro</b> (te lo confirmo antes).':'')+(_ef.manual?' «Reemplazar lo del día» quita además '+_ef.manual+(_ef.manual===1?' registro manual.':' registros manuales.'):'')+'</div>';
-  r.meals.forEach(function(m){var mk=0;m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;mk+=(it.k>0?it.k:_kcal(p,c,f));});
-    h+='<div class="imp-meal"><div class="imp-meal-hd"><span>'+escH(mealLbl(m.name))+'</span><span class="card-sub">'+kfmt(mk)+' kcal</span></div>';
-    m.items.forEach(function(it){h+='<div class="imp-it"><div><div class="imp-it-n">'+escH(it.name)+(it.qty?' <span class="card-sub">'+escH(it.qty)+'</span>':'')+'</div><div class="card-sub">P '+_numTxt(it.p)+' · C '+_numTxt(it.c)+' · G '+_numTxt(it.f)+' · '+(it.na!==null&&it.na!==undefined?'Na '+naFmt(it.na)+' mg'+(it.naSrc==='lib'?' (biblioteca)':''):'Na sin dato')+'</div></div><div class="imp-it-k">'+kfmt(it.k>0?it.k:_kcal(+it.p||0,+it.c||0,+it.f||0))+'</div></div>';});
-    h+='</div>';});
+  var _d1=_impDay1(r);if(rep)h+=_impRepList(_d1,_impWipeOn());
+  else if(_ef.old)h+='<div class="note" style="margin:0 0 10px">Ya hay un plan el '+fmtDate(_d)+': se reemplaza'+(_ef.oldN?' ('+_ef.oldN+(_ef.oldN===1?' alimento importado)':' alimentos importados)'):'')+'.'+(_ef.eaten?' <b>'+_ef.eaten+(_ef.eaten===1?' ya marcado como comido se quita':' ya marcados como comidos se quitan')+' del registro</b> (te lo confirmo antes).':'')+(_ef.manual?' «Reemplazar lo del día» quita además '+_ef.manual+(_ef.manual===1?' registro manual.':' registros manuales.'):'')+'</div>';
+  h+=_impMealsHtml(r);
   if(_past&&!_impDateTouched)h+='<div class="note note-gold" style="margin:10px 0 0">El texto trae la fecha '+fmtDate(r.date)+', que ya pasó: se importa en el día que está arriba. Si de verdad es ese día, elígelo arriba.</div>';
   if(_d<addDays(today(),-60))h+='<div class="note note-gold" style="margin:10px 0 0">Ese día tiene más de 60 días: los planes de esas fechas ya no se guardan. Elige otro día.</div>';
   if(r.totals)h+='<div class="card-sub" style="margin:10px 2px 0">Omití '+r.totals+(r.totals===1?' línea de totales':' líneas de totales')+' (no son alimentos).</div>';
@@ -7005,12 +7175,64 @@ function previewImport(){
   if(_w0.length)h+='<div class="note note-gold" style="margin:10px 0 0"><b>Sin proteína, carbos ni grasa</b> (solo kcal): '+escH(_w0.slice(0,3).join(' · '))+(_w0.length>3?'…':'')+'. Revisa que ChatGPT use «P», «C» y «G».</div>';
   if(_wk.length)h+='<div class="note" style="margin:10px 0 0">Las kcal no cuadran con P, C y G en: '+escH(_wk.slice(0,3).join(' · '))+(_wk.length>3?'…':'')+'. Se importan tal cual.</div>';
   if(r.bad.length)h+='<div class="note note-gold" style="margin:10px 0 0">No pude leer '+r.bad.length+' línea'+(r.bad.length===1?'':'s')+' (sin macros): '+escH(r.bad.slice(0,3).join(' · '))+(r.bad.length>3?'…':'')+'. Lo demás sí se importa.</div>';
+  if(many&&!rep)h+='<div class="note note-gold" style="margin:10px 0 0">Pediste un menú distinto para cada uno de los '+_impN+' días, pero el texto trae un solo menú: se importa solo el '+_impDd(_d1)+'. Si quieres este menú en los '+_impN+' días, elige «Repetir el mismo menú».</div>';
+  el.innerHTML=h;if(go)go.disabled=false;_impUI1(rep?_impN:1,_d1);
+}
+/* «Repetir el mismo menú»: los días que recibe, con su meta y si ya tenían plan */
+function _impDayTags(ef,T){var a=[];
+  if(T&&T.kcal)a.push('meta '+kfmt(T.kcal)+' kcal'+(T.src==='peak'?' (Peak Week)':''));
+  if(ef.old)a.push(ef.eaten?'<b>'+ef.eaten+(ef.eaten===1?' comido se quita':' comidos se quitan')+'</b>':'ya tiene plan: se reemplaza');
+  return a.join(' · ');}
+function _impEatNote(eat,dE,man){if(!eat&&!man)return '';
+  return '<div class="note" style="margin:0 0 10px">'+(eat?'<b>'+(dE===1?'En 1 día':'En '+dE+' días')+' ya marcaste alimentos como comidos</b>: '+eat+(eat===1?' se quita':' se quitan')+' del registro (te lo confirmo antes).':'')+(man?(eat?' ':'')+'«Reemplazar lo de esos días» quita además '+man+(man===1?' registro manual.':' registros manuales.'):'')+'</div>';}
+function _impRepList(d0,wipe){var h='<div class="imp-dl">';var eat=0,dE=0,man=0;
+  for(var i=0;i<_impN;i++){var d=addDays(d0,i);var T=null;try{T=macroTarget(d);}catch(e){}var ef=_impEffect(d,wipe);if(ef.eaten){eat+=ef.eaten;dE++;}man+=ef.manual;
+    h+='<div class="imp-dl-r"><span class="imp-dl-d">'+_impDd(d)+'</span><span class="imp-dl-v">'+_impDayTags(ef,T)+'</span></div>';}
+  return h+'</div>'+_impEatNote(eat,dE,man);}
+/* varios menús en el texto: un renglón plegable por día (se abre para ver sus comidas) */
+function _impMealsHtml(r){var h='';r.meals.forEach(function(m){var mk=0;m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0;mk+=(it.k>0?it.k:_kcal(p,c,f));});
+    h+='<div class="imp-meal"><div class="imp-meal-hd"><span>'+escH(mealLbl(m.name))+'</span><span class="card-sub">'+kfmt(mk)+' kcal</span></div>';
+    m.items.forEach(function(it){h+='<div class="imp-it"><div><div class="imp-it-n">'+escH(it.name)+(it.qty?' <span class="card-sub">'+escH(it.qty)+'</span>':'')+'</div><div class="card-sub">P '+_numTxt(it.p)+' · C '+_numTxt(it.c)+' · G '+_numTxt(it.f)+' · '+(it.na!==null&&it.na!==undefined?'Na '+naFmt(it.na)+' mg'+(it.naSrc==='lib'?' (biblioteca)':''):'Na sin dato')+'</div></div><div class="imp-it-k">'+kfmt(it.k>0?it.k:_kcal(+it.p||0,+it.c||0,+it.f||0))+'</div></div>';});
+    h+='</div>';});return h;}
+function _impPrevMulti(M,el,go){
+  var A=_impAssign(M);var D=A.days;var wipe=_impWipeOn();var ds=D.map(function(d){return d.date;});
+  var tn=0,tk=0,eat=0,dE=0,man=0,totL=0,lib=0;var bad=[],w0=[],wk=[],conf=[],cs={};var rows='';
+  D.forEach(function(d,i){var r=d.r;var NA=_impNaResolve(r);var tot=_impTotals(r);var T=null;try{T=macroTarget(d.date);}catch(e){}
+    var ef=_impEffect(d.date,wipe);tn+=tot.n;tk+=tot.k;if(ef.eaten){eat+=ef.eaten;dE++;}man+=ef.manual;totL+=r.totals;lib+=NA.lib;
+    bad=bad.concat(r.bad);NA.conf.forEach(function(c){if(!cs[c.name]){cs[c.name]=1;conf.push(c);}});
+    r.meals.forEach(function(m){m.items.forEach(function(it){var p=+it.p||0,c=+it.c||0,f=+it.f||0,k=+it.k||0;if(!(p||c||f)&&k>0)w0.push(it.name);else if(k>0&&Math.abs(k-_kcal(p,c,f))>Math.max(25,k*0.2))wk.push(it.name);});});
+    var id='impd-'+i;var op=!!_impOpen[i];var na=naTotTxt(NA,true);
+    rows+='<div class="fold imp-day'+(op?' open':'')+'" id="'+id+'"><button class="fold-hd" onclick="_impOpen['+i+']=!_impOpen['+i+'];togFold(\''+id+'\')" aria-expanded="'+op+'"><span class="fold-t">'
+      +'<span class="imp-day-top"><span class="imp-day-d">'+_impDd(d.date)+(d.lbl?' <span class="imp-day-l">'+escH(d.lbl)+'</span>':'')+'</span><span class="imp-day-k">'+kfmt(tot.k)+' kcal</span></span>'
+      +'<span class="imp-day-m">P '+_numTxt(tot.p)+' · C '+_numTxt(tot.c)+' · G '+_numTxt(tot.f)+' · Na '+escH(na)+' · '+tot.n+(tot.n===1?' alimento':' alimentos')+'</span>'
+      +'<span class="imp-day-w">'+_impDayTags(ef,T)+'</span>'
+      +'</span><span class="fold-ic">'+IC.chevD+'</span></button><div class="fold-body">'+_impMealsHtml(r)+'</div></div>';});
+  var h='<div class="imp-sum"><div><div class="imp-n">'+D.length+'</div><div class="card-sub">días</div></div>';
+  h+='<div><div class="imp-n">'+kfmt(tk/D.length)+'</div><div class="card-sub">kcal por día (promedio)</div></div>';
+  h+='<div><div class="imp-n">'+tn+'</div><div class="card-sub">alimentos</div></div></div>';
+  h+=rows;
+  h+=_impEatNote(eat,dE,man);
+  if(A.past)h+='<div class="note note-gold" style="margin:0 0 10px">El texto trae fechas que ya pasaron: los menús van en días seguidos desde el día de arriba. Si de verdad son esos días, elígelos uno por uno.</div>';
+  else if(A.moved)h+='<div class="note" style="margin:0 0 10px">Los menús van en días seguidos desde el día de arriba (el texto traía otras fechas).</div>';
+  if(_impN>1&&_impMode==='dist'&&_impN!==D.length)h+='<div class="note" style="margin:0 0 10px">Pediste '+_impN+' días y el texto trae '+D.length+' menús.</div>';
+  if(ds.some(function(x){return x<addDays(today(),-60);}))h+='<div class="note note-gold" style="margin:0 0 10px">Hay días de hace más de 60 días: los planes de esas fechas ya no se guardan. Elige otro día.</div>';
+  if(lib)h+='<div class="card-sub" style="margin:0 2px 8px">'+lib+(lib===1?' alimento tomó':' alimentos tomaron')+' el sodio de tu biblioteca (mismo nombre y misma unidad).</div>';
+  if(conf.length)h+='<div class="note note-gold" style="margin:0 0 10px"><b>Sodio distinto al de tu biblioteca</b> (se importa el del texto; tu biblioteca no cambia): '+conf.slice(0,6).map(function(c){return escH(c.name)+' '+naFmt(c.imp)+' vs '+naFmt(c.lib)+' mg';}).join(' · ')+(conf.length>6?'…':'')+'</div>';
+  if(totL)h+='<div class="card-sub" style="margin:10px 2px 0">Omití '+totL+(totL===1?' línea de totales':' líneas de totales')+' (no son alimentos).</div>';
+  var uq=function(a){var o=[],s={};a.forEach(function(x){if(!s[x]){s[x]=1;o.push(x);}});return o;};w0=uq(w0);wk=uq(wk);
+  if(w0.length)h+='<div class="note note-gold" style="margin:10px 0 0"><b>Sin proteína, carbos ni grasa</b> (solo kcal): '+escH(w0.slice(0,3).join(' · '))+(w0.length>3?'…':'')+'. Revisa que ChatGPT use «P», «C» y «G».</div>';
+  if(wk.length)h+='<div class="note" style="margin:10px 0 0">Las kcal no cuadran con P, C y G en: '+escH(wk.slice(0,3).join(' · '))+(wk.length>3?'…':'')+'. Se importan tal cual.</div>';
+  if(bad.length)h+='<div class="note note-gold" style="margin:10px 0 0">No pude leer '+bad.length+' línea'+(bad.length===1?'':'s')+' (sin macros): '+escH(bad.slice(0,3).join(' · '))+(bad.length>3?'…':'')+'. Lo demás sí se importa.</div>';
   el.innerHTML=h;if(go)go.disabled=false;
+  _impUI({n:D.length,k:D.length,multi:true,sub:D.length+' menús en el texto · '+_impRangeTxt(ds)});
 }
 function doImport(){
-  var raw=_v('imp-text')||'';var r=parseMealImport(raw);
+  var raw=_v('imp-text')||'';
+  var M=_impMulti(raw);if(M){_impDoMany(_impAssign(M).days,_impWipeOn());return;}
+  var r=parseMealImport(raw);
   if(!_impTotals(r).n){toast('No encontré comidas para importar');return;}
-  var date=_impDate(_v('imp-date'))||(r.date&&r.date>=today()?r.date:'')||foodLogDate||today();
+  var date=_impDay1(r);
+  if(_impN>1&&_impMode==='rep'){var L=[];for(var i=0;i<_impN;i++)L.push({r:i?parseMealImport(raw):r,date:addDays(date,i)});_impDoMany(L,_impWipeOn());return;}
   if(date<addDays(today(),-60)){toast('Ese día tiene más de 60 días: elige otro día');return;}
   var wipe=(document.getElementById('imp-wipe')||{classList:{contains:function(){return false;}}}).classList.contains('on');
   var ef=_impEffect(date,wipe);
@@ -7018,6 +7240,25 @@ function doImport(){
   _doImport(r,date,wipe);
 }
 function _doImport(r,date,wipe){
+  var o=_impApply(r,date,wipe,0);var n=o.n,dup=o.dup;
+  closeSheet('sh-import');
+  if(foodLogDate!==date)setFoodDate(date);else refreshNutri();
+  toast('Importé '+n+' alimento'+(n===1?'':'s')+' al plan del '+fmtDate(date)+(dup?' · '+dup+(dup===1?' ya estaba registrado':' ya estaban registrados'):''));
+}
+/* V52: varios días. Mismas reglas que un día, una sola confirmación para todos */
+function _impDoMany(L,wipe){
+  if(L.some(function(x){return x.date<addDays(today(),-60);})){toast('Hay días de hace más de 60 días: elige otro día');return;}
+  var eat=0,dE=0,man=0;L.forEach(function(x){var ef=_impEffect(x.date,wipe);if(ef.eaten){eat+=ef.eaten;dE++;}man+=ef.manual;});
+  var go=function(){_impApplyMany(L,wipe);};
+  if(eat||man){confirmDlg('¿Reemplazar los planes de esos días?',(eat?(dE===1?'En 1 día':'En '+dE+' días')+' ya marcaste alimentos como comidos: '+eat+(eat===1?' se quita':' se quitan')+' del registro.':'')+(man?(eat?' También ':'Se quitan ')+man+(man===1?' registro manual':' registros manuales')+' (Reemplazar lo de esos días).':'')+' Después puedes marcar lo que ya comiste en el plan nuevo.','Reemplazar',go);return;}
+  go();}
+function _impApplyMany(L,wipe){var n=0,dup=0,ds=[];
+  L.forEach(function(x,i){var o=_impApply(x.r,x.date,wipe,i);n+=o.n;dup+=o.dup;ds.push(x.date);});
+  closeSheet('sh-import');
+  if(ds.indexOf(foodLogDate)<0)setFoodDate(ds.slice().sort()[0]);else refreshNutri();
+  toast('Importé '+ds.length+' días ('+_impRangeTxt(ds)+') · '+n+' alimento'+(n===1?'':'s')+(dup?' · '+dup+(dup===1?' ya estaba registrado':' ya estaban registrados'):''));}
+/* arma y guarda el plan de UN día (lo que hacía _doImport antes de cerrar la hoja) → {n,dup} */
+function _impApply(r,date,wipe,k){
   try{_impNaResolve(r);}catch(e){}
   /* registros del plan importado anterior de ese día: se limpian para no dejar sueltos. Lo manual se conserva (salvo wipe). */
   var old=getPlan(date);var kill={};if(old&&old.meals)old.meals.forEach(function(m){m.items.forEach(function(it){if(it.imp||(old.imp&&!it.fromLog))kill[it.id]=1;});});
@@ -7028,12 +7269,10 @@ function _doImport(r,date,wipe){
   var logged={};foods.forEach(function(f){if(f.fecha===date&&!f.planItem&&!f.imp)logged[_impStrip(f.nombre||'').trim()]=1;});
   r.meals.forEach(function(m){if(!byName[m.name]){byName[m.name]={name:m.name,items:[]};order.push(m.name);}m.items.forEach(function(it){if(/^1\s*porci/i.test(_impStrip(it.qty||''))&&logged[_impStrip(it.name||'').trim()]){dup++;return;}byName[m.name].items.push(_impPlanItem(it));n++;});});
   order=order.filter(function(nm){return byName[nm].items.length;});
-  var plan={id:'p'+Date.now(),date:date,target:{p:mt.prot,c:mt.carb,f:mt.fat,k:mt.kcal},manual:!!mt.manual,training:pr.training!==false,trainTime:pr.trainTime||'tarde',meals:order.map(function(nm){return byName[nm];}),excluded:[],seed:0,variant:0,warnings:[],own:true,imp:true,approvedAt:Date.now()};
+  var plan={id:'p'+Date.now()+(k?'_'+k:''),date:date,target:{p:mt.prot,c:mt.carb,f:mt.fat,k:mt.kcal},manual:!!mt.manual,training:pr.training!==false,trainTime:pr.trainTime||'tarde',meals:order.map(function(nm){return byName[nm];}),excluded:[],seed:0,variant:0,warnings:[],own:true,imp:true,approvedAt:Date.now()};
   _savePlan(plan);try{_syncLogged(plan);}catch(e){}
   try{if(_plan&&_plan.date===date){_plan=null;_planDirty=false;}}catch(e){}
-  closeSheet('sh-import');
-  if(foodLogDate!==date)setFoodDate(date);else refreshNutri();
-  toast('Importé '+n+' alimento'+(n===1?'':'s')+' al plan del '+fmtDate(date)+(dup?' · '+dup+(dup===1?' ya estaba registrado':' ya estaban registrados'):''));
+  return {n:n,dup:dup};
 }
 
 /* ════════ V35 · volumen semanal: el color depende solo de cuánto llevas contra tu meta ════════
