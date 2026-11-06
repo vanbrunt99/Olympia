@@ -1211,6 +1211,22 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
 .imp-day-w{font-size:12.5px;color:var(--muted);}
 .imp-day-w:empty{display:none;}
 .imp-day>.fold-body{padding:0 0 6px;}
+/* ── V53 · importar alimentos a la biblioteca ── */
+#fim-prompt-txt{min-height:150px;font-size:13px;line-height:1.4;}
+.fim-list{margin:0 0 10px;}
+.fim-row{align-items:flex-start;padding-top:12px;padding-bottom:12px;}
+.fim-row .fg-ck{margin-top:1px;}
+.fim-row .row-t{display:flex;align-items:center;gap:8px;}
+.fim-row .row-t span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.fim-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;filter:saturate(.72) brightness(1.02);}
+.fim-row .row-s{line-height:1.4;margin-top:2px;}
+.fim-tag{font-size:12.5px;line-height:1.4;margin-top:5px;color:var(--muted);}
+.fim-tag.w{color:var(--gold);}
+.fim-row.fim-dis{opacity:.6;cursor:default;}
+.fim-row.fim-dis .fg-ck{border-style:dashed;}
+.lib-top{display:flex;gap:8px;margin-bottom:14px;}
+.lib-top .inp{flex:1;min-width:0;}
+.lib-top .btn{min-height:50px;flex-shrink:0;padding-left:14px;padding-right:14px;}
 
 </style>
 </head>
@@ -1410,7 +1426,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 52</div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 53</div>
 </div>
 
 </div><!-- /content -->
@@ -1494,9 +1510,10 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
 <div class="sheet-ov" id="sh-food-lib"><div class="sheet"><div class="sheet-handle"></div>
   <div class="sheet-hd"><div class="sheet-title">Biblioteca de alimentos</div><button class="sheet-close" onclick="closeSheet('sh-food-lib')" aria-label="Cerrar"></button></div>
   <div class="sheet-body">
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <input type="search" class="inp" id="lib-search" placeholder="Buscar" style="flex:1" oninput="buildFoodLib()" autocomplete="off">
-      <button class="btn btn-red btn-sm" style="min-height:50px" onclick="openNewLibFood()">+ Nuevo</button>
+    <div class="lib-top">
+      <input type="search" class="inp" id="lib-search" placeholder="Buscar" oninput="buildFoodLib()" autocomplete="off">
+      <button class="btn btn-line btn-sm" onclick="openFoodImport()">Importar</button>
+      <button class="btn btn-red btn-sm" onclick="openNewLibFood()">+ Nuevo</button>
     </div>
     <div class="chips" id="lib-cats" style="margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none"></div>
     <div id="lib-list"></div>
@@ -2004,6 +2021,18 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="btn-row" style="margin-top:10px"><button class="btn btn-ghost" id="rf-up" onclick="rtnFolderMove(-1)">↑ Subir carpeta</button><button class="btn btn-ghost" id="rf-down" onclick="rtnFolderMove(1)">↓ Bajar carpeta</button></div>
     <button class="btn btn-danger" id="rf-del" style="margin-top:10px" onclick="rtnFolderDel()">Quitar carpeta</button>
     <div class="hint" style="margin-top:10px">Quitar la carpeta no borra rutinas: pasan a «Mis Rutinas». La etapa y las semanas se eligen en cada rutina (Editar).</div>
+  </div></div></div>
+
+<div class="sheet-ov" id="sh-food-imp"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
+  <div class="sheet-hd"><div class="sheet-title">Importar alimentos</div><button class="sheet-close" onclick="closeFoodImport()" aria-label="Cerrar"></button></div>
+  <div class="sheet-body">
+    <div class="hint">Copia el prompt, pégalo en ChatGPT y escribe abajo qué alimentos quieres y en qué porción (100 g, 1 scoop, 2 huevos…). También le puedes mandar la foto de la etiqueta. Pega aquí su respuesta. Solo se agregan alimentos nuevos: los que ya tienes no se tocan.</div>
+    <div class="btn-row" style="margin:0 0 12px"><button class="btn btn-ghost btn-sm" onclick="copyFoodPrompt()">Copiar el prompt</button><button class="btn btn-line btn-sm" onclick="toggleFoodPrompt()">Ver el prompt</button></div>
+    <div id="fim-prompt-box" style="display:none;margin:0 0 14px"><textarea class="inp" id="fim-prompt-txt" rows="7" readonly onclick="this.select()"></textarea></div>
+    <div class="fgroup"><div class="inp-lbl">Pega aquí la respuesta</div><textarea class="inp" id="fim-text" rows="7" placeholder="ALIMENTOS OLYMPIA&#10;- Pechuga de pollo (cocida) | 100 g | P 31 | C 0 | G 3.6 | 165 kcal | Na 74 mg | Proteína | USDA" oninput="previewFoodImport()"></textarea></div>
+    <div id="fim-preview" style="margin-bottom:12px"></div>
+    <div class="adj-line" id="fim-on-row" style="display:none;margin:0 0 14px;background:var(--card);border-radius:14px;padding:10px 14px"><div style="min-width:0"><div style="font-size:15.5px;font-weight:600;color:var(--text)">Disponibles para el plan</div><div class="card-sub" style="font-size:12.5px">Apágalo para guardarlos como «No disponible» y activarlos después.</div></div><button class="sw on" id="fim-on" role="switch" aria-checked="true" aria-label="Disponibles para el plan" onclick="fimToggleOn()"><i></i></button></div>
+    <button class="btn btn-red" id="fim-go" onclick="doFoodImport()" disabled>Agregar a la biblioteca</button>
   </div></div></div>
 
 <div class="sheet-ov" id="sh-rtn-imp"><div class="sheet sheet-tall"><div class="sheet-handle"></div>
@@ -3844,7 +3873,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-52',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-53',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -7322,7 +7351,7 @@ function buildFoodLib(){
   var el=document.getElementById('lib-list');if(!el)return;var lib=getFoodLib();var st=_libStats();
   var cc=document.getElementById('lib-cats');
   if(cc){var ch='<button class="chip'+(libCat==='all'?' on':'')+'" onclick="setLibCat(\'all\')">Todos</button>';for(var i=0;i<FOOD_CATS.length;i++)ch+='<button class="chip'+(libCat===FOOD_CATS[i][0]?' on':'')+'" style="flex-shrink:0" onclick="setLibCat(\''+FOOD_CATS[i][0]+'\')"><i style="background:'+CAT_COLOR[FOOD_CATS[i][0]]+'"></i>'+FOOD_CATS[i][1]+'</button>';cc.innerHTML=ch;}
-  if(!lib.length){el.innerHTML='<div class="empty"><b>Sin alimentos</b>Agrega los tuyos para armar tu plan.</div><button class="btn btn-red" onclick="openNewLibFood()">+ Crear alimento</button>';return;}
+  if(!lib.length){el.innerHTML='<div class="empty"><b>Sin alimentos</b>Agrega los tuyos para armar tu plan.</div><button class="btn btn-red" onclick="openNewLibFood()">+ Crear alimento</button><button class="btn btn-line" style="margin-top:10px" onclick="openFoodImport()">Importar con ChatGPT</button>';return;}
   var h='<div class="seg" style="margin:0 0 12px;background:var(--card)"><button class="seg-i'+(libStatus==='all'?' on':'')+'" onclick="setLibStatus(\'all\')">Todos '+st.all+'</button><button class="seg-i'+(libStatus==='on'?' on':'')+'" onclick="setLibStatus(\'on\')">Activos '+st.on+'</button><button class="seg-i'+(libStatus==='off'?' on':'')+'" onclick="setLibStatus(\'off\')">Apagados '+st.off+'</button></div>';
   var sm=_starterMissing().length;
   h+=_fixBanner();h+='<button class="btn btn-line btn-sm" style="width:100%;margin-bottom:'+(sm?'8':'12')+'px" onclick="exportLibraryTxt()">Exportar alimentos activos (TXT)</button>';
@@ -9414,6 +9443,270 @@ function _libMacSync(old,f){if(!old||!old.name||!f||!f.name)return;var a=_libPer
     try{var el=document.getElementById(id);if(el&&el.classList.contains('open')){var date=addDays(pkComp(),-_pkN);var a=JSON.stringify(_pkLogs()[date]||null);_pkSaveLog(date);
       if(JSON.stringify(_pkLogs()[date]||null)!==a){toast('Seguimiento guardado');try{if(curPage==='comp')buildPeakProto();}catch(e){}}}}catch(e){}}
   return _cs.apply(this,arguments);};})();
+
+/* ════════ V53 · IMPORTAR ALIMENTOS A LA BIBLIOTECA (ChatGPT) ════════
+   Como «Importar plan» e «Importar rutinas»: copias el prompt, ChatGPT responde con un alimento por línea
+   (nombre · marca | porción | P | C | G | kcal | Na | tipo | fuente) y pegas su respuesta. Vista previa con una casilla
+   por alimento; nada se guarda hasta tocar «Agregar».
+   - Solo AGREGA. Un alimento con el mismo nombre (y marca) que uno tuyo no se toca; uno parecido sale sin marcar.
+   - Cada alimento se guarda igual que si lo capturaras en «+ Nuevo»: en gramos, mililitros o unidades, con la unidad
+     casera opcional («2 huevos (100 g)» = porción de 100 g y 1 huevo = 50 g; «1 barra» = por unidades).
+   - Sodio: «Na ?» = sin dato (nunca 0). Estado según la fuente: etiqueta, tabla (USDA…), estimado o «por verificar».
+   - También lee el TXT de alimentos activos de la app, tablas (con barras o tabuladores) y texto pegado en una sola línea. */
+
+var FOOD_IMP_PROMPT=[
+'Quiero agregar alimentos a la biblioteca de mi app con sus macros por porción. Entrégamelos en un formato de texto plano que mi app pueda importar. Respeta EXACTAMENTE este formato, sin tablas, sin negritas, sin emojis y sin texto adicional:',
+'',
+'ALIMENTOS OLYMPIA',
+'- Nombre · Marca | porción | P proteína | C carbohidratos | G grasa | kcal kcal | Na sodio mg | tipo | fuente',
+'',
+'Reglas:',
+'1. La primera línea es exactamente "ALIMENTOS OLYMPIA".',
+'2. Una línea que empiece con "- " por cada alimento, separando los campos SOLO con la barra "|", en este orden: nombre | porción | P | C | G | kcal | Na | tipo | fuente.',
+'3. Nombre en español, claro y sin la cantidad. Di si es crudo, cocido o escurrido cuando eso cambie los macros, por ejemplo "Arroz blanco (cocido)". Si es de una marca, ponla después del nombre separada con " · ", por ejemplo "Avena en hojuelas · Quaker"; si no tiene marca, escribe solo el nombre.',
+'4. Porción: la cantidad a la que corresponden los macros. Usa la porción que yo te pida; si no te digo, usa 100 g, o la porción de la etiqueta si es un producto de marca.',
+'5. La porción va en gramos ("100 g"), en mililitros ("250 ml") o en unidades. En unidades pon el peso entre paréntesis si lo sabes: "1 scoop (30 g)", "2 huevos (100 g)", "1 taza (240 ml)". Si no sabes el peso, escribe solo la unidad: "1 barra".',
+'6. P, C y G son los gramos de ESA porción. kcal son las de esa porción, escritas como "165 kcal".',
+'7. Na es el SODIO en miligramos de esa porción (no la sal): escríbelo como "Na 74 mg". Si no lo sabes con confianza escribe "Na ?"; no lo inventes.',
+'8. Tipo: uno de estos: Proteína, Carbohidrato, Grasa, Fruta, Verdura u Otro.',
+'9. Fuente: "etiqueta" si los datos salen de una etiqueta o foto que te mandé; el nombre de la tabla nutricional si salen de una (por ejemplo "USDA"); o "estimado".',
+'10. Usa punto decimal, nunca coma. No agregues totales, comentarios ni ninguna línea fuera de este formato.',
+'',
+'Ejemplo:',
+'ALIMENTOS OLYMPIA',
+'- Pechuga de pollo (cocida) | 100 g | P 31 | C 0 | G 3.6 | 165 kcal | Na 74 mg | Proteína | USDA',
+'- Huevo entero | 2 huevos (100 g) | P 12.6 | C 0.7 | G 9.5 | 143 kcal | Na 142 mg | Proteína | USDA',
+'- Leche descremada | 1 taza (240 ml) | P 8.3 | C 12 | G 0.2 | 83 kcal | Na 103 mg | Carbohidrato | USDA',
+'- Barra de proteína · Marca | 1 barra | P 20 | C 22 | G 7 | 230 kcal | Na ? | Proteína | estimado',
+'',
+'Los alimentos que quiero:'
+].join('\n');
+
+function _fimR2(x){return Math.round((+x||0)*100)/100;}
+function _fimKey(s){return _impStrip(s).replace(/[^a-z0-9%]+/g,' ').trim();}
+function _fimLow(s){return String(s||'').trim().toLowerCase();}
+
+/* tipo y encabezados de sección (el TXT de la app agrupa por PROTEÍNAS, CARBOHIDRATOS…) */
+var FIM_CATS={proteina:'prot',proteinas:'prot',carbohidrato:'carb',carbohidratos:'carb',carbo:'carb',carbos:'carb',grasa:'grasa',grasas:'grasa',fruta:'fruta',frutas:'fruta',verdura:'verdura',verduras:'verdura',vegetal:'verdura',vegetales:'verdura',otro:'otro',otros:'otro'};
+function _fimCat(s){var k=_impStrip(String(s||'').replace(/\([^)]*\)/g,'')).replace(/^(tipo|categoria)\s*[:\-]?\s*/,'').replace(/[^a-z ]/g,'').trim();return FIM_CATS[k]||'';}
+
+/* fuente de los datos → estado del sodio (etq / fte / est) */
+function _fimSrc(seg){var s0=String(seg||'').trim();var s=s0.replace(/^(fuente|origen|datos?)(\s+de\s+los\s+datos)?\s*[:\-–]?\s*/i,'').trim();var low=_impStrip(s);var lbl=s!==s0;
+  if(!low)return null;
+  if(/^(etiqueta|label|empaque|envase|informacion nutricional del (producto|empaque))/.test(low))return {st:'etq',txt:'Etiqueta'};
+  if(/^(estimad|aprox|calculad)/.test(low))return {st:'est',txt:''};
+  if(lbl||/\b(usda|fdc|fooddata|food data|bedca|incap|smae|nutritionix|fatsecret|myfitnesspal|cronometer|open ?food|fao)\b|^tabla|base de datos/.test(low))return {st:'fte',txt:s.slice(0,40)};
+  return null;}
+
+/* macro de un campo: «P 31», «Proteína: 31 g», «31 g de proteína» */
+function _fimMacW(low){
+  if(_impIsMac(low,'p')||/^\d+(?:[.,]\d+)?\s*g?\s*(de\s+)?prot/.test(low))return 'p';
+  if(_impIsMac(low,'c')||/^\d+(?:[.,]\d+)?\s*g?\s*(de\s+)?(carb|hidrat)/.test(low))return 'c';
+  if(_impIsMac(low,'g')||/^\d+(?:[.,]\d+)?\s*g?\s*(de\s+)?gras/.test(low))return 'f';
+  return null;}
+
+/* ── porción ── «100 g» · «250 ml» · «1 scoop (30 g)» · «30 g (1 scoop)» · «2 huevos (100 g)» · «1 barra» · «1/2 taza (120 ml)» */
+var FIM_SG={unidades:'unidad',panes:'pan',nueces:'nuez',flores:'flor',tamales:'tamal',pasteles:'pastel',raciones:'ración',porciones:'porción'};
+function _fimSing(w){w=String(w||'').toLowerCase();if(FIM_SG[w])return FIM_SG[w];if(/sis$/.test(w))return w;
+  if(/iones$/.test(w))return w.slice(0,-5)+'ión';if(/ones$/.test(w))return w.slice(0,-4)+'ón';if(/ces$/.test(w))return w.slice(0,-3)+'z';
+  if(/[aeiouáéíóú]s$/.test(w)&&w.length>2)return w.slice(0,-1);return w;}
+function _fimAmt(s){var m=s.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)/);if(m&&+m[3])return {v:+m[1]+(+m[2])/(+m[3]),n:m[0].length};
+  m=s.match(/^(\d+)\s*\/\s*(\d+)/);if(m&&+m[2])return {v:(+m[1])/(+m[2]),n:m[0].length};
+  m=s.match(/^[1-9]\d{0,2}(?:,\d{3})+(?![\d.,])/);if(m)return {v:parseFloat(m[0].replace(/,/g,'')),n:m[0].length};
+  m=s.match(/^\d+(?:[.,]\d+)?/);if(m)return {v:parseFloat(m[0].replace(',','.')),n:m[0].length};return null;}
+var FIM_UBAD=/^(mg|mcg|ug|kcal|cal|calorias?|prot\w*|carb\w*|hidrat\w*|gras\w*|fat|na|sodio|p|c|x|kj)$/;
+function _fimMeas(s){
+  var t=String(s||'').trim().replace(/½/g,' 1/2').replace(/¼/g,' 1/4').replace(/¾/g,' 3/4').replace(/⅓/g,' 1/3').replace(/⅔/g,' 2/3').trim();
+  t=t.replace(/^(un|una|uno)\s+/i,'1 ').replace(/^medi[oa]\s+/i,'1/2 ');
+  var a=_fimAmt(t);if(!a||!(a.v>0)||!isFinite(a.v))return null;var rest=t.slice(a.n).trim();var low=_impStrip(rest);
+  if(/^(g|gr|grs|gramos?)\b/.test(low))return {amt:a.v,u:'g'};
+  if(/^(kg|kgs|kilos?|kilogramos?)\b/.test(low))return {amt:a.v*1000,u:'g',conv:1};
+  if(/^(ml|mililitros?|cc|cm3)\b/.test(low))return {amt:a.v,u:'ml'};
+  if(/^(fl\.?\s*oz|onzas? liquidas?)\b/.test(low))return {amt:Math.round(a.v*29.57*10)/10,u:'ml',conv:1};
+  if(/^(l|lt|lts|litros?)\b/.test(low))return {amt:a.v*1000,u:'ml',conv:1};
+  if(/^(oz|onzas?)\b/.test(low))return {amt:Math.round(a.v*28.35*10)/10,u:'g',conv:1};
+  if(/^(lb|lbs|libras?)\b/.test(low))return {amt:Math.round(a.v*453.6),u:'g',conv:1};
+  var w=rest.match(/^([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\.?/);if(!w)return null;var w0=w[1],word=w0.toLowerCase();if(FIM_UBAD.test(_impStrip(word)))return null;
+  var u=a.v>1?_fimSing(word):word;if(w0.charAt(0)!==w0.charAt(0).toLowerCase())u=u.charAt(0).toUpperCase()+u.slice(1);return {amt:a.v,u:u};}
+function _fimPortion(s){
+  var t=String(s||'').replace(/\*\*|__/g,'').trim();if(!t)return null;
+  t=t.replace(/^(por|cada|porci[oó]n(\s+de)?|raci[oó]n(\s+de)?)\s*:?\s+(?=[\d½¼¾⅓⅔(]|un|una|medi)/i,'');
+  var main=t,sec='';var m=t.match(/^([^()]*?)\s*\(([^)]*)\)/);
+  if(m){main=m[1];sec=m[2];}else if((m=t.match(/^(.+?)\s*(?:=|\/\s|,\s|\s[-–—]\s)\s*(.+)$/))){main=m[1];sec=m[2];}
+  /* «1 vaso de 250 ml», «1 lata de 140 g escurrida» */
+  else if((m=t.match(/^(.+?)\s+de\s+([\d½¼¾⅓⅔][\d.,\/ ]*\s*(?:g|gr|grs|gramos?|ml|mililitros?|kg|l|lt|litros?|oz)\b.*)$/i))){main=m[1];sec=m[2];}
+  var A=_fimMeas(main);
+  if(!A&&!String(main).trim()&&sec){A=_fimMeas(sec);sec='';}
+  if(!A&&sec&&/^[a-záéíóúñ]+$/i.test(String(main).trim())&&!FIM_UBAD.test(_impStrip(main.trim()))){A=_fimMeas('1 '+main.trim());}
+  if(!A)return null;
+  var B=sec?_fimMeas(sec):null;var gm=function(x){return !!x&&(x.u==='g'||x.u==='ml');};
+  if(gm(A)){if(B&&!gm(B))return {mode:A.u,ref:_fimR2(A.amt),unitN:B.u,unitG:_fimR2(A.amt/B.amt)};
+    if(A.conv&&gm(B))return {mode:B.u,ref:_fimR2(B.amt)};return {mode:A.u,ref:_fimR2(A.amt)};}
+  if(gm(B))return {mode:B.u,ref:_fimR2(B.amt),unitN:A.u,unitG:_fimR2(B.amt/A.amt)};
+  return {mode:'u',ref:_fimR2(A.amt),unitN:A.u};}
+
+/* ── una línea → campos ── */
+function _fimSegs(line){
+  var l=String(line).replace(/\*\*|__|`/g,'').replace(/^\s*(?:[-•*–—▪●►▸➤✓✔]+|\d+[.)])\s*/,'').trim();if(!l)return null;
+  if(l.indexOf('|')>=0)return l.replace(/^\|\s*/,'').replace(/\s*\|$/,'').split('|').map(function(x){return x.trim();});
+  /* TXT de alimentos activos: «Nombre · Marca — 100 g: P 31 · C 0 · G 3.6 · 165 kcal · Na 74 mg (1 huevo = 50 g)» */
+  var m=l.match(/^(.+)\s+[—–]\s+([^—–:]+?)\s*:\s*(P\s*-?\d.*)$/i);
+  if(m){var rest=m[3];var segs=[m[1].trim(),m[2].trim()];var um=rest.match(/\(\s*(1\s+[^=()]+?=\s*\d+(?:[.,]\d+)?\s*(?:g|ml))\s*\)\s*$/i);if(um)rest=rest.slice(0,um.index);
+    rest.split(/\s*[·•]\s*/).forEach(function(x){if(x.trim())segs.push(x.trim());});if(um)segs.push(um[1]);return segs;}
+  if(/\t/.test(l))return l.split(/\t+/).map(function(x){return x.trim();});
+  if(_impMacN(l)>=2||/\d\s*k?cal\b/i.test(l)){var s=l.split(/\s*[·•;]\s*|\s+[–—-]\s+|:\s+/);if(s.length<3)s=l.split(/\s*[,:]\s+/);return s.map(function(x){return x.trim();});}
+  return [l];}
+
+/* varios alimentos pegados en una sola línea: se separan donde empieza el siguiente («… | USDA - Arroz | 100 g | …») */
+function _fimSplitBlob(line){
+  if(line.indexOf('|')<0)return [line];if((line.match(/\|\s*P\s*:?\s*\d/gi)||[]).length<2)return [line];
+  var segs=line.split('|');var out=[];var cur=[segs[0]];
+  for(var i=1;i<segs.length;i++){var s=segs[i];var m=s.match(/^(.*?\S)\s+(?:-|•|\d+[.)])\s+(\S.*)$/);
+    if(m&&i+1<segs.length&&/^\s*([\d½¼¾⅓⅔]|por\s|un\s|una\s|medi)/i.test(segs[i+1])&&cur.some(function(x){return /^\s*P\s*:?\s*\d/i.test(x);})){cur.push(' '+m[1]);out.push(cur.join('|'));cur=['- '+m[2]];}
+    else cur.push(s);}
+  out.push(cur.join('|'));return out;}
+
+/* tablas: encabezado → columnas */
+function _fimHeader(cells){if(cells.length<4)return null;var g={};
+  cells.forEach(function(c,i){var n=_impStrip(c).replace(/\*\*|__/g,'').trim();var u=(n.match(/\((g|ml|mg)\)/)||[])[1]||'';n=n.replace(/\([^)]*\)/g,'').replace(/[.:]/g,'').trim();
+    if(/\d/.test(n))return;
+    var k=/^(alimento|nombre|producto|ingrediente|comida)/.test(n)?'name':/^marca/.test(n)?'brand':/^(porcion|cantidad|medida|racion|tamano|serving)/.test(n)?'qty':
+      /^(p|prot\w*)$/.test(n)||/^proteina/.test(n)?'p':/^(c|hc|ch)$/.test(n)||/^(carb|hidrat)/.test(n)?'c':/^(g|f)$/.test(n)||/^(gras|fat|lip)/.test(n)?'f':
+      /^(kcal|cal|calorias|energia)/.test(n)?'k':/^(na|sodio)/.test(n)?'na':/^(tipo|categoria|grupo)/.test(n)?'cat':/^(fuente|origen)/.test(n)?'src':'';
+    if(k&&g[k]==null){g[k]=i;if(k==='qty'&&u)g.qtyU=u;if(k==='na'&&u)g.naU=u;}});
+  if(g.name==null)return null;var nm=['p','c','f'].filter(function(k){return g[k]!=null;}).length;return nm>=2?g:null;}
+function _fimFromGrid(cells,g){var cell=function(k){return g[k]!=null&&cells[g[k]]!=null?String(cells[g[k]]).replace(/\*\*|__/g,'').trim():'';};
+  var nm=cell('name');if(!nm)return null;var br=cell('brand');if(br&&!/^[-—–]$/.test(br)&&!/^(sin marca|n\/a|ninguna|generic[oa]?|gen[eé]ric[oa])$/i.test(br))nm+=' · '+br;
+  var segs=[nm];var q=cell('qty');if(q){if(/^\d+(?:[.,]\d+)?$/.test(q)&&g.qtyU)q+=' '+g.qtyU;segs.push(q);}
+  var z=function(v){return /^(-|—|–|tr|trazas?)$/i.test(v)?'0':v;};
+  [['p','P '],['c','C '],['f','G ']].forEach(function(x){var v=cell(x[0]);if(v!=='')segs.push(x[1]+z(v));});
+  var k=cell('k');if(k&&_impNum(k)!=null)segs.push(_impNum(k)+' kcal');
+  var na=cell('na');if(na){if(/^(\?|n\/?d|-|—|–|s\/d|sin dato)$/i.test(na))segs.push('Na ?');else segs.push('Na '+na+(g.naU==='g'&&!/mg/i.test(na)?' g':(/mg|g\b/i.test(na)?'':' mg')));}
+  var ct=cell('cat');if(ct)segs.push(ct);var sr=cell('src');if(sr)segs.push('Fuente: '+sr);
+  return segs;}
+function _fimCells(t){if(/^\|/.test(t))return t.replace(/^\|\s*/,'').replace(/\s*\|$/,'').split('|').map(function(x){return x.trim();});if(/\t/.test(t))return t.split(/\t+/).map(function(x){return x.trim();});return null;}
+
+/* ── campos → alimento ── */
+function _fimItem(segs,secCat){
+  var name=String(segs[0]||'').replace(/^["“'«]+|["”'»]+$/g,'').replace(/[:\s]+$/,'').replace(/\s+/g,' ').trim();
+  var o={p:null,c:null,f:null,k:null,na:null,naQ:false,naSt:'',cat:'',src:'',srcSt:'',qty:'',uh:null,brand:''};var bare=[];var sig=0;
+  for(var i=1;i<segs.length;i++){var seg=String(segs[i]||'').trim();if(!seg)continue;var low=_impStrip(seg);var n=_impNum(seg);
+    var um=low.match(/^1\s+([a-z][a-z .]*?)\s*=\s*(\d+(?:[.,]\d+)?)\s*(g|gr|gramos?|ml)\b/);
+    if(um){var uw=seg.match(/^1\s+(.+?)\s*=/);o.uh={n:String(uw?uw[1]:um[1]).trim(),g:parseFloat(um[2].replace(',','.'))};continue;}
+    if(/^(grasas?\s+(saturada|trans|insaturada|mono|poli)|azucar|fibra|carbohidratos?\s+netos)/.test(low))continue;
+    var mw=_fimMacW(low);if(mw&&n!=null){if(o[mw]==null)o[mw]=Math.max(0,n);sig++;continue;}
+    if(/^(na|sodio)\b/.test(low)||/^\d[\d.,]*\s*mg\b/.test(low)){var nv=_naSegNum(seg);
+      if(nv===null||!isFinite(nv)){if(/\?|pend|sin dato|n\/?d|desconoc/.test(low))o.naQ=true;}else o.na=(/mg/.test(low)||!/\d\s*g\b/.test(low))?nv:nv*1000;
+      if(/estimad|aprox/.test(low))o.naSt='est';else if(/etiqueta/.test(low))o.naSt='etq';if(o.na!==null||o.naQ)sig++;continue;}
+    if(/^sal\b/.test(low)&&n!=null){o.na=Math.round(n*(/mg/.test(low)?1/1000:1)*NA_SALT);o.naSt='est';sig++;continue;}
+    if(_IMP_KC.test(low)&&n!=null){if(o.k==null)o.k=Math.max(0,n);sig++;continue;}
+    var ct=_fimCat(seg);if(ct){o.cat=ct;continue;}
+    if(/^marca\b/.test(low)){o.brand=seg.replace(/^marca\s*[:\-–]?\s*/i,'').trim();continue;}
+    var sr=_fimSrc(seg);if(sr){o.srcSt=sr.st;o.src=sr.txt;continue;}
+    if(/^\d+(?:[.,]\d+)?$/.test(seg)){bare.push(n);sig++;continue;}
+    if(!o.qty&&_fimPortion(seg)){o.qty=seg;sig++;continue;}
+    if(!o.qty&&/^[\d½¼¾⅓⅔]/.test(seg))o.qtyBad=seg;
+    /* la marca en su propio campo, justo después del nombre («Avena · Quaker · 40 g · …» o «Avena | Quaker | 40 g | …») */
+    else if(i===1&&!o.brand&&!/\d/.test(seg)&&seg.length<=40&&/^[A-ZÁÉÍÓÚÑ]/.test(seg))o.brand=seg;
+  }
+  /* sin etiquetas: el orden del prompt (P, C, G, kcal, Na) */
+  if(o.p==null&&o.c==null&&o.f==null&&bare.length>=3){o.p=bare[0];o.c=bare[1];o.f=bare[2];if(o.k==null&&bare.length>3)o.k=bare[3];if(o.na==null&&!o.naQ&&bare.length>4)o.na=bare[4];}
+  /* la porción venía pegada al nombre: «Avena (40 g)» o «Avena 40 g» */
+  if(!o.qty){var qm=name.match(/^(.*\S)\s*\(\s*(\d+(?:[.,]\d+)?\s*(?:g|gr|gramos?|ml|kg|l|oz)\.?)\s*\)$/i)||name.match(/^(.*\S)\s*[:,]?\s+(\d+(?:[.,]\d+)?\s*(?:g|gr|gramos?|ml)\.?)$/i);
+    if(qm&&_fimPortion(qm[2])){name=qm[1].replace(/[:,\s]+$/,'').trim();o.qty=qm[2];}}
+  var bm=name.split(/\s+[·•]\s+/);var base=bm[0].trim(),brand=bm.slice(1).join(' ').trim()||o.brand;
+  if(base.length>80)base=base.slice(0,80).trim();if(brand.length>40)brand=brand.slice(0,40).trim();
+  var P=_fimPortion(o.qty);
+  if(P&&P.mode!=='u'&&!P.unitN&&o.uh&&o.uh.g>0){P.unitN=o.uh.n;P.unitG=_fimR2(o.uh.g);}
+  var why='';var miss=[['p','P'],['c','C'],['f','G']].filter(function(x){return o[x[0]]==null;}).map(function(x){return x[1];});
+  if(!base)why='sin nombre';else if(!P)why=o.qtyBad?'no entendí la porción «'+o.qtyBad+'»':(bare.length&&o.p!=null?'la porción «'+_numTxt(bare[0])+'» no dice si es g, ml o unidades':'falta la porción');else if(miss.length===3)why='faltan P, C y G';else if(miss.length)why='falta '+miss.join(' y ');
+  if(why)return {bad:true,why:why,looks:!!base&&(sig>0||!!o.qtyBad)};
+  return {base:base,brand:brand,P:P,p:o.p,c:o.c,f:o.f,k:o.k,na:o.na,naQ:o.naQ,naSt:o.naSt,cat:o.cat||secCat||'',src:o.src,srcSt:o.srcSt};}
+
+var FIM_SEC={proteinas:'prot',carbohidratos:'carb',grasas:'grasa',frutas:'fruta',verduras:'verdura',otros:'otro'};
+function parseFoodImport(text){
+  var raw=String(text||'').replace(/\u00a0/g,' ').replace(/\r/g,'');var lines=[];
+  raw.split('\n').forEach(function(l){_fimSplitBlob(l).forEach(function(x){lines.push(x);});});
+  var items=[],bad=[],cat='',grid=null;
+  var plan=/\bplan\s+olympia\b/i.test(raw)||/^\s*#+\s*(desayuno|almuerzo|cena|snack|merienda|pre[\s-]*entreno|post[\s-]*entreno)\b/im.test(raw);
+  lines.forEach(function(rl){var t=String(rl).replace(/\*\*|__|`/g,'').trim();if(!t){grid=null;return;}
+    if(/^#*\s*alimentos\s+olympia\b/i.test(t)){t=t.replace(/^#*\s*alimentos\s+olympia\b[\s:\-–—]*/i,'').trim();if(!t)return;}
+    var lt=_impStrip(t);var lt0=lt.replace(/^(?:[-•*–—▪●]+|\d+[.)])\s*/,'').replace(/^#+\s*/,'');if(/^mis alimentos disponibles\b/.test(lt)||/^na\s*=/.test(lt0)||/^(total|totales|suma|resumen)\b/.test(lt0))return;
+    if(/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(t))return;
+    var sh=lt.replace(/^#+\s*/,'').replace(/[:\s]+$/,'');if(FIM_SEC[sh]){cat=FIM_SEC[sh];grid=null;return;}
+    var cells=_fimCells(t);if(cells){var hm=_fimHeader(cells);if(hm){grid=hm;return;}}
+    var segs=(grid&&cells)?_fimFromGrid(cells,grid):_fimSegs(t);if(!segs)return;
+    var it=_fimItem(segs,cat);
+    if(it.bad){if(it.looks||(/^\s*([-•*]|\d+[.)])\s/.test(rl)&&/\d/.test(t)&&segs.length>1))bad.push({line:String(rl).trim(),name:String(segs[0]||'').replace(/\s+/g,' ').trim(),why:it.why});return;}
+    items.push(it);});
+  return {items:items,bad:bad,plan:plan};}
+
+/* alimento listo para la biblioteca: los mismos campos que guarda «+ Nuevo» (saveLibFood) */
+function _fimFood(it,on){
+  var P=it.P;var f={name:_foodFull(it.base,it.brand)};if(it.brand){f.brand=it.brand;f.base=it.base;}
+  f.portionG=P.ref;f.p=_fimR2(it.p);f.c=_fimR2(it.c);f.f=_fimR2(it.f);f.k=it.k>0?_fimR2(it.k):0;f.cat=it.cat||'';f.maxG=0;f.meals=[];
+  if(P.mode==='u'){f.byUnit=true;f.unitN=P.unitN||'unidad';f.portionU=P.ref;f.unitG=0;}else{f.unitN=P.unitN||'';f.unitG=P.unitG>0?P.unitG:0;}
+  if(P.mode==='ml')f.ml=true;if(on===false)f.off=true;
+  if(it.na!==null&&it.na!==undefined&&isFinite(it.na)&&it.na>=0){f.sod=Math.round(it.na*100)/100;f.sodSt=it.naSt||it.srcSt||'pend';if(it.src)f.sodSrc=it.src;f.sodAt=today();}
+  return f;}
+
+/* ── hoja ── */
+var _fimParsed=null,_fimUser={};
+function openFoodImport(){var t=document.getElementById('fim-text');if(t)t.value='';var pb=document.getElementById('fim-prompt-box');if(pb)pb.style.display='none';
+  _fimUser={};_fimParsed=null;_fimSetOn(true);previewFoodImport();closeSheet('sh-food-lib');openSheet('sh-food-imp');}
+function closeFoodImport(){closeSheet('sh-food-imp');openFoodLib();}
+function toggleFoodPrompt(){var pb=document.getElementById('fim-prompt-box');if(!pb)return;var show=pb.style.display==='none'||!pb.style.display;pb.style.display=show?'block':'none';var ta=document.getElementById('fim-prompt-txt');if(ta&&show)ta.value=FOOD_IMP_PROMPT;}
+function copyFoodPrompt(){_copyTxt(FOOD_IMP_PROMPT,'Prompt copiado · pégalo en ChatGPT y escribe qué alimentos quieres');}
+function _fimOn(){var s=document.getElementById('fim-on');return !s||s.classList.contains('on');}
+function _fimSetOn(on){var s=document.getElementById('fim-on');if(s){s.classList.toggle('on',on);s.setAttribute('aria-checked',on?'true':'false');}}
+function fimToggleOn(){_fimSetOn(!_fimOn());}
+function fimPick(i){var P=_fimParsed;var r=P&&P.rows[i];if(!r||r.st==='dup'||r.st==='rep')return;_fimUser[r.key]=!r.sel;previewFoodImport();}
+function _fimSub(f){return _baseTxt(f)+' · P '+_numTxt(+f.p||0)+' · C '+_numTxt(+f.c||0)+' · G '+_numTxt(+f.f||0)+' · '+_numTxt(r1(_kcalOf(f)))+' kcal · '+(naOf(f)!==null?'Na '+naFmt(naOf(f))+' mg':'Na sin dato')+(f.unitG>0&&f.unitN?' · 1 '+f.unitN+' = '+_numTxt(f.unitG)+' '+_mu(f):'');}
+function previewFoodImport(){
+  var el=document.getElementById('fim-preview'),go=document.getElementById('fim-go'),row=document.getElementById('fim-on-row');if(!el)return;
+  var txt=_v('fim-text')||'';
+  if(!txt.trim()){_fimParsed=null;el.innerHTML='';if(go){go.disabled=true;go.textContent='Agregar a la biblioteca';}if(row)row.style.display='none';return;}
+  var R=parseFoodImport(txt);var lib=getFoodLib();var have={},near={};
+  lib.forEach(function(f){var n=String(f.name||'');have[_fimLow(n)]=f;var k=_fimKey(n);if(k&&!near[k])near[k]=n;});
+  var seen={},seenN={};var rows=[];var bases=lib.map(function(f){return {k:_fimKey(_foodBase(f)),n:String(f.name||'')};}).filter(function(x){return x.k;});
+  R.items.forEach(function(it){var food=_fimFood(it,true);var key=_fimLow(food.name);var nk=_fimKey(food.name);var r={it:it,food:food,key:key,st:'new',note:''};
+    if(have[key]){r.st='dup';r.old=have[key];}
+    else if(seen[key])r.st='rep';
+    else if(near[nk]){r.st='near';r.like=near[nk];r.likeLib=true;}
+    else if(seenN[nk]){r.st='near';r.like=seenN[nk];}
+    if(r.st==='new'){var bk=_fimKey(it.base);for(var j=0;j<bases.length;j++){var b=bases[j];if(b.k===bk||bk.indexOf(b.k+' ')===0||b.k.indexOf(bk+' ')===0){r.has=b.n;break;}}}
+    seen[key]=1;if(!seenN[nk])seenN[nk]=food.name;
+    var tot=(+food.p||0)+(+food.c||0)+(+food.f||0);r.over=food.byUnit||food.ml?false:tot>food.portionG*1.02+0.5;
+    var kc=_kcal(food.p,food.c,food.f);r.kOff=food.k>0&&Math.abs(food.k-kc)>Math.max(25,kc*0.2)?kc:null;
+    var def=r.st==='new'&&!r.over&&!R.plan;r.sel=(r.st==='new'||r.st==='near')?(_fimUser.hasOwnProperty(key)?!!_fimUser[key]:def):false;
+    rows.push(r);});
+  _fimParsed={rows:rows,bad:R.bad,plan:R.plan};
+  if(!rows.length){el.innerHTML='<div class="note note-gold" style="margin:0">No encontré alimentos. Cada alimento va en una línea con «|»: <b>nombre | porción | P .. | C .. | G .. | kcal | Na .. mg</b>. Toca «Ver el prompt».'+(R.bad.length?'<br>'+_fimBadTxt(R.bad):'')+'</div>';if(go){go.disabled=true;go.textContent='Agregar a la biblioteca';}if(row)row.style.display='none';return;}
+  var nSel=rows.filter(function(r){return r.sel;}).length,nDup=rows.filter(function(r){return r.st==='dup';}).length;
+  var h='<div class="imp-sum"><div><div class="imp-n">'+nSel+'</div><div class="card-sub">para agregar</div></div><div><div class="imp-n">'+rows.length+'</div><div class="card-sub">en el texto</div></div><div><div class="imp-n">'+nDup+'</div><div class="card-sub">ya los tienes</div></div></div>';
+  if(R.plan)h+='<div class="note note-gold" style="margin:0 0 10px">Esto parece un <b>plan de comidas</b>. Para ponerlo en tu día usa «Importar plan» en Nutrición. Aquí cada alimento se guardaría con la cantidad del plan como porción: márcalos solo si de verdad los quieres en tu biblioteca.</div>';
+  h+='<div class="list fim-list">';
+  rows.forEach(function(r,i){var f=r.food;var cat=foodCat(f);var dis=r.st==='dup'||r.st==='rep';var tags=[];
+    if(r.st==='dup'){var o=r.old;var same=_baseTxt(o)===_baseTxt(f)&&['p','c','f'].every(function(x){return Math.abs((+o[x]||0)-(+f[x]||0))<0.05;})&&Math.abs(_kcalOf(o)-_kcalOf(f))<1;
+      tags.push(['','Ya lo tienes: no se cambia'+(same?'.':'. Tu biblioteca: '+_baseTxt(o)+' · P '+_numTxt(+o.p||0)+' · C '+_numTxt(+o.c||0)+' · G '+_numTxt(+o.f||0)+' · '+_numTxt(r1(_kcalOf(o)))+' kcal')]);}
+    else if(r.st==='rep')tags.push(['','Repetido en el texto: se toma el primero']);
+    else if(r.st==='near')tags.push(['w','Parecido a «'+r.like+'»'+(r.likeLib?' de tu biblioteca':' de esta lista')+'. Márcalo si es otro alimento.']);
+    else if(r.has)tags.push(['','Ya tienes «'+r.has+'»: este se agrega aparte.']);
+    if(r.over)tags.push(['w','Revisa: P + C + G suman '+_numTxt(_fimR2((+f.p||0)+(+f.c||0)+(+f.f||0)))+' g en una porción de '+_numTxt(f.portionG)+' g. Márcalo si está bien.']);
+    if(r.kOff!==null&&!dis)tags.push(['','Las kcal no cuadran con P, C y G (≈ '+_numTxt(Math.round(r.kOff))+'): se guardan las del texto.']);
+    h+='<div class="row fg-pk fim-row'+(r.sel?' on':'')+(dis?' fim-dis':'')+'" onclick="fimPick('+i+')" role="checkbox" aria-checked="'+r.sel+'"'+(dis?' aria-disabled="true"':'')+'><span class="fg-ck">'+(r.sel?IC.check:'')+'</span><div class="row-main"><div class="row-t"><i class="fim-dot" style="background:'+CAT_COLOR[cat]+'"></i><span>'+escH(_foodBase(f))+'</span></div><div class="row-s">'+(f.brand?'<span class="brand-sub">'+escH(f.brand)+'</span> · ':'')+escH(_fimSub(f))+' · '+escH(catName(cat))+'</div>'+tags.map(function(t){return '<div class="fim-tag'+(t[0]?' '+t[0]:'')+'">'+escH(t[1])+'</div>';}).join('')+'</div></div>';});
+  h+='</div>';
+  if(R.bad.length)h+='<div class="note note-gold" style="margin:0">'+_fimBadTxt(R.bad)+'</div>';
+  el.innerHTML=h;if(row)row.style.display=nSel?'':'none';
+  if(go){go.disabled=!nSel;go.textContent=nSel?(nSel===1?'Agregar 1 alimento':'Agregar '+nSel+' alimentos'):'Agregar a la biblioteca';}}
+function _fimBadTxt(bad){return 'No pude leer '+bad.length+(bad.length===1?' línea':' líneas')+' (no se agrega'+(bad.length===1?'':'n')+'): '+bad.slice(0,4).map(function(b){var n=b.name||b.line;return '«'+escH(n.slice(0,40))+(n.length>40?'…':'')+'»: '+escH(b.why);}).join(' · ')+(bad.length>4?'…':'')+'.';}
+function doFoodImport(){var P=_fimParsed;if(!P||!P.rows.length){toast('Pega primero la respuesta de ChatGPT');return;}
+  var on=_fimOn();var lib=getFoodLib();var have={};lib.forEach(function(f){have[_fimLow(f.name)]=1;});var add=[];
+  P.rows.forEach(function(r){if(!r.sel||r.st==='dup'||r.st==='rep')return;var f=_fimFood(r.it,on);var k=_fimLow(f.name);if(have[k])return;have[k]=1;add.push(f);});
+  if(!add.length){toast('Marca al menos un alimento');return;}
+  add.forEach(function(f){lib.push(f);});S.set('foodLibrary',lib);
+  closeSheet('sh-food-imp');_fimParsed=null;_fimUser={};var t=document.getElementById('fim-text');if(t)t.value='';
+  openFoodLib();toast((add.length===1?'Agregué «'+add[0].name+'» a tu biblioteca':'Agregué '+add.length+' alimentos a tu biblioteca')+(on?'':(add.length===1?' (no disponible)':' (no disponibles)')));}
 
 
 bootStorage(initApp);
