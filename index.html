@@ -438,6 +438,9 @@ body.sheet-lock .content{overflow:hidden;}
 .mt-l.eat,.mt-v.eat{color:var(--gold);}
 .mt-v.ok{color:var(--green);}
 .mt-v.warn{color:var(--red-hi);}
+.mt-v.near{color:var(--gold);}
+.mt-v.over{color:var(--violet);}
+.mac-legend{margin:10px 2px 0;gap:6px 12px;}
 .pc-item{gap:4px;min-height:58px;cursor:default;}
 .pc-chk{width:44px;height:48px;display:flex;align-items:center;justify-content:flex-start;border:none;background:none;cursor:pointer;flex-shrink:0;padding:0;}
 .pc-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 0;border-radius:10px;}
@@ -1426,7 +1429,7 @@ label.btn,label.btn-inline,label.lnk{position:relative;overflow:hidden;}
     <div class="row" onclick="openSheet('sh-backup');renderStorageInfo()"><div class="row-ic" style="background:#56606e"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></div><div class="row-main"><div class="row-t">Respaldo</div><div class="row-s" id="backupAge"></div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
     <div class="row" onclick="openSheet('sh-install')"><div class="row-ic" style="background:#3a3942"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><div class="row-main"><div class="row-t">Instalar en el iPhone</div></div><svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
   </div>
-  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 53</div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);padding:6px 0 10px">OLYMPIA 54</div>
 </div>
 
 </div><!-- /content -->
@@ -3873,7 +3876,7 @@ function openEditLibFood(idx){
 }
 
 /* ════════ RESPALDO: en iPhone abre "Guardar en Archivos" ════════ */
-function _collectData(){var data={version:'olympia-53',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
+function _collectData(){var data={version:'olympia-54',date:today(),data:{}};for(var i=0;i<BACKUP_KEYS.length;i++){var raw=_raw(BACKUP_KEYS[i]);if(raw===null)continue;try{data.data[BACKUP_KEYS[i]]=JSON.parse(raw);}catch(e){}}return data;}
 function _markBackup(){try{localStorage.setItem('olv4_lastBackup',today());}catch(e){}try{renderMasProfile();}catch(e){}try{rBackupNag();}catch(e){}}
 function exportBackup(){
   var json=JSON.stringify(_collectData());var name='olympia-respaldo-'+today()+'.json';
@@ -3957,7 +3960,26 @@ function _loggedMap(plan){var m={};S.ro('foods',[]).forEach(function(f){if(f.pla
 function _findItem(plan,id){for(var k=0;k<plan.meals.length;k++){var its=plan.meals[k].items;for(var i=0;i<its.length;i++)if(its[i].id===id)return {k:k,i:i,it:its[i],meal:plan.meals[k]};}return null;}
 function _savePlan(plan){var ps=getPlans();ps[plan.date]=plan;savePlans(ps);}
 /* si el alimento ya estaba marcado como comido, su registro se actualiza igual */
-function _mrow(lbl,v,cls){return '<div class="mt-l'+(cls?' '+cls:'')+'">'+lbl+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.p+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.c+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.f+'</div><div class="mt-v'+(cls?' '+cls:'')+'">'+v.k+'</div>';}
+function _mrow(lbl,v,cls){var A=Array.isArray(cls);var c=function(i){var x=A?cls[i]:cls;return x?' '+x:'';};return '<div class="mt-l'+(A?'':c(0))+'">'+lbl+'</div><div class="mt-v'+c(0)+'">'+v.p+'</div><div class="mt-v'+c(1)+'">'+v.c+'</div><div class="mt-v'+c(2)+'">'+v.f+'</div><div class="mt-v'+c(3)+'">'+v.k+'</div>';}
+/* ════════ V54 · precisión al gramo y color de cada macro del plan (como el volumen semanal) ════════
+   Antes: el plan se daba por bueno a ±3 g de proteína y carbos y ±2 g de grasa (TOL) y el renglón «Plan» entero salía
+   verde solo si los tres cumplían; si uno se salía, todo el renglón salía rojo.
+   Ahora (a pedido de él: «máxima precisión, sin discrepancias»):
+   - PREC = ±1 g por macro. El ajuste fino del plan automático, «Reajustar» y «Reajustar lo que falta» mueve las
+     cantidades hasta quedar a ±1 g cuando los alimentos lo permiten (los de unidades se mueven de a unidad).
+     TOL sigue decidiendo cuándo agregar una segunda fuente o cambiar un alimento: eso no cambió.
+   - Cada macro tiene su propio color: verde = en meta (±1 g; kcal ±2%, porque las kcal de las etiquetas no siempre
+     dan 4/4/9) · amarillo = te falta poco (hasta 5%) · rojo = te falta más de 5% · morado = te pasaste. */
+var PREC={p:1,c:1,f:1},PREC_K=0.02,MAC_NEAR=0.05;
+function _inPrec(t,m){var P=m.prot!==undefined?m.prot:m.p,C=m.carb!==undefined?m.carb:m.c,F=m.fat!==undefined?m.fat:m.f;return Math.abs(t.p-P)<=PREC.p+1e-9&&Math.abs(t.c-C)<=PREC.c+1e-9&&Math.abs(t.f-F)<=PREC.f+1e-9;}
+function macState(v,t,tol){v=+v||0;t=+t||0;tol=+tol||0;var d=v-t;
+  if(Math.abs(d)<=tol+1e-9)return 'ok';if(d>0)return 'over';return -d<=Math.max(t*MAC_NEAR,tol*2)+1e-9?'near':'low';}
+var MAC_CLS={ok:'ok',near:'near',low:'warn',over:'over'};
+var MAC_COL={ok:'var(--green)',near:'var(--gold)',low:'var(--red-hi)',over:'var(--violet)'};
+function _macStates(v,m){var P=m.prot!==undefined?m.prot:m.p,C=m.carb!==undefined?m.carb:m.c,F=m.fat!==undefined?m.fat:m.f,K=m.kcal!==undefined?m.kcal:m.k;
+  var st=function(x,t,tol){return t!==null&&t!==''&&t!==undefined&&isFinite(+t)?macState(x,t,tol):'';};
+  return [st(v.p,P,PREC.p),st(v.c,C,PREC.c),st(v.f,F,PREC.f),st(v.k,K,Math.max(1,(+K||0)*PREC_K))];}
+function _macLegend(){return '<div class="legend mac-legend"><span><i style="background:var(--red)"></i>Falta más de 5%</span><span><i style="background:var(--gold)"></i>Falta hasta 5%</span><span><i style="background:var(--green)"></i>En meta ±1 g</span><span><i style="background:var(--violet)"></i>Te pasaste</span></div>';}
 function _r(x){return {p:Math.round(x.p),c:Math.round(x.c),f:Math.round(x.f),k:kfmt(x.k)};}
 /* ── Editar un alimento del plan aceptado ── */
 var _pi=null;
@@ -4228,6 +4250,44 @@ function _fineTune(plan){
     if(!best)break;var bi=best.o.it;bi.g=best.g;X[bi.id]=best.nx;A[best.o.k]=best.a2;D=best.D2;E=best.e;
   }
 }
+/* V54 · pulido al gramo: al final del plan automático y de cada «Reajustar» mueve cantidades (de a 1 g los que se
+   pesan; de a unidad los de unidades) hasta dejar el día a ±1 g por macro cuando se puede. Si un solo cambio ya no
+   acerca, prueba dos a la vez (ej. +15 g de avena por la grasa y −40 g de banano para no pasarse de carbos).
+   Solo acepta cambios que mejoran; respeta mínimos y máximos; nunca toca alimentos fijos, comidos ni bloqueados. */
+function _precTune(plan){
+  var T=plan&&plan.target;if(!T||_inPrec(planTotals(plan).day,T))return;
+  var mt=_mealTargets(plan).map(function(x){return [x[0]/4,x[1]/4,x[2]/9];});
+  var vars=[];plan.meals.forEach(function(m,k){m.items.forEach(function(it){if(!it.locked&&!it.fixed&&it.g>0)vars.push({k:k,it:it,st:(it.byUnit||it.unitG>0)?it.step:1});});});
+  if(!vars.length)return;
+  var sq=function(x){return x*x;};
+  var mealT=function(k,a){return 0.3*(sq((mt[k][0]-a[0])/10)+sq((mt[k][1]-a[1])/10)+sq((mt[k][2]-a[2])/5));};
+  var dayT=function(D){var dp=(D[0]-T.p)/PREC.p,dc=(D[1]-T.c)/PREC.c,df=(D[2]-T.f)/PREC.f;return 10*(dp*dp+dc*dc+df*df)+100*(Math.max(0,Math.abs(dp)-1)+Math.max(0,Math.abs(dc)-1)+Math.max(0,Math.abs(df)-1));};
+  var A=plan.meals.map(function(){return [0,0,0];}),D=[0,0,0],X={};
+  plan.meals.forEach(function(m,k){m.items.forEach(function(it){var x=_itMac(it);X[it.id]=x;A[k][0]+=x.p;A[k][1]+=x.c;A[k][2]+=x.f;D[0]+=x.p;D[1]+=x.c;D[2]+=x.f;});});
+  var E=dayT(D);for(var k0=0;k0<A.length;k0++)E+=mealT(k0,A[k0]);
+  /* ningún macro puede quedar más lejos de lo que ya estaba (salvo dentro de ±1 g) */
+  var cap=[Math.max(PREC.p,Math.abs(D[0]-T.p)),Math.max(PREC.c,Math.abs(D[1]-T.c)),Math.max(PREC.f,Math.abs(D[2]-T.f))];
+  var okD=function(X2){return Math.abs(X2[0]-T.p)<=cap[0]+1e-9&&Math.abs(X2[1]-T.c)<=cap[1]+1e-9&&Math.abs(X2[2]-T.f)<=cap[2]+1e-9;};
+  var deltas=[-10,-5,-2,-1,1,2,5,10],dd=[-20,-10,-5,-2,-1,1,2,5,10,20];
+  for(var pass=0;pass<1500;pass++){var best=null;
+    for(var q=0;q<vars.length;q++){var o=vars[q],it=o.it,k=o.k,x=X[it.id];var floor=Math.max(it.lo,it.minKeep);
+      for(var s=0;s<deltas.length;s++){var ng=Math.round((it.g+deltas[s]*o.st)*100)/100;if(ng<floor-1e-9||ng>it.hi+1e-9)continue;
+        var nx=_itMacG(it,ng);var a2=[A[k][0]-x.p+nx.p,A[k][1]-x.c+nx.c,A[k][2]-x.f+nx.f];var D2=[D[0]-x.p+nx.p,D[1]-x.c+nx.c,D[2]-x.f+nx.f];
+        var e=E-mealT(k,A[k])+mealT(k,a2)-dayT(D)+dayT(D2);if(e<E-1e-9&&okD(D2)&&(!best||e<best.e))best={o:o,g:ng,nx:nx,e:e,a2:a2,D2:D2};}}
+    if(!best&&!_inPrec({p:D[0],c:D[1],f:D[2]},T)){var pb=null;
+      for(var q1=0;q1<vars.length;q1++){var o1=vars[q1],i1=o1.it,x1=X[i1.id],f1=Math.max(i1.lo,i1.minKeep);
+        for(var s1=0;s1<dd.length;s1++){var g1=Math.round((i1.g+dd[s1]*o1.st)*100)/100;if(g1<f1-1e-9||g1>i1.hi+1e-9)continue;var n1=_itMacG(i1,g1);
+          for(var q2=q1+1;q2<vars.length;q2++){var o2=vars[q2],i2=o2.it,x2=X[i2.id],f2=Math.max(i2.lo,i2.minKeep);
+            for(var s2=0;s2<dd.length;s2++){var g2=Math.round((i2.g+dd[s2]*o2.st)*100)/100;if(g2<f2-1e-9||g2>i2.hi+1e-9)continue;var n2=_itMacG(i2,g2);
+              var b1=[A[o1.k][0]-x1.p+n1.p,A[o1.k][1]-x1.c+n1.c,A[o1.k][2]-x1.f+n1.f],b2;
+              if(o2.k===o1.k){b1=[b1[0]-x2.p+n2.p,b1[1]-x2.c+n2.c,b1[2]-x2.f+n2.f];b2=b1;}else b2=[A[o2.k][0]-x2.p+n2.p,A[o2.k][1]-x2.c+n2.c,A[o2.k][2]-x2.f+n2.f];
+              var P2=[D[0]-x1.p+n1.p-x2.p+n2.p,D[1]-x1.c+n1.c-x2.c+n2.c,D[2]-x1.f+n1.f-x2.f+n2.f];
+              var e2=E-dayT(D)+dayT(P2)-mealT(o1.k,A[o1.k])+mealT(o1.k,b1)+(o2.k!==o1.k?-mealT(o2.k,A[o2.k])+mealT(o2.k,b2):0);
+              if(e2<E-1e-9&&okD(P2)&&(!pb||e2<pb.e))pb={o1:o1,g1:g1,n1:n1,b1:b1,o2:o2,g2:g2,n2:n2,b2:b2,D2:P2,e:e2};}}}}
+      if(pb){pb.o1.it.g=pb.g1;X[pb.o1.it.id]=pb.n1;pb.o2.it.g=pb.g2;X[pb.o2.it.id]=pb.n2;A[pb.o1.k]=pb.b1;A[pb.o2.k]=pb.b2;D=pb.D2;E=pb.e;continue;}}
+    if(!best)break;var bi=best.o.it;bi.g=best.g;X[bi.id]=best.nx;A[best.o.k]=best.a2;D=best.D2;E=best.e;
+  }
+}
 function planRegenerate(){_regen(_curPrefs(),(_plan.variant||0)+1);var b=document.getElementById('plan-body');if(b)b.scrollTop=0;}
 /* "No modificar por modificar": si ya cumple, no se toca */
 
@@ -4305,7 +4365,7 @@ function generatePlan(date,prefs,excluded,seed){
       if(cat==='prot'&&!m.items.some(function(x){return x.main;})){it.main=true;it.lo=it.minKeep;}
       if(!it.fixed){var v=_vec(it);var j=cat==='prot'?0:cat==='grasa'?2:1;it.g=v[j]>0?Math.min(it.hi,mt[k][j]*(cat==='fruta'?0.25:0.8)/v[j]):0;}
       m.items.push(it);});});
-  solvePlan(plan);_repairPlan(plan,rnd,used);_fixFatSurplus(plan);_lean=false;_yday=null;return plan;
+  solvePlan(plan);_repairPlan(plan,rnd,used);_fixFatSurplus(plan);_precTune(plan);_lean=false;_yday=null;return plan;
 }
 
 /* ════════ PANTALLA DE REVISION DEL PLAN ════════ */
@@ -4486,15 +4546,15 @@ function updateFood(){
 }
 
 /* ════════ REVISION DEL PLAN (limpia) ════════ */
-function _diffBadge(d,tol,u){var a=Math.abs(d);var ok=a<=tol+1e-9;return '<div class="ms-d" style="color:'+(ok?'var(--green)':'var(--gold)')+'">'+(ok?'✓':(d>0?'+':'')+_numTxt(r1(d))+(u||''))+'</div>';}
+function _diffBadge(d,tol,u,tg){var a=Math.abs(d);var ok=a<=tol+1e-9;var col=tg!==undefined&&isFinite(+tg)?MAC_COL[macState(+tg+d,+tg,tol)]:(ok?'var(--green)':'var(--gold)');return '<div class="ms-d" style="color:'+col+'">'+(ok?'✓':(d>0?'+':'')+_numTxt(r1(d))+(u||''))+'</div>';}
 function renderPlan(){
   var el=document.getElementById('plan-body');if(!el||!_plan)return;var sc=el.scrollTop;
   var t=planTotals(_plan);var T=_plan.target;var cur=macroTarget(_plan.date);var h='';
   var tl=document.getElementById('plan-title');if(tl)tl.textContent='Plan · '+(_plan.date===today()?'hoy':niceDate(_plan.date));
   h+='<div class="plan-sum"><div class="ms-grid">';
-  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.p)+'</div><div class="ms-t">Prot / '+T.p+'</div>'+_diffBadge(t.day.p-T.p,TOL.p,'g')+'</div>';
-  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.c)+'</div><div class="ms-t">Carb / '+T.c+'</div>'+_diffBadge(t.day.c-T.c,TOL.c,'g')+'</div>';
-  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.f)+'</div><div class="ms-t">Grasa / '+T.f+'</div>'+_diffBadge(t.day.f-T.f,TOL.f,'g')+'</div>';
+  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.p)+'</div><div class="ms-t">Prot / '+T.p+'</div>'+_diffBadge(t.day.p-T.p,PREC.p,'g',T.p)+'</div>';
+  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.c)+'</div><div class="ms-t">Carb / '+T.c+'</div>'+_diffBadge(t.day.c-T.c,PREC.c,'g',T.c)+'</div>';
+  h+='<div class="ms"><div class="ms-v">'+_numTxt(t.day.f)+'</div><div class="ms-t">Grasa / '+T.f+'</div>'+_diffBadge(t.day.f-T.f,PREC.f,'g',T.f)+'</div>';
   h+='<div class="ms"><div class="ms-v">'+kfmt(t.day.k)+'</div><div class="ms-t">kcal / '+kfmt(T.k)+'</div><div class="ms-d">&nbsp;</div></div>';
   h+='</div></div>';try{h+=_naPlanLine(_plan,null,cur);}catch(e){}
   if(cur.prot!==T.p||cur.carb!==T.c||cur.fat!==T.f)h+='<button class="plan-cfg-btn" onclick="planUseCurrent()"><span>Cambiaste tus metas</span><span style="color:var(--acc-hi)">Actualizar</span></button>';
@@ -4541,11 +4601,11 @@ function buildPlanCard(){
   var eat={p:0,c:0,f:0,k:0},cnt=0,done=0;
   plan.meals.forEach(function(m){m.items.forEach(function(it){cnt++;if(logged[it.id]){done++;var x=_itMac(it);eat.p+=x.p;eat.c+=x.c;eat.f+=x.f;eat.k+=x.k;}});});
   var meta={p:cur.prot,c:cur.carb,f:cur.fat,k:cur.kcal};var left={p:t.day.p-eat.p,c:t.day.c-eat.c,f:t.day.f-eat.f,k:t.day.k-eat.k};
-  var R=function(x){return {p:_numTxt(x.p),c:_numTxt(x.c),f:_numTxt(x.f),k:kfmt(x.k)};};var onT=_inTol(t.day,cur);
+  var R=function(x){return {p:_numTxt(x.p),c:_numTxt(x.c),f:_numTxt(x.f),k:kfmt(x.k)};};var mst=_macStates(t.day,cur);var onT=mst.slice(0,3).every(function(s){return s==='ok'||s==='';});
   var h='<div class="card" id="planLive"><div class="card-hd"><div><div class="card-title">Plan del día</div><div class="card-sub">'+done+' de '+cnt+' comidos</div></div><button class="btn-inline btn-inline-ghost" onclick="openPlanner()">Editar</button></div>';
   h+='<div class="mtab"><div class="mt-h"></div><div class="mt-h">Prot</div><div class="mt-h">Carb</div><div class="mt-h">Grasa</div><div class="mt-h">kcal</div>';
-  h+=_mrow('Meta',R(meta),'')+_mrow('Plan',R(t.day),onT?'ok':'warn')+_mrow('Comido',R(eat),'eat')+_mrow('Falta',R(left),'');
-  h+='</div>';try{h+=_naPlanLine(plan,logged,cur);}catch(e){}
+  h+=_mrow('Meta',R(meta),'')+_mrow('Plan',R(t.day),mst.map(function(s){return MAC_CLS[s]||'';}))+_mrow('Comido',R(eat),'eat')+_mrow('Falta',R(left),'');
+  h+='</div>'+_macLegend();try{h+=_naPlanLine(plan,logged,cur);}catch(e){}
   h+='<div class="bar-track" style="margin:10px 0 4px"><div class="bar-fill" style="width:'+(t.day.k?Math.min(100,eat.k/t.day.k*100):0)+'%;background:var(--gold)"></div></div>';
   if(!onT&&plan.meals.some(function(mm){return mm.items.some(function(it){return !logged[it.id]&&!it.locked&&!it.fromLog;});}))h+='<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="cardRebalance()">Reajustar lo que falta</button>';
   plan.meals.forEach(function(m,k){var mk=t.meals[k];var all=m.items.length&&m.items.every(function(it){return logged[it.id];});
@@ -4621,8 +4681,9 @@ function _solveKeep(plan){
   /* si sobra, las proteinas principales pendientes pueden bajar hasta 10 g de proteina: se bajan juntos el piso
      y la porcion minima, asi el alimento nunca se quita */
   if(off){var rel=false;plan.meals.forEach(function(m){m.items.forEach(function(it){if(it.main&&!it.locked&&!it.userAdded&&it.pg>0){var mk=Math.max(it.step,Math.ceil((10/it.pg)/it.step)*it.step);if(mk<it.lo){it.lo=mk;it.minKeep=Math.min(it.minKeep,mk);rel=true;}}});});if(rel)solvePlan(plan);}
+  _precTune(plan);
   plan.meals.forEach(function(m){m.items.forEach(function(it){if(lo0[it.id]!==undefined){it.lo=lo0[it.id];it.minKeep=mk0[it.id];}});});
-  return _inTol(planTotals(plan).day,plan.target);
+  return _inPrec(planTotals(plan).day,plan.target);
 }
 function _balanceAccepted(){
   var plan=getPlan(foodLogDate);if(!plan)return null;var logged=_loggedMap(plan);var m=macroTarget(foodLogDate);
@@ -4634,7 +4695,7 @@ function _balanceAccepted(){
   _savePlan(p);_syncLogged(p);return ok;
 }
 function cardRebalance(){var r=_balanceAccepted();refreshNutri();if(r===null){toast('No quedan alimentos pendientes para ajustar');return;}toast(r?'Listo':'Lo más cerca posible con tus alimentos');}
-function planResolve(){if(_inTol(planTotals(_plan).day,_plan.target)){toast('Ya cumple tus macros');return;}_touched();var ok=_solveKeep(_plan);renderPlan();toast(ok?'Listo':'Lo más cerca posible con tus alimentos');}
+function planResolve(){if(_inPrec(planTotals(_plan).day,_plan.target)){toast('Ya cumple tus macros');return;}_touched();var ok=_solveKeep(_plan);renderPlan();toast(ok?'Listo':'Lo más cerca posible con tus alimentos');}
 function planUnlock(k,i){var it=_plan.meals[k]&&_plan.meals[k].items[i];if(!it)return;if(it.fromLog){toast('Está en tu registro: se edita desde ahí');return;}it.locked=false;_touched();_solveKeep(_plan);renderPlan();}
 function planRemoveItem(k,i){var it=_plan.meals[k]&&_plan.meals[k].items[i];if(!it)return;if(it.fromLog){toast('Está en tu registro: se edita desde ahí');return;}_plan.meals[k].items.splice(i,1);if(!_plan.own&&!it.extra&&_plan.excluded.indexOf(it.name)<0)_plan.excluded.push(it.name);_touched();if(!_plan.own)_solveKeep(_plan);renderPlan();toast(it.name+' quitado');}
 function pickChoose(idx){
@@ -8119,8 +8180,8 @@ function _naPlanLine(plan,logged,cur){
   var P=planNa(plan);if(P.st==='none')return '';var a=[];
   var tg=cur&&_tgNum(cur.na)!==null?cur.na:null;
   if(tg!==null)a.push('meta '+naFmt(tg)+' mg');
-  a.push('plan '+naTotTxt(P,true)+(P.st==='unknown'?'':' mg'));
-  if(logged){var ids={};Object.keys(logged).forEach(function(k){ids[k]=1;});var E=planNa(plan,ids);if(E.known||E.unk)a.push('comido '+naTotTxt(E,true)+(E.st==='unknown'?'':' mg'));}
+  a.push('plan '+naTotTxt(P,true));
+  if(logged){var ids={};Object.keys(logged).forEach(function(k){ids[k]=1;});var E=planNa(plan,ids);if(E.known||E.unk)a.push('comido '+naTotTxt(E,true));}
   var foot=P.unk?'<div class="na-plan-s">'+P.unk+(P.unk===1?' alimento del plan sin dato de sodio':' alimentos del plan sin dato de sodio')+(P.st==='partial'?': el total es parcial':'')+'</div>':'';
   var over=tg!==null&&P.st==='full'&&P.mg>tg;
   return '<div class="na-plan"><span class="na-plan-l">Sodio</span><span class="na-plan-v'+(over?' over':'')+'">'+escH(a.join(' · '))+'</span></div>'+foot;
